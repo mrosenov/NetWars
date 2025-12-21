@@ -3,9 +3,6 @@
         <div class="px-4 py-4 border-b border-slate-200/70 dark:border-white/10">
             <div class="flex items-center justify-between">
                 <div class="text-xs uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400">Navigation</div>
-                <span class="rounded-lg bg-green-500/10 px-2 py-1 text-[10px] font-semibold text-green-700 dark:text-green-300">
-                    ONLINE
-                  </span>
             </div>
         </div>
 
@@ -103,18 +100,5 @@
                 <span class="ml-auto text-[10px] text-slate-500 dark:text-slate-400">R</span>
             </a>
         </nav>
-
-        <div class="px-4 py-4 border-t border-slate-200/70 dark:border-white/10">
-            <div class="flex items-center justify-between text-xs">
-                <span class="text-slate-500 dark:text-slate-400">Session</span>
-                <span class="font-semibold text-slate-900 dark:text-slate-100">5vRoaKF</span>
-            </div>
-            <div class="mt-2 h-2 rounded-full bg-slate-100 dark:bg-white/10">
-                <div class="h-2 w-2/3 rounded-full bg-gradient-to-r from-green-500/70 to-cyan-400/70"></div>
-            </div>
-            <div class="mt-2 text-[11px] text-slate-500 dark:text-slate-400">
-                Trace integrity: <span class="text-green-700 dark:text-green-300 font-semibold">66%</span>
-            </div>
-        </div>
     </div>
 </aside>

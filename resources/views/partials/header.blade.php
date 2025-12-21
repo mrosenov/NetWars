@@ -24,11 +24,13 @@
 
             <div class="flex items-center gap-2">
                 <div class="hidden sm:flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs shadow-sm dark:border-white/10 dark:bg-white/5 dark:shadow-glow">
-                    <span class="text-slate-500 dark:text-slate-400">IP</span>
-                    <span class="font-semibold tracking-wide text-slate-900 dark:text-slate-100">74.225.236.3</span>
-                    <span class="h-1.5 w-1.5 rounded-full bg-green-500"></span>
-                    <span class="text-slate-500 dark:text-slate-400">uptime</span>
-                    <span class="text-slate-700 dark:text-slate-200">3d 1h</span>
+                    <span class="text-slate-500 dark:text-slate-400">IP:</span>
+                    <span class="font-semibold tracking-wide text-slate-900 dark:text-slate-100">{{ Auth::user()->game_ip }}</span>
+                    <span class="text-slate-500 dark:text-slate-400">SSH Password:</span>
+                    <span class="font-semibold tracking-wide text-slate-900 dark:text-slate-100">{{ Auth::user()->ssh_password }}</span>
+{{--                    <span class="h-1.5 w-1.5 rounded-full bg-green-500"></span>--}}
+{{--                    <span class="text-slate-500 dark:text-slate-400">uptime</span>--}}
+{{--                    <span class="text-slate-700 dark:text-slate-200">3d 1h</span>--}}
                 </div>
 
                 <div class="hidden md:flex items-center gap-2">
@@ -59,9 +61,17 @@
                         <span class="rounded-lg bg-slate-100 px-2 py-0.5 text-[10px] text-slate-600 dark:bg-white/10 dark:text-slate-300">CTRL+L</span>
                     </button>
 
-                    <button class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs shadow-sm hover:-translate-y-0.5 hover:shadow-md dark:border-white/10 dark:bg-white/5 dark:shadow-glow">
-                        Logout
-                    </button>
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+
+                        <a href="{{route('logout')}}" onclick="event.preventDefault();this.closest('form').submit();" class="group inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-white/10 dark:bg-white/5 dark:shadow-glow">
+                            <svg class="h-4 w-4" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" stroke="currentColor">
+                                <path d="M17 16l4-4m0 0l-4-4 m4 4h-14m5 8 H6a3 3 0 01-3-3V7a3 3 0 013-3h7"></path>
+                            </svg>
+                            {{ __('Log Out') }}
+                        </a>
+                    </form>
+
                 </div>
             </div>
         </div>
