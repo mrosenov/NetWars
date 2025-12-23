@@ -25,12 +25,11 @@
             <div class="flex items-center gap-2">
                 <div class="hidden sm:flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs shadow-sm dark:border-white/10 dark:bg-white/5 dark:shadow-glow">
                     <span class="text-slate-500 dark:text-slate-400">IP:</span>
-                    <span class="font-semibold tracking-wide text-slate-900 dark:text-slate-100">{{ Auth::user()->game_ip }}</span>
-                    <span class="text-slate-500 dark:text-slate-400">SSH Password:</span>
-                    <span class="font-semibold tracking-wide text-slate-900 dark:text-slate-100">{{ Auth::user()->ssh_password }}</span>
-{{--                    <span class="h-1.5 w-1.5 rounded-full bg-green-500"></span>--}}
-{{--                    <span class="text-slate-500 dark:text-slate-400">uptime</span>--}}
-{{--                    <span class="text-slate-700 dark:text-slate-200">3d 1h</span>--}}
+                    <span class="font-semibold tracking-wide text-slate-900 dark:text-slate-100">{{ Auth::user()->network->ip }}</span>
+                    <span class="text-slate-500 dark:text-slate-400">User:</span>
+                    <span class="font-semibold tracking-wide text-slate-900 dark:text-slate-100">{{ Auth::user()->network->user }}</span>
+                    <span class="text-slate-500 dark:text-slate-400">Password:</span>
+                    <span class="font-semibold tracking-wide text-slate-900 dark:text-slate-100">{{ Auth::user()->network->password }}</span>
                 </div>
 
                 <div class="hidden md:flex items-center gap-2">

@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Servers extends Model
 {
     protected $fillable = [
-        'owner_type', 'user_id', 'meta'
+        'owner_type', 'user_id', 'npc_id', 'meta'
     ];
 
     protected $casts = [

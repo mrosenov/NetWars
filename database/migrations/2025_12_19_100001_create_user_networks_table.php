@@ -11,18 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('servers', function (Blueprint $table) {
+        Schema::create('user_networks', function (Blueprint $table) {
             $table->engine = 'InnoDB';
-            $table->id();
 
-            # Ownership (player-owned or npc)
-            $table->enum('owner_type', ['player', 'npc'])->index();
+            $table->id();
             $table->foreignId('user_id')->nullable()->constrained('users')->cascadeOnDelete();
             $table->foreignId('npc_id')->nullable()->constrained('npc')->cascadeOnDelete();
-
-            // Flexible attributes (npc archetype, tags, etc.)
-            $table->json('meta')->nullable();
-
+            $table->foreignId('hardware_id')->constrained('hardware_parts')->cascadeOnDelete();
+            $table->string('ip')->unique();
+            $table->string('user')->unique();
+            $table->string('password', 8);
             $table->timestamps();
         });
     }
@@ -32,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('servers');
+        Schema::dropIfExists('user_networks');
     }
 };

@@ -11,13 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('server_resources', function (Blueprint $table) {
+        Schema::create('users_external_storages', function (Blueprint $table) {
             $table->engine = 'InnoDB';
-            $table->id();
 
-            $table->foreignId('server_id')->constrained('servers')->cascadeOnDelete();
-            $table->foreignId('user_id')->nullable()->constrained('users')->cascadeOnDelete();
-            $table->foreignId('npc_id')->nullable()->constrained('npc')->cascadeOnDelete();
+            $table->id();
+            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('hardware_id')->constrained('hardware_parts')->cascadeOnDelete();
             $table->timestamps();
         });
@@ -28,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('server_resources');
+        Schema::dropIfExists('users_external_storages');
     }
 };

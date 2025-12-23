@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('server_softwares', function (Blueprint $table) {
+        Schema::create('software', function (Blueprint $table) {
             $table->engine = 'InnoDB';
             $table->id();
 
@@ -34,6 +34,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('server_softwares');
+        Schema::dropIfExists('software');
     }
 };

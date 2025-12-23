@@ -49,12 +49,37 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     protected static function booted() {
-        static::creating(function ($user) {
-            // Generates a random IP-like string
-            $user->game_ip = rand(1, 255) . '.' . rand(0, 255) . '.' . rand(0, 255) . '.' . rand(0, 255);
 
-            // Generates a random 8-character string
-            $user->ssh_password = Str::random(8);
+        static::created(function ($user) {
+
+            # Assign default server to player when registers.
+            $server = Servers::create([
+                'owner_type' => 'player',
+                'user_id' => $user->id,
+            ]);
+
+            # Assign default server parts 1 - Motherboard, 2 - CPU, 3 - RAM, 4 - Storage(HDD)
+            for ($i = 1; $i <= 4; $i++) {
+                ServerResources::create([
+                    'server_id' => $server->id,
+                    'user_id' => $user->id,
+                    'hardware_id' => $i
+                ]);
+            }
+
+            # Assign network to the player.
+            do {
+                $username = Str::random(6);
+            } while (UserNetwork::where('user', $username)->exists());
+
+            UserNetwork::create([
+                'user_id' => $user->id,
+                'hardware_id' => 5,
+                'ip' => rand(1, 255) . '.' . rand(0, 255) . '.' . rand(0, 255) . '.' . rand(0, 255),
+                'user' => $username,
+                'password' => Str::random(8),
+            ]);
+
         });
     }
 
@@ -62,71 +87,118 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Servers::class, 'user_id');
     }
 
-    public function resources(): HasManyThrough {
-        return $this->hasManyThrough(
-            ServerResources::class,
-            Servers::class,
-            'user_id',     // FK on servers
-            'server_id',   // FK on server_resources
-            'id',          // PK on users
-            'id'           // PK on servers
-        );
+    public function network() {
+        return $this->hasOne(UserNetwork::class, 'user_id');
     }
 
-    public function totalResourceValue(?string $ownerType = 'player'): float {
-        $q = $this->resources();
+    public function externalStorage() {
+        return $this->hasOne(UsersExternalStorage::class, 'user_id');
+    }
 
-        if ($ownerType !== null) {
-            // filter through the intermediate servers table
-            $q->where('servers.owner_type', $ownerType);
+    public function resources() {
+        return $this->hasMany(ServerResources::class, 'user_id');
+    }
+
+    public function OverallResources(): array
+    {
+        // Make sure we don't N+1 query hardware_parts
+        $resources = $this->resources()->with('hardware')->get();
+
+        // Sum in base units
+        $totals = [
+            'cpu_mhz' => 0.0,
+            'ram_mb' => 0.0,
+            'disk_mb' => 0.0,
+            'externalDrive_mb' => 0.0,
+            'network_mbps' => 0.0,
+        ];
+
+        foreach ($resources as $resource) {
+            $hw = $resource->hardware;
+
+            if (!$hw) {
+                continue;
+            }
+
+            // Exclude motherboard
+            if ($hw->type === 'motherboard') {
+                continue;
+            }
+
+            $spec = is_array($hw->specifications) ? $hw->specifications : (array) $hw->specifications;
+
+            switch ($hw->type) {
+                case 'cpu':
+                    $mhz = (int) (data_get($spec, 'base_clock_mhz') ?? 0);
+                    $totals['cpu_mhz'] += $mhz;
+                    break;
+
+                case 'ram':
+                    $mb = (int) (data_get($spec, 'capacity_mb') ?? 0);
+                    $totals['ram_mb'] += $mb;
+                    break;
+
+                case 'disk':
+                    $mb = (int) (data_get($spec, 'capacity_mb') ?? 0);
+                    $totals['disk_mb'] += $mb;
+                    break;
+
+            }
         }
 
-        return (float) $q->sum('value');
-    }
+        // Networks (network hardware is on user_networks)
+        $userNetworks = $this->network()->with('hardware')->get();
 
-    public function totalResourcesByType(?string $ownerType = 'player'): array {
-        $query = $this->resources()
-            ->selectRaw('type, COALESCE(SUM(value), 0) as total')
-            ->groupBy('type');
+        foreach ($userNetworks as $net) {
+            $hw = $net->hardware;
+            if (!$hw || $hw->type !== 'network') continue;
 
-        if ($ownerType !== null) {
-            // HasManyThrough already joins `servers`
-            $query->where('servers.owner_type', $ownerType);
+            $spec = $hw->specifications ?? [];
+            $totals['network_mbps'] += (float) data_get($spec, 'bandwidth_mbps', 0);
         }
 
-        return $query
-            ->pluck('total', 'type')
-            ->map(fn ($v) => (float) $v)
-            ->toArray();
+        $userStorages = $this->externalStorage()->with('hardware')->get();
+
+        foreach ($userStorages as $storage) {
+            $hw = $storage->hardware;
+
+            if (!$hw || $hw->type !== 'externalDrive') continue;
+
+            $spec = $hw->specifications ?? [];
+            $totals['externalDrive_mb'] += (float) data_get($spec, 'capacity_mb', 0);
+        }
+
+        return [
+            'CPU' => $this->prettyCpu($totals['cpu_mhz']),
+            'RAM' => $this->prettyStorage($totals['ram_mb']),
+            'Disk' => $this->prettyStorage($totals['disk_mb']),
+            'externalDrive' => $this->prettyStorage($totals['externalDrive_mb']),
+            'Network' => $this->prettyNetwork($totals['network_mbps']),
+        ];
     }
 
-    public function totalResourcesByTypeNormalized(?string $ownerType = 'player'): array {
-        $rawTotals = $this->resources()
-            ->where('server_resources.type', '!=', 'motherboard')
-            ->when($ownerType !== null, function ($q) use ($ownerType) {
-                $q->where('servers.owner_type', $ownerType);
-            })
-            ->selectRaw('type, COALESCE(SUM(value), 0) as total')
-            ->groupBy('type')
-            ->pluck('total', 'type')
-            ->toArray();
-
-        return collect($rawTotals)->mapWithKeys(function ($value, $type) {
-
-            [$normalized, $unit] = match ($type) {
-                'cpu'     => [round($value / 1000, 2), 'GHz'],
-                'ram'     => [round($value / 1024, 2), 'GB'],
-                'disk'    => [round($value / 1024, 2), 'GB'],
-                'network' => [round($value / 1024, 2), 'Gbps'],
-                default   => [(float) $value, ''],
-            };
-
-            return [$type => [
-                'raw'             => (float) $value,
-                'normalized'      => $normalized,
-                'unit'            => $unit,
-                'formatted_value' => trim($normalized . ' ' . $unit),
-            ]];
-        })->toArray();
+    private function prettyCpu(int $mhz): array {
+        if ($mhz >= 1000) {
+            return ['value' => round($mhz / 1000, 2), 'unit' => 'GHz'];
+        }
+        return ['value' => round($mhz, 0), 'unit' => 'MHz'];
     }
+
+    private function prettyNetwork(int $mbps): array {
+        if ($mbps >= 1000) {
+            return ['value' => round($mbps / 1000, 2), 'unit' => 'Gbps'];
+        }
+        return ['value' => round($mbps, 0), 'unit' => 'Mbps'];
+    }
+
+    private function prettyStorage(int $mb): array {
+        if ($mb >= 1000 * 1000) {
+            return ['value' => round($mb / 1_000_000, 2), 'unit' => 'TB'];
+        }
+        if ($mb >= 1000) {
+            return ['value' => round($mb / 1000, 2), 'unit' => 'GB'];
+        }
+        return ['value' => round($mb, 0), 'unit' => 'MB'];
+    }
+
 }

@@ -4,18 +4,17 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class ServerResources extends Model
+class UserNetwork extends Model
 {
+    //
     protected $fillable = [
-        'server_id',
-        'hardware_id',
         'user_id',
         'npc_id',
+        'hardware_id',
+        'ip',
+        'user',
+        'password',
     ];
-
-    public function server() {
-        return $this->belongsTo(Servers::class, 'server_id');
-    }
 
     public function hardware() {
         return $this->belongsTo(HardwareParts::class, 'hardware_id');

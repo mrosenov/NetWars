@@ -11,9 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->string('game_ip')->unique()->after('password');
-            $table->string('ssh_password', 8)->after('game_ip');
+        Schema::create('npc', function (Blueprint $table) {
+            $table->engine = 'InnoDB';
+
+            $table->id();
+            $table->string('name');
+            $table->json('metadata')->nullable();
+            $table->timestamps();
         });
     }
 
@@ -22,8 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn(['game_ip', 'ssh_password']);
-        });
+        Schema::dropIfExists('npc');
     }
 };
