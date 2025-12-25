@@ -17,6 +17,7 @@ class HardwarePartsSeeder extends Seeder
         DB::table('hardware_parts')->insert([
                 [
                     'name' => 'Salvaged Board',
+                    'category' => 'hardware',
                     'type' => 'motherboard',
                     'price' => 80,
                     'specifications' => json_encode([
@@ -29,6 +30,7 @@ class HardwarePartsSeeder extends Seeder
                 ],
                 [
                     'name' => 'Basic Consumer Board',
+                    'category' => 'hardware',
                     'type' => 'motherboard',
                     'price' => 200,
                     'specifications' => json_encode([
@@ -41,6 +43,7 @@ class HardwarePartsSeeder extends Seeder
                 ],
                 [
                     'name' => 'Standard DDR3 Board',
+                    'category' => 'hardware',
                     'type' => 'motherboard',
                     'price' => 450,
                     'specifications' => json_encode([
@@ -53,6 +56,7 @@ class HardwarePartsSeeder extends Seeder
                 ],
                 [
                     'name' => 'Performance DDR3 Board',
+                    'category' => 'hardware',
                     'type' => 'motherboard',
                     'price' => 800,
                     'specifications' => json_encode([
@@ -65,6 +69,7 @@ class HardwarePartsSeeder extends Seeder
                 ],
                 [
                     'name' => 'Entry DDR4 Board',
+                    'category' => 'hardware',
                     'type' => 'motherboard',
                     'price' => 1300,
                     'specifications' => json_encode([
@@ -77,6 +82,7 @@ class HardwarePartsSeeder extends Seeder
                 ],
                 [
                     'name' => 'DDR4 Server Board',
+                    'category' => 'hardware',
                     'type' => 'motherboard',
                     'price' => 2200,
                     'specifications' => json_encode([
@@ -89,6 +95,7 @@ class HardwarePartsSeeder extends Seeder
                 ],
                 [
                     'name' => 'High-End DDR4 Board',
+                    'category' => 'hardware',
                     'type' => 'motherboard',
                     'price' => 3600,
                     'specifications' => json_encode([
@@ -101,6 +108,7 @@ class HardwarePartsSeeder extends Seeder
                 ],
                 [
                     'name' => 'DDR5 Server Board',
+                    'category' => 'hardware',
                     'type' => 'motherboard',
                     'price' => 5500,
                     'specifications' => json_encode([
@@ -113,6 +121,7 @@ class HardwarePartsSeeder extends Seeder
                 ],
                 [
                     'name' => 'Enterprise Logic Board',
+                    'category' => 'hardware',
                     'type' => 'motherboard',
                     'price' => 9000,
                     'specifications' => json_encode([
@@ -125,6 +134,7 @@ class HardwarePartsSeeder extends Seeder
                 ],
                 [
                     'name' => 'Quantum Control Board',
+                    'category' => 'hardware',
                     'type' => 'motherboard',
                     'price' => 18000,
                     'specifications' => json_encode([
@@ -141,6 +151,7 @@ class HardwarePartsSeeder extends Seeder
         DB::table('hardware_parts')->insert([
                 [
                     'name' => 'Single-Core Salvaged CPU',
+                    'category' => 'hardware',
                     'type' => 'cpu',
                     'price' => 100,
                     'specifications' => json_encode([
@@ -154,6 +165,7 @@ class HardwarePartsSeeder extends Seeder
                 ],
                 [
                     'name' => 'Dual-Core Office CPU',
+                    'category' => 'hardware',
                     'type' => 'cpu',
                     'price' => 250,
                     'specifications' => json_encode([
@@ -167,6 +179,7 @@ class HardwarePartsSeeder extends Seeder
                 ],
                 [
                     'name' => 'Quad-Core Consumer CPU',
+                    'category' => 'hardware',
                     'type' => 'cpu',
                     'price' => 600,
                     'specifications' => json_encode([
@@ -180,6 +193,7 @@ class HardwarePartsSeeder extends Seeder
                 ],
                 [
                     'name' => 'Quad-Core Performance CPU',
+                    'category' => 'hardware',
                     'type' => 'cpu',
                     'price' => 1000,
                     'specifications' => json_encode([
@@ -193,6 +207,7 @@ class HardwarePartsSeeder extends Seeder
                 ],
                 [
                     'name' => 'Hexa-Core Modern CPU',
+                    'category' => 'hardware',
                     'type' => 'cpu',
                     'price' => 1800,
                     'specifications' => json_encode([
@@ -206,6 +221,7 @@ class HardwarePartsSeeder extends Seeder
                 ],
                 [
                     'name' => 'Octa-Core Performance CPU',
+                    'category' => 'hardware',
                     'type' => 'cpu',
                     'price' => 2800,
                     'specifications' => json_encode([
@@ -219,6 +235,7 @@ class HardwarePartsSeeder extends Seeder
                 ],
                 [
                     'name' => '12-Core Server CPU',
+                    'category' => 'hardware',
                     'type' => 'cpu',
                     'price' => 4500,
                     'specifications' => json_encode([
@@ -232,6 +249,7 @@ class HardwarePartsSeeder extends Seeder
                 ],
                 [
                     'name' => '16-Core Datacenter CPU',
+                    'category' => 'hardware',
                     'type' => 'cpu',
                     'price' => 7000,
                     'specifications' => json_encode([
@@ -245,6 +263,7 @@ class HardwarePartsSeeder extends Seeder
                 ],
                 [
                     'name' => '32-Core Enterprise CPU',
+                    'category' => 'hardware',
                     'type' => 'cpu',
                     'price' => 12000,
                     'specifications' => json_encode([
@@ -258,6 +277,7 @@ class HardwarePartsSeeder extends Seeder
                 ],
                 [
                     'name' => 'Quantum Compute Core',
+                    'category' => 'hardware',
                     'type' => 'cpu',
                     'price' => 25000,
                     'specifications' => json_encode([
@@ -275,6 +295,7 @@ class HardwarePartsSeeder extends Seeder
         DB::table('hardware_parts')->insert([
                 [
                     'name' => 'Scrap DDR2 Stick',
+                    'category' => 'hardware',
                     'type' => 'ram',
                     'price' => 50,
                     'specifications' => json_encode([
@@ -287,6 +308,7 @@ class HardwarePartsSeeder extends Seeder
                 ],
                 [
                     'name' => 'Old DDR3 Module',
+                    'category' => 'hardware',
                     'type' => 'ram',
                     'price' => 120,
                     'specifications' => json_encode([
@@ -299,6 +321,7 @@ class HardwarePartsSeeder extends Seeder
                 ],
                 [
                     'name' => 'Budget DDR3 Kit',
+                    'category' => 'hardware',
                     'type' => 'ram',
                     'price' => 300,
                     'specifications' => json_encode([
@@ -311,6 +334,7 @@ class HardwarePartsSeeder extends Seeder
                 ],
                 [
                     'name' => 'Consumer DDR3 Pro',
+                    'category' => 'hardware',
                     'type' => 'ram',
                     'price' => 600,
                     'specifications' => json_encode([
@@ -323,6 +347,7 @@ class HardwarePartsSeeder extends Seeder
                 ],
                 [
                     'name' => 'Entry DDR4 Stick',
+                    'category' => 'hardware',
                     'type' => 'ram',
                     'price' => 900,
                     'specifications' => json_encode([
@@ -335,6 +360,7 @@ class HardwarePartsSeeder extends Seeder
                 ],
                 [
                     'name' => 'DDR4 Performance Module',
+                    'category' => 'hardware',
                     'type' => 'ram',
                     'price' => 1500,
                     'specifications' => json_encode([
@@ -347,6 +373,7 @@ class HardwarePartsSeeder extends Seeder
                 ],
                 [
                     'name' => 'DDR4 Server Grade',
+                    'category' => 'hardware',
                     'type' => 'ram',
                     'price' => 2600,
                     'specifications' => json_encode([
@@ -359,6 +386,7 @@ class HardwarePartsSeeder extends Seeder
                 ],
                 [
                     'name' => 'DDR5 Early Gen',
+                    'category' => 'hardware',
                     'type' => 'ram',
                     'price' => 4200,
                     'specifications' => json_encode([
@@ -371,6 +399,7 @@ class HardwarePartsSeeder extends Seeder
                 ],
                 [
                     'name' => 'DDR5 Enterprise',
+                    'category' => 'hardware',
                     'type' => 'ram',
                     'price' => 7000,
                     'specifications' => json_encode([
@@ -383,6 +412,7 @@ class HardwarePartsSeeder extends Seeder
                 ],
                 [
                     'name' => 'Quantum Memory Array',
+                    'category' => 'hardware',
                     'type' => 'ram',
                     'price' => 15000,
                     'specifications' => json_encode([
@@ -399,6 +429,7 @@ class HardwarePartsSeeder extends Seeder
         DB::table('hardware_parts')->insert([
             [
                 'name' => 'Unstable Power Brick',
+                'category' => 'hardware',
                 'type' => 'psu',
                 'price' => 40,
                 'specifications' => json_encode([
@@ -410,6 +441,7 @@ class HardwarePartsSeeder extends Seeder
             ],
             [
                 'name' => 'Generic PSU',
+                'category' => 'hardware',
                 'type' => 'psu',
                 'price' => 120,
                 'specifications' => json_encode([
@@ -421,6 +453,7 @@ class HardwarePartsSeeder extends Seeder
             ],
             [
                 'name' => 'Budget Certified PSU',
+                'category' => 'hardware',
                 'type' => 'psu',
                 'price' => 260,
                 'specifications' => json_encode([
@@ -432,6 +465,7 @@ class HardwarePartsSeeder extends Seeder
             ],
             [
                 'name' => 'Standard Bronze PSU',
+                'category' => 'hardware',
                 'type' => 'psu',
                 'price' => 480,
                 'specifications' => json_encode([
@@ -443,6 +477,7 @@ class HardwarePartsSeeder extends Seeder
             ],
             [
                 'name' => 'Silver Grade PSU',
+                'category' => 'hardware',
                 'type' => 'psu',
                 'price' => 850,
                 'specifications' => json_encode([
@@ -454,6 +489,7 @@ class HardwarePartsSeeder extends Seeder
             ],
             [
                 'name' => 'Gold Modular PSU',
+                'category' => 'hardware',
                 'type' => 'psu',
                 'price' => 1400,
                 'specifications' => json_encode([
@@ -465,6 +501,7 @@ class HardwarePartsSeeder extends Seeder
             ],
             [
                 'name' => 'Platinum Server PSU',
+                'category' => 'hardware',
                 'type' => 'psu',
                 'price' => 2400,
                 'specifications' => json_encode([
@@ -476,6 +513,7 @@ class HardwarePartsSeeder extends Seeder
             ],
             [
                 'name' => 'Datacenter Redundant PSU',
+                'category' => 'hardware',
                 'type' => 'psu',
                 'price' => 4200,
                 'specifications' => json_encode([
@@ -487,6 +525,7 @@ class HardwarePartsSeeder extends Seeder
             ],
             [
                 'name' => 'Dark Energy PSU',
+                'category' => 'hardware',
                 'type' => 'psu',
                 'price' => 7500,
                 'specifications' => json_encode([
@@ -498,6 +537,7 @@ class HardwarePartsSeeder extends Seeder
             ],
             [
                 'name' => 'Quantum Flux Power Core',
+                'category' => 'hardware',
                 'type' => 'psu',
                 'price' => 14000,
                 'specifications' => json_encode([
@@ -513,6 +553,7 @@ class HardwarePartsSeeder extends Seeder
         DB::table('hardware_parts')->insert([
                 [
                     'name' => 'Rusty HDD',
+                    'category' => 'hardware',
                     'type' => 'disk',
                     'price' => 60,
                     'specifications' => json_encode([
@@ -524,6 +565,7 @@ class HardwarePartsSeeder extends Seeder
                 ],
                 [
                     'name' => 'Old SATA HDD',
+                    'category' => 'hardware',
                     'type' => 'disk',
                     'price' => 120,
                     'specifications' => json_encode([
@@ -535,6 +577,7 @@ class HardwarePartsSeeder extends Seeder
                 ],
                 [
                     'name' => 'Consumer HDD',
+                    'category' => 'hardware',
                     'type' => 'disk',
                     'price' => 250,
                     'specifications' => json_encode([
@@ -546,6 +589,7 @@ class HardwarePartsSeeder extends Seeder
                 ],
                 [
                     'name' => 'Hybrid SSHD',
+                    'category' => 'hardware',
                     'type' => 'disk',
                     'price' => 500,
                     'specifications' => json_encode([
@@ -557,6 +601,7 @@ class HardwarePartsSeeder extends Seeder
                 ],
                 [
                     'name' => 'Entry SSD',
+                    'category' => 'hardware',
                     'type' => 'disk',
                     'price' => 900,
                     'specifications' => json_encode([
@@ -568,6 +613,7 @@ class HardwarePartsSeeder extends Seeder
                 ],
                 [
                     'name' => 'NVMe SSD',
+                    'category' => 'hardware',
                     'type' => 'disk',
                     'price' => 1600,
                     'specifications' => json_encode([
@@ -579,6 +625,7 @@ class HardwarePartsSeeder extends Seeder
                 ],
                 [
                     'name' => 'Encrypted NVMe',
+                    'category' => 'hardware',
                     'type' => 'disk',
                     'price' => 2800,
                     'specifications' => json_encode([
@@ -590,6 +637,7 @@ class HardwarePartsSeeder extends Seeder
                 ],
                 [
                     'name' => 'Enterprise Flash Array',
+                    'category' => 'hardware',
                     'type' => 'disk',
                     'price' => 5000,
                     'specifications' => json_encode([
@@ -601,6 +649,7 @@ class HardwarePartsSeeder extends Seeder
                 ],
                 [
                     'name' => 'Dark Storage Core',
+                    'category' => 'hardware',
                     'type' => 'disk',
                     'price' => 8500,
                     'specifications' => json_encode([
@@ -612,6 +661,7 @@ class HardwarePartsSeeder extends Seeder
                 ],
                 [
                     'name' => 'Quantum Data Vault',
+                    'category' => 'hardware',
                     'type' => 'disk',
                     'price' => 15000,
                     'specifications' => json_encode([
@@ -627,6 +677,7 @@ class HardwarePartsSeeder extends Seeder
         DB::table('hardware_parts')->insert([
                 [
                     'name' => 'USB Stick Cache',
+                    'category' => 'hardware',
                     'type' => 'externalDrive',
                     'price' => 80,
                     'specifications' => json_encode([
@@ -639,6 +690,7 @@ class HardwarePartsSeeder extends Seeder
                 ],
                 [
                     'name' => 'Portable HDD',
+                    'category' => 'hardware',
                     'type' => 'externalDrive',
                     'price' => 200,
                     'specifications' => json_encode([
@@ -651,6 +703,7 @@ class HardwarePartsSeeder extends Seeder
                 ],
                 [
                     'name' => 'Encrypted USB Drive',
+                    'category' => 'hardware',
                     'type' => 'externalDrive',
                     'price' => 450,
                     'specifications' => json_encode([
@@ -663,6 +716,7 @@ class HardwarePartsSeeder extends Seeder
                 ],
                 [
                     'name' => 'External Backup HDD',
+                    'category' => 'hardware',
                     'type' => 'externalDrive',
                     'price' => 900,
                     'specifications' => json_encode([
@@ -675,6 +729,7 @@ class HardwarePartsSeeder extends Seeder
                 ],
                 [
                     'name' => 'Portable SSD',
+                    'category' => 'hardware',
                     'type' => 'externalDrive',
                     'price' => 1600,
                     'specifications' => json_encode([
@@ -687,6 +742,7 @@ class HardwarePartsSeeder extends Seeder
                 ],
                 [
                     'name' => 'Encrypted External SSD',
+                    'category' => 'hardware',
                     'type' => 'externalDrive',
                     'price' => 2800,
                     'specifications' => json_encode([
@@ -699,6 +755,7 @@ class HardwarePartsSeeder extends Seeder
                 ],
                 [
                     'name' => 'Cold Storage Vault',
+                    'category' => 'hardware',
                     'type' => 'externalDrive',
                     'price' => 4800,
                     'specifications' => json_encode([
@@ -711,6 +768,7 @@ class HardwarePartsSeeder extends Seeder
                 ],
                 [
                     'name' => 'Shadow Backup Node',
+                    'category' => 'hardware',
                     'type' => 'externalDrive',
                     'price' => 8200,
                     'specifications' => json_encode([
@@ -723,6 +781,7 @@ class HardwarePartsSeeder extends Seeder
                 ],
                 [
                     'name' => 'Dark Archive Array',
+                    'category' => 'hardware',
                     'type' => 'externalDrive',
                     'price' => 14000,
                     'specifications' => json_encode([
@@ -735,6 +794,7 @@ class HardwarePartsSeeder extends Seeder
                 ],
                 [
                     'name' => 'Quantum Offsite Vault',
+                    'category' => 'hardware',
                     'type' => 'externalDrive',
                     'price' => 25000,
                     'specifications' => json_encode([
@@ -750,11 +810,12 @@ class HardwarePartsSeeder extends Seeder
         # Network List
         DB::table('hardware_parts')->insert([
                 [
-                    'name' => 'Cracked Home Router',
+                    'name' => 'NetLink S10',
+                    'category' => 'hardware',
                     'type' => 'network',
-                    'price' => 60,
+                    'price' => 0,
                     'specifications' => json_encode([
-                        'bandwidth_mbps' => 10,
+                        'bandwidth_mbps' => 1,
                         'latency_ms' => 150,
                         'max_connections' => 5,
                         'trace_resistance' => 0,
@@ -762,11 +823,12 @@ class HardwarePartsSeeder extends Seeder
                     ]),
                 ],
                 [
-                    'name' => 'Consumer SOHO Switch',
+                    'name' => 'EdgeWave D20',
+                    'category' => 'hardware',
                     'type' => 'network',
-                    'price' => 180,
+                    'price' => 100,
                     'specifications' => json_encode([
-                        'bandwidth_mbps' => 100,
+                        'bandwidth_mbps' => 10,
                         'latency_ms' => 90,
                         'max_connections' => 15,
                         'trace_resistance' => 1,
@@ -774,11 +836,12 @@ class HardwarePartsSeeder extends Seeder
                     ]),
                 ],
                 [
-                    'name' => 'Unmanaged Fast Ethernet Switch',
+                    'name' => 'MetroSwitch M50',
+                    'category' => 'hardware',
                     'type' => 'network',
-                    'price' => 400,
+                    'price' => 250,
                     'specifications' => json_encode([
-                        'bandwidth_mbps' => 1000,
+                        'bandwidth_mbps' => 50,
                         'latency_ms' => 60,
                         'max_connections' => 30,
                         'trace_resistance' => 2,
@@ -786,11 +849,12 @@ class HardwarePartsSeeder extends Seeder
                     ]),
                 ],
                 [
-                    'name' => 'Managed Gigabit Switch',
+                    'name' => 'FiberEdge F100',
+                    'category' => 'hardware',
                     'type' => 'network',
-                    'price' => 850,
+                    'price' => 500,
                     'specifications' => json_encode([
-                        'bandwidth_mbps' => 2500,
+                        'bandwidth_mbps' => 100,
                         'latency_ms' => 40,
                         'max_connections' => 60,
                         'trace_resistance' => 3,
@@ -798,11 +862,12 @@ class HardwarePartsSeeder extends Seeder
                     ]),
                 ],
                 [
-                    'name' => 'Layer 3 Routing Switch',
+                    'name' => 'FiberEdge F250',
+                    'category' => 'hardware',
                     'type' => 'network',
-                    'price' => 1500,
+                    'price' => 750,
                     'specifications' => json_encode([
-                        'bandwidth_mbps' => 5000,
+                        'bandwidth_mbps' => 250,
                         'latency_ms' => 30,
                         'max_connections' => 120,
                         'trace_resistance' => 4,
@@ -810,11 +875,12 @@ class HardwarePartsSeeder extends Seeder
                     ]),
                 ],
                 [
-                    'name' => '10G Server Switch',
+                    'name' => 'CoreSwitch G1',
+                    'category' => 'hardware',
                     'type' => 'network',
-                    'price' => 2800,
+                    'price' => 1500,
                     'specifications' => json_encode([
-                        'bandwidth_mbps' => 10000,
+                        'bandwidth_mbps' => 1000,
                         'latency_ms' => 20,
                         'max_connections' => 250,
                         'trace_resistance' => 6,
@@ -822,11 +888,12 @@ class HardwarePartsSeeder extends Seeder
                     ]),
                 ],
                 [
-                    'name' => 'Encrypted Backbone Switch',
+                    'name' => 'CoreSwitch G2.5',
+                    'category' => 'hardware',
                     'type' => 'network',
-                    'price' => 4800,
+                    'price' => 2000,
                     'specifications' => json_encode([
-                        'bandwidth_mbps' => 25000,
+                        'bandwidth_mbps' => 2500,
                         'latency_ms' => 15,
                         'max_connections' => 500,
                         'trace_resistance' => 8,
@@ -834,11 +901,12 @@ class HardwarePartsSeeder extends Seeder
                     ]),
                 ],
                 [
-                    'name' => 'Darknet Core Router',
+                    'name' => 'HyperSwitch H5',
+                    'category' => 'hardware',
                     'type' => 'network',
-                    'price' => 8200,
+                    'price' => 3000,
                     'specifications' => json_encode([
-                        'bandwidth_mbps' => 50000,
+                        'bandwidth_mbps' => 5000,
                         'latency_ms' => 10,
                         'max_connections' => 1000,
                         'trace_resistance' => 11,
@@ -846,11 +914,12 @@ class HardwarePartsSeeder extends Seeder
                     ]),
                 ],
                 [
-                    'name' => 'Ghost Relay Matrix',
+                    'name' => 'DataCore X10',
+                    'category' => 'hardware',
                     'type' => 'network',
-                    'price' => 14000,
+                    'price' => 3750,
                     'specifications' => json_encode([
-                        'bandwidth_mbps' => 100000,
+                        'bandwidth_mbps' => 10000,
                         'latency_ms' => 5,
                         'max_connections' => 2500,
                         'trace_resistance' => 15,
@@ -858,11 +927,12 @@ class HardwarePartsSeeder extends Seeder
                     ]),
                 ],
                 [
-                    'name' => 'Quantum Mesh Backbone',
+                    'name' => 'Backbone Z25',
+                    'category' => 'hardware',
                     'type' => 'network',
-                    'price' => 25000,
+                    'price' => 5000,
                     'specifications' => json_encode([
-                        'bandwidth_mbps' => 250000,
+                        'bandwidth_mbps' => 25000,
                         'latency_ms' => 1,
                         'max_connections' => 10000,
                         'trace_resistance' => 25,
@@ -870,5 +940,163 @@ class HardwarePartsSeeder extends Seeder
                     ]),
                 ],
             ]);
+
+        # Servers List
+        DB::table('hardware_parts')->insert([
+            [
+                'name' => 'Server 2',
+                'category' => 'server',
+                'type' => 'server',
+                'price' => 1000,
+                'specifications' => null,
+                'requirements' => json_encode([
+                    'servers_count' => 1
+                ])
+            ],
+            [
+                'name' => 'Server 3',
+                'category' => 'server',
+                'type' => 'server',
+                'price' => 5000,
+                'specifications' => null,
+                'requirements' => json_encode([
+                    'servers_count' => 2
+                ])
+            ],
+            [
+                'name' => 'Server 4',
+                'category' => 'server',
+                'type' => 'server',
+                'price' => 10000,
+                'specifications' => null,
+                'requirements' => json_encode([
+                    'servers_count' => 3
+                ])
+            ],
+        ]);
+
+        # Internet List
+        DB::table('hardware_parts')->insert([
+            [
+                'name' => 'Copper Line',
+                'category' => 'service',
+                'type' => 'internet',
+                'price' => 0,
+                'specifications' => json_encode([
+                    'connectivity_mbps' => 1
+                ]),
+                'requirements' => json_encode([
+                    'bandwidth_mbps' => 1
+                ])
+            ],
+            [
+                'name' => 'DSL Core',
+                'category' => 'service',
+                'type' => 'internet',
+                'price' => 50,
+                'specifications' => json_encode([
+                    'connectivity_mbps' => 10
+                ]),
+                'requirements' => json_encode([
+                    'bandwidth_mbps' => 10
+                ])
+            ],
+            [
+                'name' => 'Metro Link',
+                'category' => 'service',
+                'type' => 'internet',
+                'price' => 100,
+                'specifications' => json_encode([
+                    'connectivity_mbps' => 50
+                ]),
+                'requirements' => json_encode([
+                    'bandwidth_mbps' => 50
+                ])
+            ],
+            [
+                'name' => 'Fiber Start',
+                'category' => 'service',
+                'type' => 'internet',
+                'price' => 300,
+                'specifications' => json_encode([
+                    'connectivity_mbps' => 100
+                ]),
+                'requirements' => json_encode([
+                    'bandwidth_mbps' => 100
+                ])
+            ],
+            [
+                'name' => 'Fiber Plus',
+                'category' => 'service',
+                'type' => 'internet',
+                'price' => 1000,
+                'specifications' => json_encode([
+                    'connectivity_mbps' => 250
+                ]),
+                'requirements' => json_encode([
+                    'bandwidth_mbps' => 250
+                ])
+            ],
+            [
+                'name' => 'Giga Stream',
+                'category' => 'service',
+                'type' => 'internet',
+                'price' => 2500,
+                'specifications' => json_encode([
+                    'connectivity_mbps' => 1000
+                ]),
+                'requirements' => json_encode([
+                    'bandwidth_mbps' => 1000
+                ])
+            ],
+            [
+                'name' => 'Giga Stream Pro',
+                'category' => 'service',
+                'type' => 'internet',
+                'price' => 10000,
+                'specifications' => json_encode([
+                    'connectivity_mbps' => 2500
+                ]),
+                'requirements' => json_encode([
+                    'bandwidth_mbps' => 2500
+                ])
+            ],
+            [
+                'name' => 'HyperFiber X',
+                'category' => 'service',
+                'type' => 'internet',
+                'price' => 25000,
+                'specifications' => json_encode([
+                    'connectivity_mbps' => 5000
+                ]),
+                'requirements' => json_encode([
+                    'bandwidth_mbps' => 5000
+                ])
+            ],
+            [
+                'name' => 'Datacenter Link',
+                'category' => 'service',
+                'type' => 'internet',
+                'price' => 50000,
+                'specifications' => json_encode([
+                    'connectivity_mbps' => 10000
+                ]),
+                'requirements' => json_encode([
+                    'bandwidth_mbps' => 10000
+                ])
+            ],
+            [
+                'name' => 'Quantum Backbone',
+                'category' => 'service',
+                'type' => 'internet',
+                'price' => 100000,
+                'specifications' => json_encode([
+                    'connectivity_mbps' => 25000
+                ]),
+                'requirements' => json_encode([
+                    'bandwidth_mbps' => 25000
+                ])
+            ],
+        ]);
     }
 }

@@ -196,7 +196,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'PSU' => $this->prettyPSU($totals['psu_w']),
             'Disk' => $this->prettyStorage($totals['disk_gb']),
             'externalDrive' => $this->prettyStorage($totals['externalDrive_gb']),
-            'Network' => $this->prettyNetwork($totals['network_mbps']),
+            'Network Card' => $this->prettyNetwork($totals['network_mbps']),
         ];
     }
 
