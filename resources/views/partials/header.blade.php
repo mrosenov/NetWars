@@ -30,6 +30,8 @@
                     <span class="font-semibold tracking-wide text-slate-900 dark:text-slate-100">{{ Auth::user()->network->user }}</span>
                     <span class="text-slate-500 dark:text-slate-400">Password:</span>
                     <span class="font-semibold tracking-wide text-slate-900 dark:text-slate-100">{{ Auth::user()->network->password }}</span>
+                    <span class="text-slate-500 dark:text-slate-400">Money:</span>
+                    <span class="font-semibold tracking-wide text-green-600 dark:text-green-300">500 $</span>
                 </div>
 
                 <div class="hidden md:flex items-center gap-2">
@@ -40,9 +42,6 @@
                         <span class="text-slate-700 dark:text-slate-100">{{ Auth::user()->name }}</span>
                     </a>
 
-                    <a href="#" class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs shadow-sm hover:-translate-y-0.5 hover:shadow-md dark:border-white/10 dark:bg-white/5 dark:shadow-glow">
-                        Settings
-                    </a>
                     <!-- Trigger (example) -->
                     <button type="button" data-modal-open="hwModal" class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold shadow-sm dark:border-white/10 dark:bg-white/5 dark:shadow-glow">
                         Open Modal
@@ -62,7 +61,6 @@
 
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
-
                         <a href="{{route('logout')}}" onclick="event.preventDefault();this.closest('form').submit();" class="group inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-white/10 dark:bg-white/5 dark:shadow-glow">
                             <svg class="h-4 w-4" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" stroke="currentColor">
                                 <path d="M17 16l4-4m0 0l-4-4 m4 4h-14m5 8 H6a3 3 0 01-3-3V7a3 3 0 013-3h7"></path>

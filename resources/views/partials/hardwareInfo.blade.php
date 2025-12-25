@@ -9,7 +9,7 @@
             </span>
             <div>
                 <div class="text-sm font-semibold">Hardware Information</div>
-                <div class="text-xs text-slate-500 dark:text-slate-400">Active servers: {{count(Auth::user()->servers)}}</div>
+                <div class="text-xs text-slate-500 dark:text-slate-400">Active servers: {{ count($servers) }}</div>
             </div>
         </div>
         <span class="rounded-lg bg-green-500/10 px-2 py-1 text-[10px] font-semibold text-green-700 dark:text-green-300">
@@ -20,8 +20,7 @@
     <div class="p-5">
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             <!-- Metric card -->
-            @foreach(Auth::user()->OverallResources() as $key => $resource)
-
+            @foreach($OverallResources as $key => $resource)
                 @if($key == 'externalDrive')
                     @continue
                 @endif
@@ -49,9 +48,30 @@
                 </div>
             @endforeach
 
-            @php
-                $external = Auth::user()->OverallResources()['externalDrive'];
-            @endphp
+            @if($user->connectivity)
+                <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-[#0B1020]/40">
+                    <div class="flex items-center justify-between">
+                        <div class="text-xs text-slate-500 dark:text-slate-400">
+                            Connectivity
+                        </div>
+                        <span class="text-[10px] text-slate-500 dark:text-slate-400">0%</span>
+                    </div>
+
+                    <div class="mt-2 flex items-end justify-between">
+                        <div class="text-lg font-semibold">
+                            0 / {{ $connectivityInfo['value'] }}
+                        </div>
+                        <div class="text-xs text-slate-500 dark:text-slate-400">
+                            {{ $connectivityInfo['unit'] }}
+                        </div>
+                    </div>
+
+                    <div class="mt-3 h-2 rounded-full bg-slate-100 dark:bg-white/10 overflow-hidden">
+                        <div class="h-2 rounded-full bg-gradient-to-r from-cyan-400/70 to-green-500/70 transition-all duration-300" style="width: 50%"></div>
+                    </div>
+                </div>
+            @endif
+
             <div class="lg:col-span-4 sm:col-span-2 rounded-xl border border-slate-200 bg-white p-4 shadow-sm
             dark:border-white/10 dark:bg-[#0B1020]/40">
 

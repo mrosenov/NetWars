@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Http\Controllers\HardwarePartsController;
 use App\Http\Controllers\UserNetworkController;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -54,9 +55,7 @@ class User extends Authenticatable implements MustVerifyEmail
         static::created(function ($user) {
 
             # Assign default server to player when registers.
-            $server = $user->servers()->create([
-                'meta' => null
-            ]);
+            $server = $user->servers()->create();
 
             # Assign default server parts 1 - Motherboard, 2 - CPU, 3 - RAM, 4 - Storage(HDD)
             $types = ['motherboard', 'cpu', 'ram', 'disk', 'network', 'psu'];
@@ -77,6 +76,11 @@ class User extends Authenticatable implements MustVerifyEmail
                 ]);
             }
 
+            # Assign Internet
+            $user->connectivity()->create([
+                'service_id' => 74,
+            ]);
+
             # Assign network to the player.
             $username = UserNetworkController::generateUsername();
             $ip = UserNetworkController::generateIp();
@@ -93,6 +97,10 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function servers() {
         return $this->morphMany(Servers::class, 'owner');
+    }
+
+    public function connectivity() {
+        return $this->morphOne(UserConnectivity::class, 'owner');
     }
 
     public function network() {
@@ -127,7 +135,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'psu_w' => 0.0,
             'disk_gb' => 0.0,
             'externalDrive_gb' => 0.0,
-            'network_mbps' => 0.0,
+//            'network_mbps' => 0.0,
         ];
 
         foreach ($resources as $resource) {
@@ -169,15 +177,15 @@ class User extends Authenticatable implements MustVerifyEmail
         }
 
         // Networks (network hardware is on user_networks)
-        $userNetworks = $this->network()->with('hardware')->get();
-
-        foreach ($userNetworks as $net) {
-            $hw = $net->hardware;
-            if (!$hw || $hw->type !== 'network') continue;
-
-            $spec = $hw->specifications ?? [];
-            $totals['network_mbps'] += (float) data_get($spec, 'bandwidth_mbps', 0);
-        }
+//        $userNetworks = $this->network()->with('hardware')->get();
+//
+//        foreach ($userNetworks as $net) {
+//            $hw = $net->hardware;
+//            if (!$hw || $hw->type !== 'network') continue;
+//
+//            $spec = $hw->specifications ?? [];
+//            $totals['network_mbps'] += (float) data_get($spec, 'bandwidth_mbps', 0);
+//        }
 
         $userStorages = $this->externalStorage()->with('hardware')->get();
 
@@ -190,41 +198,17 @@ class User extends Authenticatable implements MustVerifyEmail
             $totals['externalDrive_gb'] += (float) data_get($spec, 'extra_capacity_gb', 0);
         }
 
+        $hw = new HardwarePartsController();
         return [
-            'CPU' => $this->prettyCpu($totals['clock_ghz']),
-            'RAM' => $this->prettyStorage($totals['ram_gb']),
-            'PSU' => $this->prettyPSU($totals['psu_w']),
-            'Disk' => $this->prettyStorage($totals['disk_gb']),
-            'externalDrive' => $this->prettyStorage($totals['externalDrive_gb']),
-            'Network Card' => $this->prettyNetwork($totals['network_mbps']),
+            'CPU' => $hw->prettyCpu($totals['clock_ghz']),
+            'RAM' => $hw->prettyStorage($totals['ram_gb']),
+            'PSU' => $hw->prettyPSU($totals['psu_w']),
+            'Disk' => $hw->prettyStorage($totals['disk_gb']),
+            'externalDrive' => $hw->prettyStorage($totals['externalDrive_gb']),
+//            'Network Card' => $hw->prettyNetwork($totals['network_mbps']),
         ];
     }
 
-    private function prettyCpu(float $ghz): array {
-        return ['value' => round($ghz, 1), 'unit' => 'GHz'];
-    }
 
-    private function prettyPSU(int $watts): array {
-        if ($watts < 1000) {
-            return ['value' => $watts, 'unit' => 'Watt'];
-        }
-
-        return ['value' => $watts, 'unit' => 'kW'];
-    }
-
-    private function prettyNetwork(int $mbps): array {
-        if ($mbps >= 1000) {
-            return ['value' => round($mbps / 1, 1), 'unit' => 'Gbps'];
-        }
-        return ['value' => round($mbps, 0), 'unit' => 'Mbps'];
-    }
-
-    private function prettyStorage(int $gb): array {
-        if ($gb < 1000) {
-            return ['value' => $gb, 'unit' => 'GB'];
-        }
-
-        return ['value' => round($gb / 1000,1), 'unit' => 'TB'];
-    }
 
 }

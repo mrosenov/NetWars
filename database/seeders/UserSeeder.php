@@ -26,9 +26,7 @@ class UserSeeder extends Seeder
             'updated_at' => now(),
         ]);
 
-        $server = $user->servers()->create([
-            'meta' => null
-        ]);
+        $server = $user->servers()->create();
 
         # Assign default server parts 1 - Motherboard, 2 - CPU, 3 - RAM, 4 - Storage(HDD)
         $types = ['motherboard', 'cpu', 'ram', 'disk', 'network', 'psu'];
@@ -48,6 +46,11 @@ class UserSeeder extends Seeder
                 'hardware_id' => $part->id,
             ]);
         }
+
+        # Assign Internet
+        $user->connectivity()->create([
+            'service_id' => 74,
+        ]);
 
         $ip = UserNetworkController::generateIp();
         $username = UserNetworkController::generateUsername();

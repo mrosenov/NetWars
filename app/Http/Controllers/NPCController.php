@@ -19,14 +19,17 @@ class NPCController extends Controller
             'tier10' => [ // whois / law_enforcement / intelligence
                 'resources' => [10, 20, 30, 40, 50],
                 'network' => 70,
+                'connectivity' => 78,
             ],
             'tier7' => [ // bank / isp / download
                 'resources' => [7, 17, 27, 37, 47],
                 'network' => 67,
+                'connectivity' => 77
             ],
             'tier3' => [ // default
                 'resources' => [3, 13, 23, 33, 43],
                 'network' => 63,
+                'connectivity' => 76
             ],
         ];
 
@@ -41,6 +44,11 @@ class NPCController extends Controller
                 'hardware_id' => $hardwareId,
             ]);
         }
+
+        # Assign Internet
+        $npc->connectivity()->create([
+            'service_id' => $profile['connectivity'],
+        ]);
 
         // Create network
         $npc->network()->create([

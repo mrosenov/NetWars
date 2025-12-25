@@ -9,6 +9,7 @@ class NPC extends Model
     protected $fillable = [
         'server_id',
         'hardware_id',
+        'service_id',
     ];
     protected $table = 'npc';
 
@@ -26,5 +27,9 @@ class NPC extends Model
 
     public function network() {
         return $this->morphOne(UserNetwork::class, 'owner');
+    }
+
+    public function connectivity() {
+        return $this->morphOne(UserConnectivity::class, 'owner');
     }
 }
