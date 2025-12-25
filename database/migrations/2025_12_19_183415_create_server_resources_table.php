@@ -16,8 +16,9 @@ return new class extends Migration
             $table->id();
 
             $table->foreignId('server_id')->constrained('servers')->cascadeOnDelete();
-            $table->foreignId('user_id')->nullable()->constrained('users')->cascadeOnDelete();
-            $table->foreignId('npc_id')->nullable()->constrained('npc')->cascadeOnDelete();
+            $table->morphs('owner');
+//            $table->foreignId('user_id')->nullable()->constrained('users')->cascadeOnDelete();
+//            $table->foreignId('npc_id')->nullable()->constrained('npc')->cascadeOnDelete();
             $table->foreignId('hardware_id')->constrained('hardware_parts')->cascadeOnDelete();
             $table->timestamps();
         });

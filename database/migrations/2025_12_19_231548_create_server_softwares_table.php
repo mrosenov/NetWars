@@ -16,7 +16,7 @@ return new class extends Migration
             $table->id();
 
             $table->foreignId('server_id')->constrained('servers')->cascadeOnDelete();
-            $table->enum('type', ['crc', 'hash', 'scan', 'exp', 'fwl', 'hdr', 'skr', 'vspam', 'vwarez', 'vddos', 'vcol', 'vminer', 'vbrk', 'nmap', 'ana']);
+            $table->enum('type', ['crc', 'hash', 'scan', 'exp', 'fwl', 'hdr', 'skr', 'vspam', 'vwarez', 'vddos', 'vcol', 'vminer', 'vbrk', 'nmap', 'ana', 'puzzle']);
             $table->string('name');
             $table->float('version',1);
             $table->integer('size');

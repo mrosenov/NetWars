@@ -1,7 +1,7 @@
 <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
     <div>
-        <div class="text-xs text-slate-500 dark:text-slate-400">Net Wars / Dashboard</div>
-        <h1 class="mt-1 text-xl font-semibold tracking-tight">System Overview</h1>
+        <div class="text-xs text-slate-500 dark:text-slate-400">Net Wars / @yield('title')</div>
+        <h1 class="mt-1 text-xl font-semibold tracking-tight">@yield('title')</h1>
     </div>
 
     <div class="flex flex-wrap items-center gap-2">

@@ -13,6 +13,10 @@ class ServerResources extends Model
         'npc_id',
     ];
 
+    public function owner() {
+        return $this->morphTo();
+    }
+
     public function server() {
         return $this->belongsTo(Servers::class, 'server_id');
     }

@@ -15,12 +15,15 @@ return new class extends Migration
             $table->engine = 'InnoDB';
 
             $table->id();
-            $table->foreignId('user_id')->nullable()->constrained('users')->cascadeOnDelete();
-            $table->foreignId('npc_id')->nullable()->constrained('npc')->cascadeOnDelete();
+            $table->morphs('owner');
             $table->foreignId('hardware_id')->constrained('hardware_parts')->cascadeOnDelete();
             $table->string('ip')->unique();
             $table->string('user')->unique();
             $table->string('password', 8);
+            $table->foreignId('connected_to_network_id')
+                ->nullable()
+                ->constrained('user_networks')
+                ->nullOnDelete();
             $table->timestamps();
         });
     }

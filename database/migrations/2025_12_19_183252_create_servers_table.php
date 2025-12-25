@@ -16,9 +16,7 @@ return new class extends Migration
             $table->id();
 
             # Ownership (player-owned or npc)
-            $table->enum('owner_type', ['player', 'npc'])->index();
-            $table->foreignId('user_id')->nullable()->constrained('users')->cascadeOnDelete();
-            $table->foreignId('npc_id')->nullable()->constrained('npc')->cascadeOnDelete();
+            $table->morphs('owner');
 
             // Flexible attributes (npc archetype, tags, etc.)
             $table->json('meta')->nullable();

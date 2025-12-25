@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Http\Controllers\UserNetworkController;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
@@ -53,29 +54,25 @@ class User extends Authenticatable implements MustVerifyEmail
         static::created(function ($user) {
 
             # Assign default server to player when registers.
-            $server = Servers::create([
-                'owner_type' => 'player',
-                'user_id' => $user->id,
+            $server = $user->servers()->create([
+                'meta' => null
             ]);
 
             # Assign default server parts 1 - Motherboard, 2 - CPU, 3 - RAM, 4 - Storage(HDD)
             for ($i = 1; $i <= 4; $i++) {
-                ServerResources::create([
+                $user->resources()->create([
                     'server_id' => $server->id,
-                    'user_id' => $user->id,
                     'hardware_id' => $i
                 ]);
             }
 
             # Assign network to the player.
-            do {
-                $username = Str::random(6);
-            } while (UserNetwork::where('user', $username)->exists());
+            $username = UserNetworkController::generateUsername();
+            $ip = UserNetworkController::generateIp();
 
-            UserNetwork::create([
-                'user_id' => $user->id,
+            $user->network()->create([
                 'hardware_id' => 5,
-                'ip' => rand(1, 255) . '.' . rand(0, 255) . '.' . rand(0, 255) . '.' . rand(0, 255),
+                'ip' => $ip,
                 'user' => $username,
                 'password' => Str::random(8),
             ]);
@@ -84,11 +81,19 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     public function servers() {
-        return $this->hasMany(Servers::class, 'user_id');
+        return $this->morphMany(Servers::class, 'owner');
     }
 
     public function network() {
-        return $this->hasOne(UserNetwork::class, 'user_id');
+        return $this->morphOne(UserNetwork::class, 'owner');
+    }
+
+    public function isConnected(): bool {
+        return (bool) $this->network?->connected_to_network_id;
+    }
+
+    public function connectedNetwork() {
+        return $this->network?->connected;
     }
 
     public function externalStorage() {
@@ -96,7 +101,7 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     public function resources() {
-        return $this->hasMany(ServerResources::class, 'user_id');
+        return $this->morphMany(ServerResources::class, 'owner');
     }
 
     public function OverallResources(): array

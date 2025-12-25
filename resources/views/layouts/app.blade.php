@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'Laravel') }}</title>
+        <title>{{ config('app.name', 'Net Wars') }} - @yield('title')</title>
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
@@ -33,57 +33,11 @@
                         @include('partials.breadcrumb')
                         <!-- Breadcrumb + quick actions -->
 
-                        <!-- Top grid: Hardware + General info -->
-                        <section class="grid grid-cols-1 xl:grid-cols-2 gap-5">
-                            <!-- Hardware Information -->
-                            @include('partials.hardwareInfo')
-                            <!-- Hardware Information -->
-
-                            <!-- General Info -->
-{{--                            @include('partials.generalInfo')--}}
-                            <!-- General Info -->
-                        </section>
-
-                        <!-- Middle grid: News + Wanted + Round + Leaderboard -->
-                        <section class="grid grid-cols-1 xl:grid-cols-12 gap-5">
-                            <!-- News feed -->
-{{--                            @include('partials.gameNews')--}}
-                            <!-- News feed -->
-
-
-                            <!-- Right column stack -->
-                            <div class="xl:col-span-5 grid grid-cols-1 gap-5">
-                                <!-- FBI Wanted -->
-{{--                                @include('partials.fbiWanted')--}}
-                                <!-- FBI Wanted -->
-
-                                <!-- Round info -->
-{{--                                @include('partials.roundInfo')--}}
-                                <!-- Round info -->
-
-                                <!-- Top users -->
-{{--                                @include('partials.ranking')--}}
-                                <!-- Top users -->
-                            </div>
-                        </section>
-
-                        <!-- Announcements table -->
-                        <section class="rounded-2xl border border-slate-200 bg-white/80 shadow-sm backdrop-blur dark:border-white/10 dark:bg-white/5 dark:shadow-glow">
-{{--                            @include('partials.announcements')--}}
-                        </section>
+                        {{ $slot }}
 
                         <!-- Footer -->
-                        <footer class="pb-10 pt-2 text-xs text-slate-500 dark:text-slate-400">
-                            <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                                <div>© 2025 — Net Wars • Modern control panel concept</div>
-                                <div class="flex flex-wrap gap-3">
-                                    <a href="#" class="hover:underline">Terms</a>
-                                    <a href="#" class="hover:underline">Privacy</a>
-                                    <a href="#" class="hover:underline">Discord</a>
-                                    <a href="#" class="hover:underline">Stats</a>
-                                </div>
-                            </div>
-                        </footer>
+                        @include('partials.footer')
+                        <!-- Footer -->
                     </main>
                 </div>
             </div>
@@ -167,22 +121,5 @@
                 });
             })();
         </script>
-{{--        <div class="min-h-screen bg-gray-100 dark:bg-gray-900">--}}
-{{--            @include('layouts.navigation')--}}
-
-{{--            <!-- Page Heading -->--}}
-{{--            @isset($header)--}}
-{{--                <header class="bg-white dark:bg-gray-800 shadow">--}}
-{{--                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">--}}
-{{--                        {{ $header }}--}}
-{{--                    </div>--}}
-{{--                </header>--}}
-{{--            @endisset--}}
-
-{{--            <!-- Page Content -->--}}
-{{--            <main>--}}
-{{--                {{ $slot }}--}}
-{{--            </main>--}}
-{{--        </div>--}}
     </body>
 </html>

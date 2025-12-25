@@ -38,7 +38,7 @@
                 <span class="ml-auto text-[10px] text-slate-500 dark:text-slate-400">S</span>
             </a>
 
-            <a class="group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition hover:bg-slate-100 dark:hover:bg-white/5" href="#">
+            <a class="group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition hover:bg-slate-100 dark:hover:bg-white/5" href="{{ route('internet.index') }}">
                   <span class="grid h-8 w-8 place-items-center rounded-xl border border-slate-200 bg-white shadow-sm dark:border-white/10 dark:bg-white/5">
                     <svg viewBox="0 0 24 24" class="h-4 w-4 text-green-600 dark:text-green-300" fill="none" stroke="currentColor" stroke-width="2">
                       <circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a15 15 0 0 1 0 18"/><path d="M12 3a15 15 0 0 0 0 18"/>

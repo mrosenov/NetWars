@@ -16,6 +16,14 @@ class UserNetwork extends Model
         'password',
     ];
 
+    public function owner() {
+        return $this->morphTo();
+    }
+
+    public function connected() {
+        return $this->belongsTo(UserNetwork::class, 'connected_to_network_id');
+    }
+
     public function hardware() {
         return $this->belongsTo(HardwareParts::class, 'hardware_id');
     }

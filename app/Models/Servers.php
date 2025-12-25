@@ -14,8 +14,8 @@ class Servers extends Model
         'meta' => 'array',
     ];
 
-    public function owner(): \Illuminate\Database\Eloquent\Relations\BelongsTo {
-        return $this->belongsTo(User::class, 'user_id');
+    public function owner() {
+        return $this->morphTo();
     }
 
     public function softwares(): \Illuminate\Database\Eloquent\Relations\HasMany|Servers {
@@ -24,6 +24,10 @@ class Servers extends Model
 
     public function resources(): \Illuminate\Database\Eloquent\Relations\HasMany|Servers {
         return $this->hasMany(ServerResources::class, 'server_id');
+    }
+
+    public function network() {
+        return $this->morphOne(UserNetwork::class, 'owner');
     }
 
 }
