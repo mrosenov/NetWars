@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Http\Controllers\NPCController;
 use App\Http\Controllers\UserNetworkController;
 use App\Models\NPC;
 use App\Models\UserNetwork;
@@ -52,15 +53,12 @@ class NPCSeeder extends Seeder
                 'threat' => $data['threat'],
             ]);
 
-            $username = UserNetworkController::generateUsername();
-            $ip = $index === 0 ? '1.2.3.4' : UserNetworkController::generateIp();
-
-            $npc->network()->create([
-                'hardware_id' => 5,
-                'ip' => $ip,
-                'user' => $username,
-                'password' => Str::random(8),
+            $server = $npc->servers()->create([
+                'meta' => null
             ]);
+
+            # Generate NPC Hardware
+            NPCController::generateHardware($npc, $server);
         }
 
         # Update main NPCs with essential information
@@ -94,15 +92,12 @@ class NPCSeeder extends Seeder
                 'threat' => 'none',
             ]);
 
-            $username = UserNetworkController::generateUsername();
-            $ip = UserNetworkController::generateIp();
-
-            $npc->network()->create([
-                'hardware_id' => 5,
-                'ip' => $ip,
-                'user' => $username,
-                'password' => Str::random(8),
+            $server = $npc->servers()->create([
+                'meta' => null
             ]);
+
+            # Generate NPC Hardware
+            NPCController::generateHardware($npc, $server);
         }
 
     }

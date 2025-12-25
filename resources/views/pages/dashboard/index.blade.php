@@ -1,7 +1,7 @@
 @section('title', 'Dashboard')
 <x-app-layout>
     <!-- Top grid: Hardware + General info -->
-    <section class="grid grid-cols-1 xl:grid-cols-2 gap-5">
+    <section class="grid grid-cols-1 gap-5">
         <!-- Hardware Information -->
         @include('partials.hardwareInfo')
         <!-- Hardware Information -->

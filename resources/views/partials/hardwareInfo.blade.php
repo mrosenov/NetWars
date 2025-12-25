@@ -18,7 +18,7 @@
     </div>
 
     <div class="p-5">
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             <!-- Metric card -->
             @foreach(Auth::user()->OverallResources() as $key => $resource)
 
@@ -36,7 +36,7 @@
 
                     <div class="mt-2 flex items-end justify-between">
                         <div class="text-lg font-semibold">
-                            0 / {{ $resource['value'] }}
+                            0 / {{ number_format($resource['value'], 1) }}
                         </div>
                         <div class="text-xs text-slate-500 dark:text-slate-400">
                             {{ $resource['unit'] }}
@@ -52,7 +52,7 @@
             @php
                 $external = Auth::user()->OverallResources()['externalDrive'];
             @endphp
-            <div class="sm:col-span-2 rounded-xl border border-slate-200 bg-white p-4 shadow-sm
+            <div class="lg:col-span-4 sm:col-span-2 rounded-xl border border-slate-200 bg-white p-4 shadow-sm
             dark:border-white/10 dark:bg-[#0B1020]/40">
 
                 <div class="flex items-center justify-between">

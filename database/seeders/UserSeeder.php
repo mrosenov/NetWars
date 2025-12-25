@@ -31,10 +31,21 @@ class UserSeeder extends Seeder
         ]);
 
         # Assign default server parts 1 - Motherboard, 2 - CPU, 3 - RAM, 4 - Storage(HDD)
-        for ($i = 1; $i <= 4; $i++) {
+        $types = ['motherboard', 'cpu', 'ram', 'disk', 'network', 'psu'];
+
+        $startingParts = [];
+
+        foreach ($types as $type) {
+            $startingParts[$type] = \App\Models\HardwareParts::query()
+                ->where('type', $type)
+                ->orderByRaw("CAST(JSON_EXTRACT(specifications, '$.tier') AS UNSIGNED) ASC")
+                ->first();
+        }
+
+        foreach ($startingParts as $part) {
             $user->resources()->create([
                 'server_id' => $server->id,
-                'hardware_id' => $i
+                'hardware_id' => $part->id,
             ]);
         }
 
@@ -42,7 +53,7 @@ class UserSeeder extends Seeder
         $username = UserNetworkController::generateUsername();
 
         $user->network()->create([
-            'hardware_id' => 5,
+            'hardware_id' => 61,
             'ip' => $ip,
             'user' => $username,
             'password' => Str::random(8),

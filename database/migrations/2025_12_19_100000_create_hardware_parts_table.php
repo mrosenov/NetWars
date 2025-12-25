@@ -15,7 +15,7 @@ return new class extends Migration
             $table->engine = 'InnoDB';
             $table->id();
             $table->string('name')->index();
-            $table->enum('type', ['motherboard', 'cpu', 'ram', 'disk', 'externalDrive', 'network']);
+            $table->enum('type', ['motherboard', 'cpu', 'ram', 'psu', 'disk', 'externalDrive', 'network']);
             $table->decimal('price', 10, 2)->default(0);
             $table->json('specifications')->nullable();
             $table->json('requirements')->nullable();

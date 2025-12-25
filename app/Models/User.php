@@ -59,10 +59,21 @@ class User extends Authenticatable implements MustVerifyEmail
             ]);
 
             # Assign default server parts 1 - Motherboard, 2 - CPU, 3 - RAM, 4 - Storage(HDD)
-            for ($i = 1; $i <= 4; $i++) {
+            $types = ['motherboard', 'cpu', 'ram', 'disk', 'network', 'psu'];
+
+            $startingParts = [];
+
+            foreach ($types as $type) {
+                $startingParts[$type] = \App\Models\HardwareParts::query()
+                    ->where('type', $type)
+                    ->orderByRaw("CAST(JSON_EXTRACT(specifications, '$.tier') AS UNSIGNED) ASC")
+                    ->first();
+            }
+
+            foreach ($startingParts as $part) {
                 $user->resources()->create([
                     'server_id' => $server->id,
-                    'hardware_id' => $i
+                    'hardware_id' => $part->id,
                 ]);
             }
 
@@ -71,7 +82,7 @@ class User extends Authenticatable implements MustVerifyEmail
             $ip = UserNetworkController::generateIp();
 
             $user->network()->create([
-                'hardware_id' => 5,
+                'hardware_id' => 61,
                 'ip' => $ip,
                 'user' => $username,
                 'password' => Str::random(8),
@@ -111,10 +122,11 @@ class User extends Authenticatable implements MustVerifyEmail
 
         // Sum in base units
         $totals = [
-            'cpu_mhz' => 0.0,
-            'ram_mb' => 0.0,
-            'disk_mb' => 0.0,
-            'externalDrive_mb' => 0.0,
+            'clock_ghz' => 0.0,
+            'ram_gb' => 0.0,
+            'psu_w' => 0.0,
+            'disk_gb' => 0.0,
+            'externalDrive_gb' => 0.0,
             'network_mbps' => 0.0,
         ];
 
@@ -134,18 +146,23 @@ class User extends Authenticatable implements MustVerifyEmail
 
             switch ($hw->type) {
                 case 'cpu':
-                    $mhz = (int) (data_get($spec, 'base_clock_mhz') ?? 0);
-                    $totals['cpu_mhz'] += $mhz;
+                    $mhz = (int) (data_get($spec, 'clock_ghz') ?? 0);
+                    $totals['clock_ghz'] += $mhz;
                     break;
 
                 case 'ram':
-                    $mb = (int) (data_get($spec, 'capacity_mb') ?? 0);
-                    $totals['ram_mb'] += $mb;
+                    $mb = (int) (data_get($spec, 'capacity_gb') ?? 0);
+                    $totals['ram_gb'] += $mb;
+                    break;
+
+                case 'psu':
+                    $mb = (int) (data_get($spec, 'max_power_w') ?? 0);
+                    $totals['psu_w'] += $mb;
                     break;
 
                 case 'disk':
-                    $mb = (int) (data_get($spec, 'capacity_mb') ?? 0);
-                    $totals['disk_mb'] += $mb;
+                    $mb = (int) (data_get($spec, 'capacity_gb') ?? 0);
+                    $totals['disk_gb'] += $mb;
                     break;
 
             }
@@ -170,40 +187,44 @@ class User extends Authenticatable implements MustVerifyEmail
             if (!$hw || $hw->type !== 'externalDrive') continue;
 
             $spec = $hw->specifications ?? [];
-            $totals['externalDrive_mb'] += (float) data_get($spec, 'capacity_mb', 0);
+            $totals['externalDrive_gb'] += (float) data_get($spec, 'extra_capacity_gb', 0);
         }
 
         return [
-            'CPU' => $this->prettyCpu($totals['cpu_mhz']),
-            'RAM' => $this->prettyStorage($totals['ram_mb']),
-            'Disk' => $this->prettyStorage($totals['disk_mb']),
-            'externalDrive' => $this->prettyStorage($totals['externalDrive_mb']),
+            'CPU' => $this->prettyCpu($totals['clock_ghz']),
+            'RAM' => $this->prettyStorage($totals['ram_gb']),
+            'PSU' => $this->prettyPSU($totals['psu_w']),
+            'Disk' => $this->prettyStorage($totals['disk_gb']),
+            'externalDrive' => $this->prettyStorage($totals['externalDrive_gb']),
             'Network' => $this->prettyNetwork($totals['network_mbps']),
         ];
     }
 
-    private function prettyCpu(int $mhz): array {
-        if ($mhz >= 1000) {
-            return ['value' => round($mhz / 1000, 2), 'unit' => 'GHz'];
+    private function prettyCpu(float $ghz): array {
+        return ['value' => round($ghz, 1), 'unit' => 'GHz'];
+    }
+
+    private function prettyPSU(int $watts): array {
+        if ($watts < 1000) {
+            return ['value' => $watts, 'unit' => 'Watt'];
         }
-        return ['value' => round($mhz, 0), 'unit' => 'MHz'];
+
+        return ['value' => $watts, 'unit' => 'kW'];
     }
 
     private function prettyNetwork(int $mbps): array {
         if ($mbps >= 1000) {
-            return ['value' => round($mbps / 1000, 2), 'unit' => 'Gbps'];
+            return ['value' => round($mbps / 1, 1), 'unit' => 'Gbps'];
         }
         return ['value' => round($mbps, 0), 'unit' => 'Mbps'];
     }
 
-    private function prettyStorage(int $mb): array {
-        if ($mb >= 1000 * 1000) {
-            return ['value' => round($mb / 1_000_000, 2), 'unit' => 'TB'];
+    private function prettyStorage(int $gb): array {
+        if ($gb < 1000) {
+            return ['value' => $gb, 'unit' => 'GB'];
         }
-        if ($mb >= 1000) {
-            return ['value' => round($mb / 1000, 2), 'unit' => 'GB'];
-        }
-        return ['value' => round($mb, 0), 'unit' => 'MB'];
+
+        return ['value' => round($gb / 1000,1), 'unit' => 'TB'];
     }
 
 }

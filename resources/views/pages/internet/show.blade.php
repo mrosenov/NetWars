@@ -35,12 +35,25 @@
                 </div>
                 @php
                     $isVpc = isset($network) && $network->owner_type === \App\Models\User::class;
+
+                    if ($isVpc) {
+                        $label = 'VPC';
+                        $classes = 'bg-green-400/10 text-green-400 inset-ring inset-ring-green-500/20';
+                    } elseif (
+                        isset($network->owner) &&
+                        $network->owner->type === 'whois'
+                    ) {
+                        $label = 'WhoIs';
+                        $classes = 'bg-purple-400/10 text-purple-400 inset-ring inset-ring-purple-400/30';
+                    } else {
+                        $label = 'NPC';
+                        $classes = 'bg-blue-400/10 text-blue-400 inset-ring inset-ring-blue-400/30';
+                    }
                 @endphp
 
-                <span class="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium
-                    {{ $isVpc ? 'bg-green-400/10 text-green-400 inset-ring inset-ring-green-500/20' : 'bg-blue-400/10 text-blue-400 inset-ring inset-ring-blue-400/30'}}">
-                    {{ $isVpc ? 'VPC' : 'NPC' }}
-                </span>
+                <span class="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium {{ $classes }}">
+    {{ $label }}
+</span>
             </div>
 
             <!-- INDEX TAB -->
@@ -48,7 +61,7 @@
                 <div class="mt-2 text-sm text-slate-700 dark:text-slate-200">
                     {{ $metadata['text'] ?? '' }}
                 </div>
-
+{{$network->owner->type}}
                 <div class="mt-5 space-y-2">
                     @if($title = data_get($metadata, 'recommendations.title'))
                         <div class="text-sm font-semibold text-slate-900 dark:text-slate-100">

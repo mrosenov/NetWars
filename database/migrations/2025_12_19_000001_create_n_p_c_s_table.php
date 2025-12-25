@@ -16,7 +16,7 @@ return new class extends Migration
 
             $table->id();
             $table->string('name');
-            $table->enum('type', ['whois', 'law_enforcement', 'intelligence', 'bank', 'isp', 'puzzle', 'download', 'normal']);
+            $table->enum('type', ['whois', 'law_enforcement', 'intelligence', 'bank', 'isp', 'download', 'puzzle', 'normal']);
             $table->enum('threat', ['none', 'low', 'medium', 'high'])->default('none');
             $table->json('metadata')->nullable();
             $table->timestamps();

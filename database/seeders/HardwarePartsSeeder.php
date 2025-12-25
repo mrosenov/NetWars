@@ -13,80 +13,862 @@ class HardwarePartsSeeder extends Seeder
      */
     public function run(): void
     {
+        # Motherboard List
+        DB::table('hardware_parts')->insert([
+                [
+                    'name' => 'Salvaged Board',
+                    'type' => 'motherboard',
+                    'price' => 80,
+                    'specifications' => json_encode([
+                        'max_cpu_tier' => 1,
+                        'max_ram_gb' => 2,
+                        'ram_type' => 'DDR2',
+                        'stability_bonus' => 0,
+                        'tier' => 1,
+                    ]),
+                ],
+                [
+                    'name' => 'Basic Consumer Board',
+                    'type' => 'motherboard',
+                    'price' => 200,
+                    'specifications' => json_encode([
+                        'max_cpu_tier' => 2,
+                        'max_ram_gb' => 4,
+                        'ram_type' => 'DDR3',
+                        'stability_bonus' => 1,
+                        'tier' => 2,
+                    ]),
+                ],
+                [
+                    'name' => 'Standard DDR3 Board',
+                    'type' => 'motherboard',
+                    'price' => 450,
+                    'specifications' => json_encode([
+                        'max_cpu_tier' => 3,
+                        'max_ram_gb' => 8,
+                        'ram_type' => 'DDR3',
+                        'stability_bonus' => 2,
+                        'tier' => 3,
+                    ]),
+                ],
+                [
+                    'name' => 'Performance DDR3 Board',
+                    'type' => 'motherboard',
+                    'price' => 800,
+                    'specifications' => json_encode([
+                        'max_cpu_tier' => 4,
+                        'max_ram_gb' => 16,
+                        'ram_type' => 'DDR3',
+                        'stability_bonus' => 3,
+                        'tier' => 4,
+                    ]),
+                ],
+                [
+                    'name' => 'Entry DDR4 Board',
+                    'type' => 'motherboard',
+                    'price' => 1300,
+                    'specifications' => json_encode([
+                        'max_cpu_tier' => 5,
+                        'max_ram_gb' => 32,
+                        'ram_type' => 'DDR4',
+                        'stability_bonus' => 4,
+                        'tier' => 5,
+                    ]),
+                ],
+                [
+                    'name' => 'DDR4 Server Board',
+                    'type' => 'motherboard',
+                    'price' => 2200,
+                    'specifications' => json_encode([
+                        'max_cpu_tier' => 6,
+                        'max_ram_gb' => 64,
+                        'ram_type' => 'DDR4',
+                        'stability_bonus' => 5,
+                        'tier' => 6,
+                    ]),
+                ],
+                [
+                    'name' => 'High-End DDR4 Board',
+                    'type' => 'motherboard',
+                    'price' => 3600,
+                    'specifications' => json_encode([
+                        'max_cpu_tier' => 7,
+                        'max_ram_gb' => 128,
+                        'ram_type' => 'DDR4',
+                        'stability_bonus' => 6,
+                        'tier' => 7,
+                    ]),
+                ],
+                [
+                    'name' => 'DDR5 Server Board',
+                    'type' => 'motherboard',
+                    'price' => 5500,
+                    'specifications' => json_encode([
+                        'max_cpu_tier' => 8,
+                        'max_ram_gb' => 256,
+                        'ram_type' => 'DDR5',
+                        'stability_bonus' => 7,
+                        'tier' => 8,
+                    ]),
+                ],
+                [
+                    'name' => 'Enterprise Logic Board',
+                    'type' => 'motherboard',
+                    'price' => 9000,
+                    'specifications' => json_encode([
+                        'max_cpu_tier' => 9,
+                        'max_ram_gb' => 512,
+                        'ram_type' => 'DDR5',
+                        'stability_bonus' => 8,
+                        'tier' => 9,
+                    ]),
+                ],
+                [
+                    'name' => 'Quantum Control Board',
+                    'type' => 'motherboard',
+                    'price' => 18000,
+                    'specifications' => json_encode([
+                        'max_cpu_tier' => 10,
+                        'max_ram_gb' => 1024,
+                        'ram_type' => 'DDR5+',
+                        'stability_bonus' => 10,
+                        'tier' => 10,
+                    ]),
+                ],
+            ]);
+
+        # CPU List
+        DB::table('hardware_parts')->insert([
+                [
+                    'name' => 'Single-Core Salvaged CPU',
+                    'type' => 'cpu',
+                    'price' => 100,
+                    'specifications' => json_encode([
+                        'cores' => 1,
+                        'clock_ghz' => 1.2,
+                        'compute_power' => 50,
+                        'stability' => 70,
+                        'power_draw_w' => 35,
+                        'tier' => 1,
+                    ]),
+                ],
+                [
+                    'name' => 'Dual-Core Office CPU',
+                    'type' => 'cpu',
+                    'price' => 250,
+                    'specifications' => json_encode([
+                        'cores' => 2,
+                        'clock_ghz' => 1.8,
+                        'compute_power' => 120,
+                        'stability' => 75,
+                        'power_draw_w' => 45,
+                        'tier' => 2,
+                    ]),
+                ],
+                [
+                    'name' => 'Quad-Core Consumer CPU',
+                    'type' => 'cpu',
+                    'price' => 600,
+                    'specifications' => json_encode([
+                        'cores' => 4,
+                        'clock_ghz' => 2.5,
+                        'compute_power' => 300,
+                        'stability' => 80,
+                        'power_draw_w' => 65,
+                        'tier' => 3,
+                    ]),
+                ],
+                [
+                    'name' => 'Quad-Core Performance CPU',
+                    'type' => 'cpu',
+                    'price' => 1000,
+                    'specifications' => json_encode([
+                        'cores' => 4,
+                        'clock_ghz' => 3.2,
+                        'compute_power' => 450,
+                        'stability' => 85,
+                        'power_draw_w' => 75,
+                        'tier' => 4,
+                    ]),
+                ],
+                [
+                    'name' => 'Hexa-Core Modern CPU',
+                    'type' => 'cpu',
+                    'price' => 1800,
+                    'specifications' => json_encode([
+                        'cores' => 6,
+                        'clock_ghz' => 3.6,
+                        'compute_power' => 700,
+                        'stability' => 88,
+                        'power_draw_w' => 95,
+                        'tier' => 5,
+                    ]),
+                ],
+                [
+                    'name' => 'Octa-Core Performance CPU',
+                    'type' => 'cpu',
+                    'price' => 2800,
+                    'specifications' => json_encode([
+                        'cores' => 8,
+                        'clock_ghz' => 4.0,
+                        'compute_power' => 1100,
+                        'stability' => 90,
+                        'power_draw_w' => 125,
+                        'tier' => 6,
+                    ]),
+                ],
+                [
+                    'name' => '12-Core Server CPU',
+                    'type' => 'cpu',
+                    'price' => 4500,
+                    'specifications' => json_encode([
+                        'cores' => 12,
+                        'clock_ghz' => 3.8,
+                        'compute_power' => 1700,
+                        'stability' => 93,
+                        'power_draw_w' => 155,
+                        'tier' => 7,
+                    ]),
+                ],
+                [
+                    'name' => '16-Core Datacenter CPU',
+                    'type' => 'cpu',
+                    'price' => 7000,
+                    'specifications' => json_encode([
+                        'cores' => 16,
+                        'clock_ghz' => 4.1,
+                        'compute_power' => 2500,
+                        'stability' => 95,
+                        'power_draw_w' => 185,
+                        'tier' => 8,
+                    ]),
+                ],
+                [
+                    'name' => '32-Core Enterprise CPU',
+                    'type' => 'cpu',
+                    'price' => 12000,
+                    'specifications' => json_encode([
+                        'cores' => 32,
+                        'clock_ghz' => 3.9,
+                        'compute_power' => 4000,
+                        'stability' => 97,
+                        'power_draw_w' => 220,
+                        'tier' => 9,
+                    ]),
+                ],
+                [
+                    'name' => 'Quantum Compute Core',
+                    'type' => 'cpu',
+                    'price' => 25000,
+                    'specifications' => json_encode([
+                        'cores' => 64,
+                        'clock_ghz' => 5.0,
+                        'compute_power' => 8000,
+                        'stability' => 99,
+                        'power_draw_w' => 280,
+                        'tier' => 10,
+                    ]),
+                ],
+            ]);
+
+        # RAM List
+        DB::table('hardware_parts')->insert([
+                [
+                    'name' => 'Scrap DDR2 Stick',
+                    'type' => 'ram',
+                    'price' => 50,
+                    'specifications' => json_encode([
+                        'capacity_gb' => 1,
+                        'speed_mhz' => 400,
+                        'stability' => 70,
+                        'power_draw_w' => 5,
+                        'tier' => 1,
+                    ]),
+                ],
+                [
+                    'name' => 'Old DDR3 Module',
+                    'type' => 'ram',
+                    'price' => 120,
+                    'specifications' => json_encode([
+                        'capacity_gb' => 2,
+                        'speed_mhz' => 800,
+                        'stability' => 75,
+                        'power_draw_w' => 6,
+                        'tier' => 2,
+                    ]),
+                ],
+                [
+                    'name' => 'Budget DDR3 Kit',
+                    'type' => 'ram',
+                    'price' => 300,
+                    'specifications' => json_encode([
+                        'capacity_gb' => 4,
+                        'speed_mhz' => 1333,
+                        'stability' => 80,
+                        'power_draw_w' => 7,
+                        'tier' => 3,
+                    ]),
+                ],
+                [
+                    'name' => 'Consumer DDR3 Pro',
+                    'type' => 'ram',
+                    'price' => 600,
+                    'specifications' => json_encode([
+                        'capacity_gb' => 8,
+                        'speed_mhz' => 1600,
+                        'stability' => 85,
+                        'power_draw_w' => 8,
+                        'tier' => 4,
+                    ]),
+                ],
+                [
+                    'name' => 'Entry DDR4 Stick',
+                    'type' => 'ram',
+                    'price' => 900,
+                    'specifications' => json_encode([
+                        'capacity_gb' => 8,
+                        'speed_mhz' => 2400,
+                        'stability' => 88,
+                        'power_draw_w' => 9,
+                        'tier' => 5,
+                    ]),
+                ],
+                [
+                    'name' => 'DDR4 Performance Module',
+                    'type' => 'ram',
+                    'price' => 1500,
+                    'specifications' => json_encode([
+                        'capacity_gb' => 16,
+                        'speed_mhz' => 3000,
+                        'stability' => 90,
+                        'power_draw_w' => 10,
+                        'tier' => 6,
+                    ]),
+                ],
+                [
+                    'name' => 'DDR4 Server Grade',
+                    'type' => 'ram',
+                    'price' => 2600,
+                    'specifications' => json_encode([
+                        'capacity_gb' => 32,
+                        'speed_mhz' => 3200,
+                        'stability' => 93,
+                        'power_draw_w' => 11,
+                        'tier' => 7,
+                    ]),
+                ],
+                [
+                    'name' => 'DDR5 Early Gen',
+                    'type' => 'ram',
+                    'price' => 4200,
+                    'specifications' => json_encode([
+                        'capacity_gb' => 32,
+                        'speed_mhz' => 4800,
+                        'stability' => 95,
+                        'power_draw_w' => 12,
+                        'tier' => 8,
+                    ]),
+                ],
+                [
+                    'name' => 'DDR5 Enterprise',
+                    'type' => 'ram',
+                    'price' => 7000,
+                    'specifications' => json_encode([
+                        'capacity_gb' => 64,
+                        'speed_mhz' => 5600,
+                        'stability' => 97,
+                        'power_draw_w' => 14,
+                        'tier' => 9,
+                    ]),
+                ],
+                [
+                    'name' => 'Quantum Memory Array',
+                    'type' => 'ram',
+                    'price' => 15000,
+                    'specifications' => json_encode([
+                        'capacity_gb' => 128,
+                        'speed_mhz' => 7200,
+                        'stability' => 99,
+                        'power_draw_w' => 18,
+                        'tier' => 10,
+                    ]),
+                ],
+            ]);
+
+        # Power Supply List
         DB::table('hardware_parts')->insert([
             [
-                'name' => 'Generic µATX Server Board',
-                'type' => 'motherboard',
-                'price' => 0,
+                'name' => 'Unstable Power Brick',
+                'type' => 'psu',
+                'price' => 40,
                 'specifications' => json_encode([
-                    'socket' => 'GEN1',
-                    'ram_slots' => 2,
-                    'ram_type' => 'ddr2',
-                    'max_ram_mb' => 512,
-                    'hdd' => true,
-                    'ssd' => false,
-                    'nvme' => false,
-                    'bandwidth_mbps' => 10
-                ]),
-                'requirements' => null,
-            ],
-            [
-                'name' => 'Single-Core Budget CPU',
-                'type' => 'cpu',
-                'price' => 0,
-                'specifications' => json_encode([
-                    'cores' => 1,
-                    'base_clock_mhz' => 500,
-                    'socket' => 'GEN1',
-                ]),
-                'requirements' => json_encode([
-                    'socket' => 'GEN1',
+                    'max_power_w' => 150,
+                    'efficiency' => 60,
+                    'stability_bonus' => -5,
+                    'tier' => 1,
                 ]),
             ],
             [
-                'name' => '256 MB DDR2 RAM',
-                'type' => 'ram',
-                'price' => 0,
+                'name' => 'Generic PSU',
+                'type' => 'psu',
+                'price' => 120,
                 'specifications' => json_encode([
-                    'capacity_mb' => 256,
-                    'type' => 'ddr2',
-                ]),
-                'requirements' => json_encode([
-                    'ram_type' => 'ddr2',
-                ])
-            ],
-            [
-                'name' => '100MB HDD',
-                'type' => 'disk',
-                'price' => 0,
-                'specifications' => json_encode([
-                    'capacity_mb' => 100,
-                    'type' => 'hdd',
-                ]),
-                'requirements' => json_encode([
-                    'hdd' => true,
+                    'max_power_w' => 300,
+                    'efficiency' => 70,
+                    'stability_bonus' => -2,
+                    'tier' => 2,
                 ]),
             ],
             [
-            'name' => '10 Mbps Cisco Switch',
-            'type' => 'network',
-            'price' => 0,
-            'specifications' => json_encode([
-                'bandwidth_mbps' => 10,
-            ]),
-            'requirements' => json_encode([
-                'bandwidth_mbps' => 10,
-            ]),
+                'name' => 'Budget Certified PSU',
+                'type' => 'psu',
+                'price' => 260,
+                'specifications' => json_encode([
+                    'max_power_w' => 450,
+                    'efficiency' => 75,
+                    'stability_bonus' => 0,
+                    'tier' => 3,
+                ]),
             ],
             [
-                'name' => 'External WD 100MB',
-                'type' => 'externalDrive',
-                'price' => 100,
+                'name' => 'Standard Bronze PSU',
+                'type' => 'psu',
+                'price' => 480,
                 'specifications' => json_encode([
-                    'capacity_mb' => 100,
+                    'max_power_w' => 600,
+                    'efficiency' => 80,
+                    'stability_bonus' => 2,
+                    'tier' => 4,
                 ]),
-                'requirements' => null,
-            ]
+            ],
+            [
+                'name' => 'Silver Grade PSU',
+                'type' => 'psu',
+                'price' => 850,
+                'specifications' => json_encode([
+                    'max_power_w' => 750,
+                    'efficiency' => 85,
+                    'stability_bonus' => 3,
+                    'tier' => 5,
+                ]),
+            ],
+            [
+                'name' => 'Gold Modular PSU',
+                'type' => 'psu',
+                'price' => 1400,
+                'specifications' => json_encode([
+                    'max_power_w' => 1000,
+                    'efficiency' => 90,
+                    'stability_bonus' => 5,
+                    'tier' => 6,
+                ]),
+            ],
+            [
+                'name' => 'Platinum Server PSU',
+                'type' => 'psu',
+                'price' => 2400,
+                'specifications' => json_encode([
+                    'max_power_w' => 1400,
+                    'efficiency' => 92,
+                    'stability_bonus' => 7,
+                    'tier' => 7,
+                ]),
+            ],
+            [
+                'name' => 'Datacenter Redundant PSU',
+                'type' => 'psu',
+                'price' => 4200,
+                'specifications' => json_encode([
+                    'max_power_w' => 2000,
+                    'efficiency' => 94,
+                    'stability_bonus' => 9,
+                    'tier' => 8,
+                ]),
+            ],
+            [
+                'name' => 'Dark Energy PSU',
+                'type' => 'psu',
+                'price' => 7500,
+                'specifications' => json_encode([
+                    'max_power_w' => 3000,
+                    'efficiency' => 96,
+                    'stability_bonus' => 12,
+                    'tier' => 9,
+                ]),
+            ],
+            [
+                'name' => 'Quantum Flux Power Core',
+                'type' => 'psu',
+                'price' => 14000,
+                'specifications' => json_encode([
+                    'max_power_w' => 5000,
+                    'efficiency' => 99,
+                    'stability_bonus' => 20,
+                    'tier' => 10,
+                ]),
+            ],
         ]);
+
+        # Disk List
+        DB::table('hardware_parts')->insert([
+                [
+                    'name' => 'Rusty HDD',
+                    'type' => 'disk',
+                    'price' => 60,
+                    'specifications' => json_encode([
+                        'capacity_gb' => 80,
+                        'speed' => 40,
+                        'stealth_bonus' => 0,
+                        'tier' => 1,
+                    ]),
+                ],
+                [
+                    'name' => 'Old SATA HDD',
+                    'type' => 'disk',
+                    'price' => 120,
+                    'specifications' => json_encode([
+                        'capacity_gb' => 250,
+                        'speed' => 60,
+                        'stealth_bonus' => 1,
+                        'tier' => 2,
+                    ]),
+                ],
+                [
+                    'name' => 'Consumer HDD',
+                    'type' => 'disk',
+                    'price' => 250,
+                    'specifications' => json_encode([
+                        'capacity_gb' => 500,
+                        'speed' => 80,
+                        'stealth_bonus' => 1,
+                        'tier' => 3,
+                    ]),
+                ],
+                [
+                    'name' => 'Hybrid SSHD',
+                    'type' => 'disk',
+                    'price' => 500,
+                    'specifications' => json_encode([
+                        'capacity_gb' => 1000,
+                        'speed' => 120,
+                        'stealth_bonus' => 2,
+                        'tier' => 4,
+                    ]),
+                ],
+                [
+                    'name' => 'Entry SSD',
+                    'type' => 'disk',
+                    'price' => 900,
+                    'specifications' => json_encode([
+                        'capacity_gb' => 512,
+                        'speed' => 300,
+                        'stealth_bonus' => 3,
+                        'tier' => 5,
+                    ]),
+                ],
+                [
+                    'name' => 'NVMe SSD',
+                    'type' => 'disk',
+                    'price' => 1600,
+                    'specifications' => json_encode([
+                        'capacity_gb' => 1024,
+                        'speed' => 600,
+                        'stealth_bonus' => 4,
+                        'tier' => 6,
+                    ]),
+                ],
+                [
+                    'name' => 'Encrypted NVMe',
+                    'type' => 'disk',
+                    'price' => 2800,
+                    'specifications' => json_encode([
+                        'capacity_gb' => 2048,
+                        'speed' => 900,
+                        'stealth_bonus' => 6,
+                        'tier' => 7,
+                    ]),
+                ],
+                [
+                    'name' => 'Enterprise Flash Array',
+                    'type' => 'disk',
+                    'price' => 5000,
+                    'specifications' => json_encode([
+                        'capacity_gb' => 4096,
+                        'speed' => 1300,
+                        'stealth_bonus' => 8,
+                        'tier' => 8,
+                    ]),
+                ],
+                [
+                    'name' => 'Dark Storage Core',
+                    'type' => 'disk',
+                    'price' => 8500,
+                    'specifications' => json_encode([
+                        'capacity_gb' => 8192,
+                        'speed' => 1800,
+                        'stealth_bonus' => 10,
+                        'tier' => 9,
+                    ]),
+                ],
+                [
+                    'name' => 'Quantum Data Vault',
+                    'type' => 'disk',
+                    'price' => 15000,
+                    'specifications' => json_encode([
+                        'capacity_gb' => 16384,
+                        'speed' => 3000,
+                        'stealth_bonus' => 15,
+                        'tier' => 10,
+                    ]),
+                ],
+            ]);
+
+        # External Drive List
+        DB::table('hardware_parts')->insert([
+                [
+                    'name' => 'USB Stick Cache',
+                    'type' => 'externalDrive',
+                    'price' => 80,
+                    'specifications' => json_encode([
+                        'extra_capacity_gb' => 64,
+                        'backup_slots' => 0,
+                        'stealth_bonus' => 0,
+                        'access_speed' => 20,
+                        'tier' => 1,
+                    ]),
+                ],
+                [
+                    'name' => 'Portable HDD',
+                    'type' => 'externalDrive',
+                    'price' => 200,
+                    'specifications' => json_encode([
+                        'extra_capacity_gb' => 250,
+                        'backup_slots' => 1,
+                        'stealth_bonus' => 0,
+                        'access_speed' => 30,
+                        'tier' => 2,
+                    ]),
+                ],
+                [
+                    'name' => 'Encrypted USB Drive',
+                    'type' => 'externalDrive',
+                    'price' => 450,
+                    'specifications' => json_encode([
+                        'extra_capacity_gb' => 128,
+                        'backup_slots' => 1,
+                        'stealth_bonus' => 2,
+                        'access_speed' => 40,
+                        'tier' => 3,
+                    ]),
+                ],
+                [
+                    'name' => 'External Backup HDD',
+                    'type' => 'externalDrive',
+                    'price' => 900,
+                    'specifications' => json_encode([
+                        'extra_capacity_gb' => 1000,
+                        'backup_slots' => 2,
+                        'stealth_bonus' => 1,
+                        'access_speed' => 50,
+                        'tier' => 4,
+                    ]),
+                ],
+                [
+                    'name' => 'Portable SSD',
+                    'type' => 'externalDrive',
+                    'price' => 1600,
+                    'specifications' => json_encode([
+                        'extra_capacity_gb' => 512,
+                        'backup_slots' => 2,
+                        'stealth_bonus' => 3,
+                        'access_speed' => 120,
+                        'tier' => 5,
+                    ]),
+                ],
+                [
+                    'name' => 'Encrypted External SSD',
+                    'type' => 'externalDrive',
+                    'price' => 2800,
+                    'specifications' => json_encode([
+                        'extra_capacity_gb' => 1024,
+                        'backup_slots' => 3,
+                        'stealth_bonus' => 5,
+                        'access_speed' => 200,
+                        'tier' => 6,
+                    ]),
+                ],
+                [
+                    'name' => 'Cold Storage Vault',
+                    'type' => 'externalDrive',
+                    'price' => 4800,
+                    'specifications' => json_encode([
+                        'extra_capacity_gb' => 4096,
+                        'backup_slots' => 3,
+                        'stealth_bonus' => 6,
+                        'access_speed' => 80,
+                        'tier' => 7,
+                    ]),
+                ],
+                [
+                    'name' => 'Shadow Backup Node',
+                    'type' => 'externalDrive',
+                    'price' => 8200,
+                    'specifications' => json_encode([
+                        'extra_capacity_gb' => 8192,
+                        'backup_slots' => 4,
+                        'stealth_bonus' => 8,
+                        'access_speed' => 150,
+                        'tier' => 8,
+                    ]),
+                ],
+                [
+                    'name' => 'Dark Archive Array',
+                    'type' => 'externalDrive',
+                    'price' => 14000,
+                    'specifications' => json_encode([
+                        'extra_capacity_gb' => 16384,
+                        'backup_slots' => 5,
+                        'stealth_bonus' => 12,
+                        'access_speed' => 250,
+                        'tier' => 9,
+                    ]),
+                ],
+                [
+                    'name' => 'Quantum Offsite Vault',
+                    'type' => 'externalDrive',
+                    'price' => 25000,
+                    'specifications' => json_encode([
+                        'extra_capacity_gb' => 32768,
+                        'backup_slots' => 6,
+                        'stealth_bonus' => 20,
+                        'access_speed' => 500,
+                        'tier' => 10,
+                    ]),
+                ],
+            ]);
+
+        # Network List
+        DB::table('hardware_parts')->insert([
+                [
+                    'name' => 'Cracked Home Router',
+                    'type' => 'network',
+                    'price' => 60,
+                    'specifications' => json_encode([
+                        'bandwidth_mbps' => 10,
+                        'latency_ms' => 150,
+                        'max_connections' => 5,
+                        'trace_resistance' => 0,
+                        'tier' => 1,
+                    ]),
+                ],
+                [
+                    'name' => 'Consumer SOHO Switch',
+                    'type' => 'network',
+                    'price' => 180,
+                    'specifications' => json_encode([
+                        'bandwidth_mbps' => 100,
+                        'latency_ms' => 90,
+                        'max_connections' => 15,
+                        'trace_resistance' => 1,
+                        'tier' => 2,
+                    ]),
+                ],
+                [
+                    'name' => 'Unmanaged Fast Ethernet Switch',
+                    'type' => 'network',
+                    'price' => 400,
+                    'specifications' => json_encode([
+                        'bandwidth_mbps' => 1000,
+                        'latency_ms' => 60,
+                        'max_connections' => 30,
+                        'trace_resistance' => 2,
+                        'tier' => 3,
+                    ]),
+                ],
+                [
+                    'name' => 'Managed Gigabit Switch',
+                    'type' => 'network',
+                    'price' => 850,
+                    'specifications' => json_encode([
+                        'bandwidth_mbps' => 2500,
+                        'latency_ms' => 40,
+                        'max_connections' => 60,
+                        'trace_resistance' => 3,
+                        'tier' => 4,
+                    ]),
+                ],
+                [
+                    'name' => 'Layer 3 Routing Switch',
+                    'type' => 'network',
+                    'price' => 1500,
+                    'specifications' => json_encode([
+                        'bandwidth_mbps' => 5000,
+                        'latency_ms' => 30,
+                        'max_connections' => 120,
+                        'trace_resistance' => 4,
+                        'tier' => 5,
+                    ]),
+                ],
+                [
+                    'name' => '10G Server Switch',
+                    'type' => 'network',
+                    'price' => 2800,
+                    'specifications' => json_encode([
+                        'bandwidth_mbps' => 10000,
+                        'latency_ms' => 20,
+                        'max_connections' => 250,
+                        'trace_resistance' => 6,
+                        'tier' => 6,
+                    ]),
+                ],
+                [
+                    'name' => 'Encrypted Backbone Switch',
+                    'type' => 'network',
+                    'price' => 4800,
+                    'specifications' => json_encode([
+                        'bandwidth_mbps' => 25000,
+                        'latency_ms' => 15,
+                        'max_connections' => 500,
+                        'trace_resistance' => 8,
+                        'tier' => 7,
+                    ]),
+                ],
+                [
+                    'name' => 'Darknet Core Router',
+                    'type' => 'network',
+                    'price' => 8200,
+                    'specifications' => json_encode([
+                        'bandwidth_mbps' => 50000,
+                        'latency_ms' => 10,
+                        'max_connections' => 1000,
+                        'trace_resistance' => 11,
+                        'tier' => 8,
+                    ]),
+                ],
+                [
+                    'name' => 'Ghost Relay Matrix',
+                    'type' => 'network',
+                    'price' => 14000,
+                    'specifications' => json_encode([
+                        'bandwidth_mbps' => 100000,
+                        'latency_ms' => 5,
+                        'max_connections' => 2500,
+                        'trace_resistance' => 15,
+                        'tier' => 9,
+                    ]),
+                ],
+                [
+                    'name' => 'Quantum Mesh Backbone',
+                    'type' => 'network',
+                    'price' => 25000,
+                    'specifications' => json_encode([
+                        'bandwidth_mbps' => 250000,
+                        'latency_ms' => 1,
+                        'max_connections' => 10000,
+                        'trace_resistance' => 25,
+                        'tier' => 10,
+                    ]),
+                ],
+            ]);
     }
 }

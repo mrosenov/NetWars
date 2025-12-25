@@ -21,6 +21,6 @@ class InternetController extends Controller
         $network = UserNetwork::where('ip', $ip)->with(['owner', 'hardware'])->firstOrFail();
         $metadata = $network->owner->metadata;
 
-        return view('pages.internet.index', compact('network', 'metadata'));
+        return view('pages.internet.show', compact('network', 'metadata'));
     }
 }
