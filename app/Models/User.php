@@ -76,17 +76,13 @@ class User extends Authenticatable implements MustVerifyEmail
                 ]);
             }
 
-            # Assign Internet
-            $user->connectivity()->create([
-                'service_id' => 74,
-            ]);
-
             # Assign network to the player.
             $username = UserNetworkController::generateUsername();
             $ip = UserNetworkController::generateIp();
 
             $user->network()->create([
                 'hardware_id' => 61,
+                'connectivity_id' => 74,
                 'ip' => $ip,
                 'user' => $username,
                 'password' => Str::random(8),
@@ -100,7 +96,7 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     public function connectivity() {
-        return $this->morphOne(UserConnectivity::class, 'owner');
+        return $this->network->connectivity;
     }
 
     public function network() {
@@ -154,12 +150,12 @@ class User extends Authenticatable implements MustVerifyEmail
 
             switch ($hw->type) {
                 case 'cpu':
-                    $mhz = (int) (data_get($spec, 'clock_ghz') ?? 0);
+                    $mhz = (float) (data_get($spec, 'clock_ghz') ?? 0);
                     $totals['clock_ghz'] += $mhz;
                     break;
 
                 case 'ram':
-                    $mb = (int) (data_get($spec, 'capacity_gb') ?? 0);
+                    $mb = (int) (data_get($spec, 'capacity_mb') ?? 0);
                     $totals['ram_gb'] += $mb;
                     break;
 
@@ -169,7 +165,7 @@ class User extends Authenticatable implements MustVerifyEmail
                     break;
 
                 case 'disk':
-                    $mb = (int) (data_get($spec, 'capacity_gb') ?? 0);
+                    $mb = (float) (data_get($spec, 'capacity_gb') ?? 0);
                     $totals['disk_gb'] += $mb;
                     break;
 
@@ -198,15 +194,22 @@ class User extends Authenticatable implements MustVerifyEmail
             $totals['externalDrive_gb'] += (float) data_get($spec, 'extra_capacity_gb', 0);
         }
 
+        $connectivity = $this->connectivity();
+
         $hw = new HardwarePartsController();
-        return [
+        $connectivityInfo = $hw->prettyNetwork(data_get($connectivity->specifications, 'connectivity_mbps'));
+
+        $hw = new HardwarePartsController();
+        $test = [
             'CPU' => $hw->prettyCpu($totals['clock_ghz']),
-            'RAM' => $hw->prettyStorage($totals['ram_gb']),
+            'RAM' => $hw->prettyRAM($totals['ram_gb']),
             'PSU' => $hw->prettyPSU($totals['psu_w']),
             'Disk' => $hw->prettyStorage($totals['disk_gb']),
             'externalDrive' => $hw->prettyStorage($totals['externalDrive_gb']),
-//            'Network Card' => $hw->prettyNetwork($totals['network_mbps']),
+            'Connectivity' => $connectivityInfo,
         ];
+//        dd($test);
+        return $test;
     }
 
 

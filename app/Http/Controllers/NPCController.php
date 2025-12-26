@@ -45,14 +45,10 @@ class NPCController extends Controller
             ]);
         }
 
-        # Assign Internet
-        $npc->connectivity()->create([
-            'service_id' => $profile['connectivity'],
-        ]);
-
         // Create network
         $npc->network()->create([
             'hardware_id' => $profile['network'],
+            'connectivity_id' => $profile['connectivity'],
             'ip'          => $ip,
             'user'        => $username,
             'password'    => Str::random(8),

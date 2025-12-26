@@ -156,7 +156,7 @@ class HardwarePartsSeeder extends Seeder
                     'price' => 100,
                     'specifications' => json_encode([
                         'cores' => 1,
-                        'clock_ghz' => 1.2,
+                        'clock_ghz' => 0.5,
                         'compute_power' => 50,
                         'stability' => 70,
                         'power_draw_w' => 35,
@@ -170,7 +170,7 @@ class HardwarePartsSeeder extends Seeder
                     'price' => 250,
                     'specifications' => json_encode([
                         'cores' => 2,
-                        'clock_ghz' => 1.8,
+                        'clock_ghz' => 1.0,
                         'compute_power' => 120,
                         'stability' => 75,
                         'power_draw_w' => 45,
@@ -184,7 +184,7 @@ class HardwarePartsSeeder extends Seeder
                     'price' => 600,
                     'specifications' => json_encode([
                         'cores' => 4,
-                        'clock_ghz' => 2.5,
+                        'clock_ghz' => 1.5,
                         'compute_power' => 300,
                         'stability' => 80,
                         'power_draw_w' => 65,
@@ -198,7 +198,7 @@ class HardwarePartsSeeder extends Seeder
                     'price' => 1000,
                     'specifications' => json_encode([
                         'cores' => 4,
-                        'clock_ghz' => 3.2,
+                        'clock_ghz' => 2.0,
                         'compute_power' => 450,
                         'stability' => 85,
                         'power_draw_w' => 75,
@@ -212,7 +212,7 @@ class HardwarePartsSeeder extends Seeder
                     'price' => 1800,
                     'specifications' => json_encode([
                         'cores' => 6,
-                        'clock_ghz' => 3.6,
+                        'clock_ghz' => 2.5,
                         'compute_power' => 700,
                         'stability' => 88,
                         'power_draw_w' => 95,
@@ -226,7 +226,7 @@ class HardwarePartsSeeder extends Seeder
                     'price' => 2800,
                     'specifications' => json_encode([
                         'cores' => 8,
-                        'clock_ghz' => 4.0,
+                        'clock_ghz' => 3.0,
                         'compute_power' => 1100,
                         'stability' => 90,
                         'power_draw_w' => 125,
@@ -240,7 +240,7 @@ class HardwarePartsSeeder extends Seeder
                     'price' => 4500,
                     'specifications' => json_encode([
                         'cores' => 12,
-                        'clock_ghz' => 3.8,
+                        'clock_ghz' => 3.5,
                         'compute_power' => 1700,
                         'stability' => 93,
                         'power_draw_w' => 155,
@@ -254,7 +254,7 @@ class HardwarePartsSeeder extends Seeder
                     'price' => 7000,
                     'specifications' => json_encode([
                         'cores' => 16,
-                        'clock_ghz' => 4.1,
+                        'clock_ghz' => 4.0,
                         'compute_power' => 2500,
                         'stability' => 95,
                         'power_draw_w' => 185,
@@ -268,7 +268,7 @@ class HardwarePartsSeeder extends Seeder
                     'price' => 12000,
                     'specifications' => json_encode([
                         'cores' => 32,
-                        'clock_ghz' => 3.9,
+                        'clock_ghz' => 5.0,
                         'compute_power' => 4000,
                         'stability' => 97,
                         'power_draw_w' => 220,
@@ -282,7 +282,7 @@ class HardwarePartsSeeder extends Seeder
                     'price' => 25000,
                     'specifications' => json_encode([
                         'cores' => 64,
-                        'clock_ghz' => 5.0,
+                        'clock_ghz' => 6.0,
                         'compute_power' => 8000,
                         'stability' => 99,
                         'power_draw_w' => 280,
@@ -299,7 +299,7 @@ class HardwarePartsSeeder extends Seeder
                     'type' => 'ram',
                     'price' => 50,
                     'specifications' => json_encode([
-                        'capacity_gb' => 1,
+                        'capacity_mb' => 256,
                         'speed_mhz' => 400,
                         'stability' => 70,
                         'power_draw_w' => 5,
@@ -312,7 +312,7 @@ class HardwarePartsSeeder extends Seeder
                     'type' => 'ram',
                     'price' => 120,
                     'specifications' => json_encode([
-                        'capacity_gb' => 2,
+                        'capacity_mb' => 512,
                         'speed_mhz' => 800,
                         'stability' => 75,
                         'power_draw_w' => 6,
@@ -325,7 +325,7 @@ class HardwarePartsSeeder extends Seeder
                     'type' => 'ram',
                     'price' => 300,
                     'specifications' => json_encode([
-                        'capacity_gb' => 4,
+                        'capacity_mb' => 1024,
                         'speed_mhz' => 1333,
                         'stability' => 80,
                         'power_draw_w' => 7,
@@ -338,7 +338,7 @@ class HardwarePartsSeeder extends Seeder
                     'type' => 'ram',
                     'price' => 600,
                     'specifications' => json_encode([
-                        'capacity_gb' => 8,
+                        'capacity_mb' => 1536,
                         'speed_mhz' => 1600,
                         'stability' => 85,
                         'power_draw_w' => 8,
@@ -351,7 +351,7 @@ class HardwarePartsSeeder extends Seeder
                     'type' => 'ram',
                     'price' => 900,
                     'specifications' => json_encode([
-                        'capacity_gb' => 8,
+                        'capacity_mb' => 2048,
                         'speed_mhz' => 2400,
                         'stability' => 88,
                         'power_draw_w' => 9,
@@ -364,7 +364,7 @@ class HardwarePartsSeeder extends Seeder
                     'type' => 'ram',
                     'price' => 1500,
                     'specifications' => json_encode([
-                        'capacity_gb' => 16,
+                        'capacity_mb' => 3072,
                         'speed_mhz' => 3000,
                         'stability' => 90,
                         'power_draw_w' => 10,
@@ -377,7 +377,7 @@ class HardwarePartsSeeder extends Seeder
                     'type' => 'ram',
                     'price' => 2600,
                     'specifications' => json_encode([
-                        'capacity_gb' => 32,
+                        'capacity_mb' => 4096,
                         'speed_mhz' => 3200,
                         'stability' => 93,
                         'power_draw_w' => 11,
@@ -390,7 +390,7 @@ class HardwarePartsSeeder extends Seeder
                     'type' => 'ram',
                     'price' => 4200,
                     'specifications' => json_encode([
-                        'capacity_gb' => 32,
+                        'capacity_mb' => 5120,
                         'speed_mhz' => 4800,
                         'stability' => 95,
                         'power_draw_w' => 12,
@@ -403,7 +403,7 @@ class HardwarePartsSeeder extends Seeder
                     'type' => 'ram',
                     'price' => 7000,
                     'specifications' => json_encode([
-                        'capacity_gb' => 64,
+                        'capacity_mb' => 6144,
                         'speed_mhz' => 5600,
                         'stability' => 97,
                         'power_draw_w' => 14,
@@ -416,7 +416,7 @@ class HardwarePartsSeeder extends Seeder
                     'type' => 'ram',
                     'price' => 15000,
                     'specifications' => json_encode([
-                        'capacity_gb' => 128,
+                        'capacity_mb' => 8192,
                         'speed_mhz' => 7200,
                         'stability' => 99,
                         'power_draw_w' => 18,
@@ -557,7 +557,7 @@ class HardwarePartsSeeder extends Seeder
                     'type' => 'disk',
                     'price' => 60,
                     'specifications' => json_encode([
-                        'capacity_gb' => 80,
+                        'capacity_gb' => 0.1,
                         'speed' => 40,
                         'stealth_bonus' => 0,
                         'tier' => 1,
@@ -569,7 +569,7 @@ class HardwarePartsSeeder extends Seeder
                     'type' => 'disk',
                     'price' => 120,
                     'specifications' => json_encode([
-                        'capacity_gb' => 250,
+                        'capacity_gb' => 0.25,
                         'speed' => 60,
                         'stealth_bonus' => 1,
                         'tier' => 2,
@@ -581,7 +581,7 @@ class HardwarePartsSeeder extends Seeder
                     'type' => 'disk',
                     'price' => 250,
                     'specifications' => json_encode([
-                        'capacity_gb' => 500,
+                        'capacity_gb' => 0.5,
                         'speed' => 80,
                         'stealth_bonus' => 1,
                         'tier' => 3,
@@ -593,7 +593,7 @@ class HardwarePartsSeeder extends Seeder
                     'type' => 'disk',
                     'price' => 500,
                     'specifications' => json_encode([
-                        'capacity_gb' => 1000,
+                        'capacity_gb' => 1,
                         'speed' => 120,
                         'stealth_bonus' => 2,
                         'tier' => 4,
@@ -605,7 +605,7 @@ class HardwarePartsSeeder extends Seeder
                     'type' => 'disk',
                     'price' => 900,
                     'specifications' => json_encode([
-                        'capacity_gb' => 512,
+                        'capacity_gb' => 2,
                         'speed' => 300,
                         'stealth_bonus' => 3,
                         'tier' => 5,
@@ -617,7 +617,7 @@ class HardwarePartsSeeder extends Seeder
                     'type' => 'disk',
                     'price' => 1600,
                     'specifications' => json_encode([
-                        'capacity_gb' => 1024,
+                        'capacity_gb' => 4,
                         'speed' => 600,
                         'stealth_bonus' => 4,
                         'tier' => 6,
@@ -629,7 +629,7 @@ class HardwarePartsSeeder extends Seeder
                     'type' => 'disk',
                     'price' => 2800,
                     'specifications' => json_encode([
-                        'capacity_gb' => 2048,
+                        'capacity_gb' => 8,
                         'speed' => 900,
                         'stealth_bonus' => 6,
                         'tier' => 7,
@@ -641,7 +641,7 @@ class HardwarePartsSeeder extends Seeder
                     'type' => 'disk',
                     'price' => 5000,
                     'specifications' => json_encode([
-                        'capacity_gb' => 4096,
+                        'capacity_gb' => 12,
                         'speed' => 1300,
                         'stealth_bonus' => 8,
                         'tier' => 8,
@@ -653,7 +653,7 @@ class HardwarePartsSeeder extends Seeder
                     'type' => 'disk',
                     'price' => 8500,
                     'specifications' => json_encode([
-                        'capacity_gb' => 8192,
+                        'capacity_gb' => 20,
                         'speed' => 1800,
                         'stealth_bonus' => 10,
                         'tier' => 9,
@@ -665,7 +665,7 @@ class HardwarePartsSeeder extends Seeder
                     'type' => 'disk',
                     'price' => 15000,
                     'specifications' => json_encode([
-                        'capacity_gb' => 16384,
+                        'capacity_gb' => 30,
                         'speed' => 3000,
                         'stealth_bonus' => 15,
                         'tier' => 10,
@@ -679,9 +679,9 @@ class HardwarePartsSeeder extends Seeder
                     'name' => 'USB Stick Cache',
                     'category' => 'hardware',
                     'type' => 'externalDrive',
-                    'price' => 80,
+                    'price' => 50,
                     'specifications' => json_encode([
-                        'extra_capacity_gb' => 64,
+                        'extra_capacity_gb' => 0.1,
                         'backup_slots' => 0,
                         'stealth_bonus' => 0,
                         'access_speed' => 20,
@@ -692,9 +692,9 @@ class HardwarePartsSeeder extends Seeder
                     'name' => 'Portable HDD',
                     'category' => 'hardware',
                     'type' => 'externalDrive',
-                    'price' => 200,
+                    'price' => 75,
                     'specifications' => json_encode([
-                        'extra_capacity_gb' => 250,
+                        'extra_capacity_gb' => 0.5,
                         'backup_slots' => 1,
                         'stealth_bonus' => 0,
                         'access_speed' => 30,
@@ -705,9 +705,9 @@ class HardwarePartsSeeder extends Seeder
                     'name' => 'Encrypted USB Drive',
                     'category' => 'hardware',
                     'type' => 'externalDrive',
-                    'price' => 450,
+                    'price' => 150,
                     'specifications' => json_encode([
-                        'extra_capacity_gb' => 128,
+                        'extra_capacity_gb' => 1,
                         'backup_slots' => 1,
                         'stealth_bonus' => 2,
                         'access_speed' => 40,
@@ -718,9 +718,9 @@ class HardwarePartsSeeder extends Seeder
                     'name' => 'External Backup HDD',
                     'category' => 'hardware',
                     'type' => 'externalDrive',
-                    'price' => 900,
+                    'price' => 200,
                     'specifications' => json_encode([
-                        'extra_capacity_gb' => 1000,
+                        'extra_capacity_gb' => 1.5,
                         'backup_slots' => 2,
                         'stealth_bonus' => 1,
                         'access_speed' => 50,
@@ -731,9 +731,9 @@ class HardwarePartsSeeder extends Seeder
                     'name' => 'Portable SSD',
                     'category' => 'hardware',
                     'type' => 'externalDrive',
-                    'price' => 1600,
+                    'price' => 250,
                     'specifications' => json_encode([
-                        'extra_capacity_gb' => 512,
+                        'extra_capacity_gb' => 2.0,
                         'backup_slots' => 2,
                         'stealth_bonus' => 3,
                         'access_speed' => 120,
@@ -744,9 +744,9 @@ class HardwarePartsSeeder extends Seeder
                     'name' => 'Encrypted External SSD',
                     'category' => 'hardware',
                     'type' => 'externalDrive',
-                    'price' => 2800,
+                    'price' => 275,
                     'specifications' => json_encode([
-                        'extra_capacity_gb' => 1024,
+                        'extra_capacity_gb' => 2.5,
                         'backup_slots' => 3,
                         'stealth_bonus' => 5,
                         'access_speed' => 200,
@@ -757,9 +757,9 @@ class HardwarePartsSeeder extends Seeder
                     'name' => 'Cold Storage Vault',
                     'category' => 'hardware',
                     'type' => 'externalDrive',
-                    'price' => 4800,
+                    'price' => 300,
                     'specifications' => json_encode([
-                        'extra_capacity_gb' => 4096,
+                        'extra_capacity_gb' => 3.0,
                         'backup_slots' => 3,
                         'stealth_bonus' => 6,
                         'access_speed' => 80,
@@ -770,9 +770,9 @@ class HardwarePartsSeeder extends Seeder
                     'name' => 'Shadow Backup Node',
                     'category' => 'hardware',
                     'type' => 'externalDrive',
-                    'price' => 8200,
+                    'price' => 350,
                     'specifications' => json_encode([
-                        'extra_capacity_gb' => 8192,
+                        'extra_capacity_gb' => 3.5,
                         'backup_slots' => 4,
                         'stealth_bonus' => 8,
                         'access_speed' => 150,
@@ -783,9 +783,9 @@ class HardwarePartsSeeder extends Seeder
                     'name' => 'Dark Archive Array',
                     'category' => 'hardware',
                     'type' => 'externalDrive',
-                    'price' => 14000,
+                    'price' => 400,
                     'specifications' => json_encode([
-                        'extra_capacity_gb' => 16384,
+                        'extra_capacity_gb' => 4.0,
                         'backup_slots' => 5,
                         'stealth_bonus' => 12,
                         'access_speed' => 250,
@@ -796,9 +796,9 @@ class HardwarePartsSeeder extends Seeder
                     'name' => 'Quantum Offsite Vault',
                     'category' => 'hardware',
                     'type' => 'externalDrive',
-                    'price' => 25000,
+                    'price' => 450,
                     'specifications' => json_encode([
-                        'extra_capacity_gb' => 32768,
+                        'extra_capacity_gb' => 4.5,
                         'backup_slots' => 6,
                         'stealth_bonus' => 20,
                         'access_speed' => 500,

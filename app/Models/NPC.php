@@ -29,7 +29,4 @@ class NPC extends Model
         return $this->morphOne(UserNetwork::class, 'owner');
     }
 
-    public function connectivity() {
-        return $this->morphOne(UserConnectivity::class, 'owner');
-    }
 }

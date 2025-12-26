@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('ip')->unique();
             $table->string('user')->unique();
             $table->string('password', 8);
+            $table->foreignId('connectivity_id')->constrained('hardware_parts')->cascadeOnDelete();
             $table->foreignId('connected_to_network_id')
                 ->nullable()
                 ->constrained('user_networks')

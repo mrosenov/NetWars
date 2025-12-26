@@ -47,16 +47,12 @@ class UserSeeder extends Seeder
             ]);
         }
 
-        # Assign Internet
-        $user->connectivity()->create([
-            'service_id' => 74,
-        ]);
-
         $ip = UserNetworkController::generateIp();
         $username = UserNetworkController::generateUsername();
 
         $user->network()->create([
             'hardware_id' => 61,
+            'connectivity_id' => 74,
             'ip' => $ip,
             'user' => $username,
             'password' => Str::random(8),

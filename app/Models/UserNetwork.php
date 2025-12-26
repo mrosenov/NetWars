@@ -14,6 +14,7 @@ class UserNetwork extends Model
         'ip',
         'user',
         'password',
+        'connectivity_id',
     ];
 
     public function owner() {
@@ -26,5 +27,9 @@ class UserNetwork extends Model
 
     public function hardware() {
         return $this->belongsTo(HardwareParts::class, 'hardware_id');
+    }
+
+    public function connectivity() {
+        return $this->belongsTo(HardwareParts::class, 'connectivity_id');
     }
 }
