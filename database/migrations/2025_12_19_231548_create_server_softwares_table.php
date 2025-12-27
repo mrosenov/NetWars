@@ -15,17 +15,16 @@ return new class extends Migration
             $table->engine = 'InnoDB';
             $table->id();
 
-            $table->foreignId('server_id')->constrained('servers')->cascadeOnDelete();
+            $table->morphs('owner');
             $table->enum('type', ['crc', 'hash', 'scan', 'exp', 'fwl', 'hdr', 'skr', 'vspam', 'vwarez', 'vddos', 'vcol', 'vminer', 'vbrk', 'nmap', 'ana', 'puzzle']);
             $table->string('name');
-            $table->float('version',1);
+            $table->decimal('version', 10, 1)->default(1.0);
             $table->integer('size');
             $table->json('requirements')->nullable();
-            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->boolean('is_hidden')->default(false);
             $table->timestamps();
 
-            $table->index(['server_id', 'type']);
+            $table->index(['name', 'type']);
         });
     }
 

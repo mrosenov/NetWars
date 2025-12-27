@@ -107,6 +107,9 @@ class User extends Authenticatable implements MustVerifyEmail
         return (bool) $this->network?->connected_to_network_id;
     }
 
+    public function TotalStorage() {
+        return 1;
+    }
     public function connectedNetwork() {
         return $this->network?->connected;
     }

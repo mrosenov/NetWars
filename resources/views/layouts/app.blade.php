@@ -44,7 +44,7 @@
         </div>
 
         <!-- Modal -->
-        @include('modals.sample')
+        @include('modals.software')
         <!-- Modal -->
 
         <script>
@@ -120,6 +120,41 @@
                     }
                 });
             })();
+        </script>
+        <script>
+            document.addEventListener('click', async (e) => {
+                const btn = e.target.closest('[data-modal-open="swModal"]');
+                if (!btn) return;
+
+                const id = btn.dataset.hwId;
+                if (!id) return;
+
+                const modal = document.getElementById('swModal');
+                if (!modal) return;
+
+                // set "loading" state
+                modal.querySelector('[data-sw-name]').textContent = 'Loading…';
+
+                try {
+                    const res = await fetch(`/internet/software/${id}/json`, {
+                        headers: { 'Accept': 'application/json' }
+                    });
+
+                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                    const data = await res.json();
+                    console.log(data)
+                    modal.querySelector('[data-sw-name]').textContent = data.name ?? '(no title)';
+                    modal.querySelector('[data-sw-version]').textContent = data.version ?? '(no version)';
+                    modal.querySelector('[data-sw-license]').textContent = data.license ?? '(None)';
+                    modal.querySelector('[data-sw-type]').textContent = data.type ?? 'Cant load..';
+                    modal.querySelector('[data-sw-size]').textContent = data.size ?? 'Cant load..';
+                    modal.querySelector('[data-sw-usage]').textContent = data.usage ?? 'Cant load..';
+                    modal.querySelector('[data-sw-created]').textContent = data.created ?? 'Cant load..';
+                } catch (err) {
+                    modal.querySelector('[data-sw-name]').textContent = 'Failed to load';
+                    console.error(err);
+                }
+            });
         </script>
     </body>
 </html>

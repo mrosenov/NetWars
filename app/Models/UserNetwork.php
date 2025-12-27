@@ -15,6 +15,7 @@ class UserNetwork extends Model
         'user',
         'password',
         'connectivity_id',
+        'connected_to_network_id',
     ];
 
     public function owner() {

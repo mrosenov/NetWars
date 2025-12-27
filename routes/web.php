@@ -1,8 +1,11 @@
 <?php
 
+use App\Http\Controllers\ServerSoftwaresController;
+use App\Http\Controllers\TargetController;
 use App\Http\Controllers\Dashboard;
 use App\Http\Controllers\InternetController;
 use App\Http\Controllers\ProfileController;
+use App\Models\ServerSoftwares;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -23,5 +26,23 @@ Route::middleware(['auth', 'verified'])->group(function () {
     # Internet
     Route::get('/internet', [InternetController::class, 'index'])->name('internet.index');
     Route::get('/internet/{ip}', [InternetController::class, 'show'])->where('ip', '[0-9\.]+')->name('internet.show');
+
+    Route::get('/internet/{ip}/login', [InternetController::class, 'loginShow'])->name('internet.loginShow');
+    Route::post('/internet/{ip}/login', [InternetController::class, 'login'])->where('ip', '[0-9\.]+')->name('internet.login');
+
+    Route::get('/internet/{ip}/hack', [InternetController::class, 'hackShow'])->name('internet.hackShow');
+
+    Route::get('/internet/target', [TargetController::class, 'index'])->name('target.index');
+    Route::get('/internet/target/software', [TargetController::class, 'software'])->name('target.software');
+
+    Route::get('/internet/software/{software}/json', [ServerSoftwaresController::class, 'json'])->name('internet.software.json');
+//    Route::get('/internet/software/{software}/json', function (ServerSoftwares $software) {
+//        return response()->json([
+//            'id'   => $software->id,
+//            'name' => $software->name,
+//            'version' => 'v'.$software->version,
+//        ]);
+//    })->name('internet.software.json');
+
 });
 require __DIR__.'/auth.php';
