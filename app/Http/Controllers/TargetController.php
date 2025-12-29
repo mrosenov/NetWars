@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ServerSoftwares;
 use Illuminate\Http\Request;
 
 class TargetController extends Controller
@@ -78,5 +79,16 @@ class TargetController extends Controller
             'TB' => $value * 1000 * 1000,
             default => $value,
         };
+    }
+
+
+    public function download(ServerSoftwares $software) {
+        $user = auth()->user();
+
+        $copy = $software->replicate();
+        $copy->owner()->associate($user);
+        $copy->save();
+
+        return redirect()->back()->with('success', 'Software downloaded successfully.');
     }
 }

@@ -25,6 +25,13 @@ class User extends Authenticatable implements MustVerifyEmail
         'name',
         'email',
         'password',
+        'version',
+        'type',
+        'size',
+        'requirements',
+        'is_hidden',
+        'owner_type',
+        'owner_id',
     ];
 
     /**
@@ -120,6 +127,10 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function resources() {
         return $this->morphMany(ServerResources::class, 'owner');
+    }
+
+    public function software(): \Illuminate\Database\Eloquent\Relations\MorphMany {
+        return $this->morphMany(ServerSoftwares::class, 'owner');
     }
 
     public function OverallResources(): array

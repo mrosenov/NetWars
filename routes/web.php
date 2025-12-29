@@ -34,15 +34,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/internet/target', [TargetController::class, 'index'])->name('target.index');
     Route::get('/internet/target/software', [TargetController::class, 'software'])->name('target.software');
+    Route::post('/internet/target/software/{software}/download', [TargetController::class, 'download'])->name('target.software.download');
 
     Route::get('/internet/software/{software}/json', [ServerSoftwaresController::class, 'json'])->name('internet.software.json');
-//    Route::get('/internet/software/{software}/json', function (ServerSoftwares $software) {
-//        return response()->json([
-//            'id'   => $software->id,
-//            'name' => $software->name,
-//            'version' => 'v'.$software->version,
-//        ]);
-//    })->name('internet.software.json');
 
 });
 require __DIR__.'/auth.php';

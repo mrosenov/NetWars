@@ -9,6 +9,11 @@ class ServerSoftwares extends Model
     protected $table = 'software';
 
     protected $fillable = ['id'];
+
+    public function owner() {
+        return $this->morphTo();
+    }
+
     public function convertSize() {
         $size = 0;
 

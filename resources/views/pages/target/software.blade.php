@@ -106,12 +106,15 @@
                                                 </svg>
                                             </button>
 
-                                            <button class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white hover:bg-slate-50 dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10 text-green-500 dark:text-green-400">
-                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                                                    <path d="M12 3v10m0 0 4-4m-4 4-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                                    <path d="M4 17v3h16v-3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                                                </svg>
-                                            </button>
+                                            <form method="POST" action="{{ route('target.software.download', $soft->id) }}">
+                                                @csrf
+                                                <button class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white hover:bg-slate-50 dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10 text-green-500 dark:text-green-400">
+                                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                                        <path d="M12 3v10m0 0 4-4m-4 4-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                        <path d="M4 17v3h16v-3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                                    </svg>
+                                                </button>
+                                            </form>
                                         </div>
                                     </td>
                                 </tr>
