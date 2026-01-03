@@ -32,7 +32,7 @@ class NetworkTransfersTick extends Command
         $now = now();
         $limit = (int) $this->option('limit');
 
-        # Grab a batch of processes that should be finished by ends_at
+        # Grab a batch of processes that ends_at should finish
         $finishedIds = UserProcess::query()
             ->where('resource_type', 'network')
             ->where('status', 'running')
