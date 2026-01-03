@@ -1,5 +1,15 @@
 @section('title', 'Software')
 
+@push('breadcrumbs')
+    <span>/</span>
+    <a href="{{ route('internet.index') }}" class="hover:text-slate-700 dark:hover:text-slate-200">Internet</a>
+
+    <span>/</span>
+    <a href="{{ route('internet.show', $network->ip) }}" class="hover:text-slate-700 dark:hover:text-slate-200">
+        {{ $network->ip }}
+    </a>
+@endpush
+
 <x-app-layout>
     <section class="space-y-5">
         {{-- Top Tabs --}}
@@ -112,7 +122,7 @@
                                 </button>
                             </form>
                             <div class="mt-4 text-center text-xs text-slate-500 dark:text-slate-400">
-                                <span class="font-semibold text-slate-700 dark:text-slate-200">{{ $targetNetwork->connectivity->specifications['connectivity_mbps'] }} Mbps</span>
+                                <span class="font-semibold text-slate-700 dark:text-slate-200">{{ $network->connectivity->specifications['connectivity_mbps'] }} Mbps</span>
                                 <span class="mx-1">/</span>
                                 <span>({{ $targetNetTotalsMb['down_mbps'] }}MB/s - {{ $targetNetTotalsMb['up_mbps'] }}MB/s)</span>
                             </div>

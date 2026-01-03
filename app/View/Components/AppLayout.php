@@ -2,6 +2,7 @@
 
 namespace App\View\Components;
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\View\Component;
 use Illuminate\View\View;
 
@@ -12,6 +13,9 @@ class AppLayout extends Component
      */
     public function render(): View
     {
-        return view('layouts.app');
+        $network = Auth::user()?->connectedNetwork();
+        return view('layouts.app', [
+            'network' => $network
+        ]);
     }
 }

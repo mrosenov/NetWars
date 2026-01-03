@@ -63,7 +63,7 @@ class TargetController extends Controller
         ];
 
         return view('pages.target.software', [
-            'targetNetwork' => $targetNetwork,
+            'network' => $targetNetwork,
             'user' => $user,
             'TargetUsage' => $TargetUsage,
             'software' => $target->software,

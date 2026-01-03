@@ -12,16 +12,19 @@ class NetworkLogfileController extends Controller
 {
     public function show(NetworkLogService $logs) {
         $user = auth()->user();
+
+        $network = $user?->connectedNetwork();
         $networkId = $user?->connectedNetwork()?->id;
 
-        if (!$networkId) {
-            return redirect('internet.index')->with('status', 'No network connected.');
+        if (!$network) {
+            return redirect()->route('internet.index')->with('status', 'No network connected.');
         }
 
-        $log = $logs->get($networkId);
+        $log = $logs->get($network->id);
 
         return view('pages.target.logs', [
-            'networkId' => $networkId,
+            'network' => $network,
+            'networkId' => $network->id,
             'content' => (string) $log->content,
             'baseHash' => $logs->baseHash((string) $log->content),
         ]);

@@ -10,6 +10,11 @@
                 {{ session('logout_ok') }}
             </x-alert>
         @endif
+        @if (session('status'))
+            <x-alert type="warning">
+                {{ session('status') }}
+            </x-alert>
+        @endif
         {{-- Important IPs --}}
         <div class="w-full max-w-[300px]">
             <div class="rounded-2xl border border-slate-200 bg-white/80 shadow-sm backdrop-blur dark:border-white/10 dark:bg-white/5 dark:shadow-glow">

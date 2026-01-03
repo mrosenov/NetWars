@@ -11,7 +11,6 @@ class NPCController extends Controller
 {
     public static function generateHardware(NPC $npc, Servers $server): void
     {
-        $username = UserNetworkController::generateUsername();
         $ip = ($npc->name === '1st WhoIs') ? '1.2.3.4' : UserNetworkController::generateIp();
 
         // Type -> hardware id sets
@@ -50,7 +49,7 @@ class NPCController extends Controller
             'hardware_id' => $profile['network'],
             'connectivity_id' => $profile['connectivity'],
             'ip'          => $ip,
-            'user'        => $username,
+            'user'        => 'root',
             'password'    => Str::random(8),
         ]);
     }

@@ -18,7 +18,7 @@ return new class extends Migration
             $table->morphs('owner');
             $table->foreignId('hardware_id')->constrained('hardware_parts')->cascadeOnDelete();
             $table->string('ip')->unique();
-            $table->string('user')->unique();
+            $table->string('user');
             $table->string('password', 8);
             $table->foreignId('connectivity_id')->constrained('hardware_parts')->cascadeOnDelete();
             $table->foreignId('connected_to_network_id')

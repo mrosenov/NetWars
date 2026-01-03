@@ -86,9 +86,22 @@ class InternetController extends Controller
 
         session()->forget($key);
 
-        app(NetworkLogService::class)->appendLine($network->id,
-            sprintf("[%s] - [%s] logged in as root", now()->format('Y-m-d H:i:s'), $hacker->network->ip)
-        );
+        if (($network->owner->type ?? null) !== 'download') {
+            app(NetworkLogService::class)->appendLine(
+                $network->id,
+                sprintf(
+                    "[%s] - [%s] logged in as root",
+                    now()->format('Y-m-d H:i:s'),
+                    $hacker->network->ip
+                )
+            );
+        }
+
+//        if ($network->owner instanceof NPC && $network->owner->type =! 'download') {
+//            app(NetworkLogService::class)->appendLine($network->id,
+//                sprintf("[%s] - [%s] logged in as root", now()->format('Y-m-d H:i:s'), $hacker->network->ip)
+//            );
+//        }
 
         return redirect()->route('target.logs')->with('login_ok', 'Login successful. Shell target granted.');
     }
