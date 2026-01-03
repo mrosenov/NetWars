@@ -178,7 +178,6 @@ class NetworkLogfileController extends Controller
 
     public function content(int $networkId, NetworkLogService $logs)
     {
-        // TODO: add auth/permission checks for reading logs
         $content = $logs->get($networkId) ?? '';
 
         return response()->json([
