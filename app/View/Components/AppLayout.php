@@ -13,9 +13,6 @@ class AppLayout extends Component
      */
     public function render(): View
     {
-        $network = Auth::user()?->connectedNetwork();
-        return view('layouts.app', [
-            'network' => $network
-        ]);
+        return view('layouts.app');
     }
 }
