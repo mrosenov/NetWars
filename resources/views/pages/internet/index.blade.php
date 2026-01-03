@@ -5,7 +5,11 @@
         <!-- IP BAR -->
         @include('pages.internet.partials.search')
         <!-- IP BAR -->
-
+        @if (session('logout_ok'))
+            <x-alert type="warning">
+                {{ session('logout_ok') }}
+            </x-alert>
+        @endif
         {{-- Important IPs --}}
         <div class="w-full max-w-[300px]">
             <div class="rounded-2xl border border-slate-200 bg-white/80 shadow-sm backdrop-blur dark:border-white/10 dark:bg-white/5 dark:shadow-glow">

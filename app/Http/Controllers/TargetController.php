@@ -67,7 +67,25 @@ class TargetController extends Controller
             'user' => $user,
             'TargetUsage' => $TargetUsage,
             'software' => $target->software,
+            'targetNetTotalsMb' => $this->getTargetNetTotals(),
         ]);
+    }
+
+    public function getTargetNetTotals() {
+
+        $user = auth()->user();
+        $hwService = $user->connectedNetwork()->connectivity;
+
+        $spec = is_array($hwService->specifications) ? $hwService->specifications : (array) $hwService->specifications;
+        $connectivity = $spec['connectivity_mbps'];
+
+        $downMbps = max(0.0001, $connectivity / 8);
+        $upMbps = max(0.0001, $connectivity / 16);
+
+        return [
+            'down_mbps' => max(0, $downMbps),
+            'up_mbps'   => max(0, $upMbps),
+        ];
     }
 
     private function toMb(float $value, string $unit): float {
@@ -90,5 +108,14 @@ class TargetController extends Controller
         $copy->save();
 
         return redirect()->back()->with('success', 'Software downloaded successfully.');
+    }
+
+    public function logout() {
+        $user = auth()->user();
+        $user->network()->update([
+            'connected_to_network_id' => null,
+        ]);
+
+        return redirect()->route('internet.index')->with('logout_ok', 'Logged out successfully.');
     }
 }

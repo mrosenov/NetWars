@@ -8,7 +8,10 @@ class ServerSoftwares extends Model
 {
     protected $table = 'software';
 
-    protected $fillable = ['id'];
+    protected $fillable = ['id',
+        'user_id',
+        'software_id'
+    ];
 
     public function owner() {
         return $this->morphTo();

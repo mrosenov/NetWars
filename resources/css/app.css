@@ -78,3 +78,14 @@
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-thumb { background: rgba(148,163,184,.35); border-radius: 999px; }
 .dark ::-webkit-scrollbar-thumb { background: rgba(148,163,184,.22); }
+
+/* Dark mode select dropdown fix */
+.dark select option {
+    background-color: #0f172a; /* slate-900 */
+    color: #e5e7eb;           /* slate-200 */
+}
+
+.dark select optgroup {
+    background-color: #0f172a;
+    color: #e5e7eb;
+}

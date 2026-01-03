@@ -41,9 +41,10 @@
         </div>
     </div>
 </form>
+
 @if(Auth::user()->isConnected())
     <x-alert type="warning">
-        You are currently logged to {{ Auth::user()->network->connected->ip }}. Would you like to [log out]?
+        You are currently logged to <a href="{{ route('target.logs') }}" class="no-underline text-cyan-400 hover:text-cyan-200">{{ Auth::user()->network->connected->ip }}</a>. Would you like to [log out]?
     </x-alert>
 @endif
 

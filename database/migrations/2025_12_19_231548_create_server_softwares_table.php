@@ -19,7 +19,7 @@ return new class extends Migration
             $table->enum('type', ['crc', 'hash', 'scan', 'exp', 'fwl', 'hdr', 'skr', 'vspam', 'vwarez', 'vddos', 'vcol', 'vminer', 'vbrk', 'nmap', 'ana', 'puzzle']);
             $table->string('name');
             $table->decimal('version', 10, 1)->default(1.0);
-            $table->integer('size');
+            $table->bigInteger('size');
             $table->json('requirements')->nullable();
             $table->boolean('is_hidden')->default(false);
             $table->timestamps();

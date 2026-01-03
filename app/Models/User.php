@@ -32,6 +32,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'is_hidden',
         'owner_type',
         'owner_id',
+        'connected_to_network_id',
     ];
 
     /**
@@ -132,6 +133,37 @@ class User extends Authenticatable implements MustVerifyEmail
     public function software(): \Illuminate\Database\Eloquent\Relations\MorphMany {
         return $this->morphMany(ServerSoftwares::class, 'owner');
     }
+
+
+    public function totalStorageMb(): float {
+        $resources = $this->resources()->with('hardware')->get();
+
+        $storageGb = 0.0;
+
+        foreach ($resources as $resource) {
+            $hardware = $resource->hardware;
+
+            if (!$hardware || $hardware->type !== 'disk') {
+                continue;
+            }
+
+            $spec = $hardware->specifications ?? [];
+            $storageGb += (float) data_get($spec, 'capacity_gb', 0);
+        }
+
+        // Convert GB → MB
+        return $storageGb * 1000;
+    }
+
+
+    public function totalUsedStorageMb(): float {
+        return $this->software->sum(fn ($soft) => (float) $soft->size);
+    }
+
+    public function availableStorageMb(): float {
+        return max(0, $this->totalStorageMb() - $this->totalUsedStorageMb());
+    }
+
 
     public function OverallResources(): array
     {

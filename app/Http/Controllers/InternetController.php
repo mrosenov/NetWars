@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\UserNetwork;
+use App\Services\NetworkLogService;
 use Auth;
 use Illuminate\Http\Request;
 
@@ -54,6 +55,8 @@ class InternetController extends Controller
 
         $network = UserNetwork::where('ip', $ip)->with(['owner'])->firstOrFail();
 
+        $hacker = auth()->user();
+
         $data = $request->validate([
             'username' => ['required', 'string', 'max:64'],
             'password' => ['required', 'string', 'max:128'],
@@ -83,7 +86,11 @@ class InternetController extends Controller
 
         session()->forget($key);
 
-        return redirect()->route('target.index')->with('login_ok', 'Login successful. Shell target granted.');
+        app(NetworkLogService::class)->appendLine($network->id,
+            sprintf("[%s] - [%s] logged in as root", now()->format('Y-m-d H:i:s'), $hacker->network->ip)
+        );
+
+        return redirect()->route('target.logs')->with('login_ok', 'Login successful. Shell target granted.');
     }
 
     public function targetType($ip) {
