@@ -44,6 +44,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     # Save and read logs from the target server
     Route::get('/internet/target/logs', [NetworkLogfileController::class, 'show'])->name('target.logs');
     Route::post('/networks/{networkId}/logs', [NetworkLogfileController::class, 'save'])->middleware('throttle:10,1')->name('target.logs.save');
+    Route::get('/networks/{networkId}/log-save-status', [NetworkLogfileController::class, 'logSaveStatus']);
+    Route::get('/networks/{networkId}/logs/content', [NetworkLogfileController::class, 'content']);
+    Route::post('/networks/{networkId}/log-save/finalize', [NetworkLogfileController::class, 'finalizeLogSave']);
 
     # Target logout
     Route::get('/internet/target/logout', [TargetController::class, 'logout'])->name('target.logout');

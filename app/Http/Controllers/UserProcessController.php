@@ -118,7 +118,7 @@ class UserProcessController extends Controller
             return;
         }
 
-        // Even split. Priority of process might be implemented later.
+        // Even split. Priority of a process might be implemented later.
         $newShare = (int) max(1, floor(100 / $n));
 
         foreach ($processes as $process) {
@@ -412,7 +412,7 @@ class UserProcessController extends Controller
             networkId: (int) $networkId,
             actorId: (int) $p->user_id,
             newContent: $content,
-            expectedBaseHash: $baseHash
+//            expectedBaseHash: $baseHash
         );
     }
 

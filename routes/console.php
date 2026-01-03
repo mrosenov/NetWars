@@ -15,6 +15,6 @@ Schedule::command('transfers:tick')
     ->runInBackground();
 
 Schedule::command('network:logfile')
-    ->everySecond()
+    ->everyMinute()
     ->withoutOverlapping()
     ->runInBackground();

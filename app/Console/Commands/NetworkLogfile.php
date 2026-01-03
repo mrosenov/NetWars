@@ -61,29 +61,32 @@ class NetworkLogfile extends Command
         return self::SUCCESS;
     }
 
-    private function applyLogEdit(UserProcess $p): void
+    public function applyLogEdit(UserProcess $p): void
     {
         $meta = $p->metadata ?? [];
         $networkId = $meta['network_id'] ?? null;
-        $baseHash  = $meta['base_hash'] ?? null;
 
-        if (!$networkId || !$baseHash) {
+        if (!$networkId) {
             throw new \RuntimeException('Invalid process metadata');
         }
 
-        $logs = new NetworkLogService();
-        $content = $logs->get($networkId) ?? null;
-
+        // The content the player wants to save (store it in payload_text when process is created)
+        $content = $meta['content'] ?? null;
         if ($content === null) {
-            throw new \RuntimeException('Missing log content');
+            throw new \RuntimeException('Missing payload_text content');
         }
 
+        // FORCE MODE: compute expectedBaseHash from the CURRENT log content
+        $currentContent = $this->logs->get((int)$networkId) ?? '';
+//        $expectedBaseHash = hash('sha256', $currentContent);
+//
         $this->logs->saveEdited(
             networkId: (int) $networkId,
             actorId: (int) $p->user_id,
             newContent: $content,
-            expectedBaseHash: (string) $baseHash
+//            expectedBaseHash: $expectedBaseHash
         );
     }
+
 }
 

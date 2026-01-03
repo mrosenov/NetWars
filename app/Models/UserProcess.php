@@ -19,6 +19,7 @@ class UserProcess extends Model
         'status',
         'started_at',
         'ends_at',
+        'completed_at',
     ];
 
     protected $casts = [

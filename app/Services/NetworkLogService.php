@@ -41,25 +41,9 @@ class NetworkLogService {
             ]);
     }
 
-    public function saveEdited(int $networkId, ?int $actorId, string $newContent, string $expectedBaseHash): void {
-        DB::transaction(function () use ($networkId, $actorId, $newContent, $expectedBaseHash) {
+    public function saveEdited(int $networkId, ?int $actorId, string $newContent): void {
+        DB::transaction(function () use ($networkId, $actorId, $newContent) {
             $log = NetworkLogfile::query()->where('network_id', $networkId)->lockForUpdate()->firstOrCreate(['network_id' => $networkId], ['content' => '']);
-
-            $current = (string) $log->content;
-            $currentHash = $this->baseHash($current);
-
-            // Prevent silent overwrites if someone else changed it while player was editing
-            if (!hash_equals($currentHash, $expectedBaseHash)) {
-                abort(409, 'Log changed while you were editing. Reload and try again.');
-            }
-
-            // Save previous version (hidden history)
-//            NetworkLogfileVersion::query()->create([
-//                'network_id' => $networkId,
-//                'saved_by_actor_id' => $actorId,
-//                'saved_at' => now(),
-//                'content' => $current,
-//            ]);
 
             $log->content = $newContent;
             $log->tamper_count = $log->tamper_count + 1;
