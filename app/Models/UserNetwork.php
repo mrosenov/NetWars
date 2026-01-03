@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class UserNetwork extends Model
 {
@@ -32,5 +33,13 @@ class UserNetwork extends Model
 
     public function connectivity() {
         return $this->belongsTo(HardwareParts::class, 'connectivity_id');
+    }
+
+    public function hackedNetwork() {
+        return $this->hasOne(HackedNetworks::class, 'network_id');
+    }
+
+    public function isHacked(): bool {
+        return $this->hackedNetwork()->exists();
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\HackedNetworks;
 use App\Models\User;
 use App\Models\UserNetwork;
 use App\Services\NetworkLogService;
@@ -56,6 +57,10 @@ class InternetController extends Controller
         $network = UserNetwork::where('ip', $ip)->with(['owner'])->firstOrFail();
 
         $hacker = auth()->user();
+
+        if ($network->ip === $hacker->network->ip) {
+            return redirect()->route('internet.index')->with('error', 'You cannot login to your own network.');
+        }
 
         $data = $request->validate([
             'username' => ['required', 'string', 'max:64'],
@@ -127,10 +132,14 @@ class InternetController extends Controller
 
     public function loginShow(string $ip) {
         $targetType = $this->targetType($ip);
+        $network = UserNetwork::where('ip', $ip)->with(['owner', 'hardware'])->firstOrFail();
+        $isHacked = $network?->isHacked() ?? false;
 
         return view('pages.internet.login', [
             'ip' => $ip,
             'targetType' => $targetType,
+            'network' => $network,
+            'isHacked' => $isHacked,
         ]);
     }
 

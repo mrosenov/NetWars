@@ -15,6 +15,11 @@
                 {{ session('status') }}
             </x-alert>
         @endif
+        @if (session('error'))
+            <x-alert type="danger">
+                {{ session('error') }}
+            </x-alert>
+        @endif
         {{-- Important IPs --}}
         <div class="w-full max-w-[300px]">
             <div class="rounded-2xl border border-slate-200 bg-white/80 shadow-sm backdrop-blur dark:border-white/10 dark:bg-white/5 dark:shadow-glow">
