@@ -6,7 +6,16 @@
         <!-- IP BAR -->
         @include('pages.internet.partials.search')
         <!-- IP BAR -->
-
+        @if (session('error'))
+            <x-alert type="danger">
+                {{ session('error') }}
+            </x-alert>
+        @endif
+        @if (session('success'))
+            <x-alert type="success">
+                {{ session('success') }}
+            </x-alert>
+        @endif
         <!-- TABS + CONTENT -->
         <div class="rounded-2xl border border-slate-200 bg-white/80 shadow-sm backdrop-blur dark:border-white/10 dark:bg-white/5">
             <!-- Subnavigation -->
@@ -43,7 +52,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
                                 </svg>
                             </div>
-                            <input name="username" value="@if($isHacked){{$network->hackedNetwork->user}} @endif" placeholder="Username" class="w-full bg-transparent border-0 p-0 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-0 dark:text-slate-100 dark:placeholder:text-slate-500" />
+                            <input name="username" value="@if($isHacked){{$network->hackedNetwork->user}}@endif" placeholder="Username" class="w-full bg-transparent border-0 p-0 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-0 dark:text-slate-100 dark:placeholder:text-slate-500" />
                         </div>
 
                         <div class="flex items-center rounded-xl bg-slate-100 px-3 py-2 focus-within:ring-2 focus-within:ring-cyan-500/40 dark:bg-white/5 dark:focus-within:ring-cyan-400/40">

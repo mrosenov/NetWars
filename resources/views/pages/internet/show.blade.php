@@ -6,7 +6,11 @@
         <!-- IP BAR -->
         @include('pages.internet.partials.search')
         <!-- IP BAR -->
-
+        @if (session('error'))
+            <x-alert type="danger">
+                {{ session('error') }}
+            </x-alert>
+        @endif
         <!-- TABS + CONTENT -->
         <div class="rounded-2xl border border-slate-200 bg-white/80 shadow-sm backdrop-blur dark:border-white/10 dark:bg-white/5">
             <!-- Subnavigation -->
