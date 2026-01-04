@@ -14,7 +14,7 @@
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="h-full font-mono overflow-x-hidden dark:bg-[#070A0F]">
+    <body class="h-full font-mono overflow-x-hidden bg-[#f8fafc] dark:bg-[#070A0F]">
         <!-- App shell background -->
         <div class="min-h-full crt grain bg-slate-50 text-slate-900 dark:bg-[#070A0F] dark:text-slate-100">
             <!-- Top bar -->
