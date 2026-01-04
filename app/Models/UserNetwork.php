@@ -42,4 +42,20 @@ class UserNetwork extends Model
     public function isHacked(): bool {
         return $this->hackedNetwork()->exists();
     }
+
+    public function runningSoftware() {
+        return $this->hasMany(RunningSoftware::class, 'network_id');
+    }
+
+    public function cracker() {
+        return $this->hasOneThrough(ServerSoftwares::class, RunningSoftware::class, 'network_id', 'id', 'id', 'software_id')
+            ->where('software.type', 'crc')
+            ->orderByDesc('software.version');
+    }
+
+    public function hasher() {
+        return $this->hasOneThrough(ServerSoftwares::class, RunningSoftware::class, 'network_id', 'id', 'id', 'software_id')
+            ->where('software.type', 'hash')
+            ->orderByDesc('software.version');
+    }
 }

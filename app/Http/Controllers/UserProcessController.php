@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\HackedNetworks;
 use App\Models\ServerSoftwares;
 use App\Models\UserNetwork;
 use App\Models\UserProcess;
@@ -13,6 +14,17 @@ use Illuminate\Support\Facades\Log;
 
 class UserProcessController extends Controller
 {
+
+    public function index() {
+        $hacker = auth()->user();
+
+        $tasks = $hacker->tasks()->where('status', 'running')->get();
+
+        return view('pages.tasks.index', [
+            'tasks' => $tasks,
+        ]);
+    }
+
     public function getUserCpuPowerTotal(): int {
 
         $user = auth()->user();
@@ -56,16 +68,42 @@ class UserProcessController extends Controller
         };
     }
 
-    public function start(Request $request) {
+    public function calculateProcessDuration(string $action, array $metadata): float {
+        $base = match ($action) {
+            'install' => 12,
+            'log' => 3,
+            'bruteforce' => 20,
+            'scan' => 30,
+            'exploit_ssh' => 15,
+            'exploit_ftp' => 12,
+            default => 10,
+        };
+
+        $multiplier = match ($action) {
+
+            // Bruteforce scales with a hasher version
+            'bruteforce' => isset($metadata['hasher_version']) && is_numeric($metadata['hasher_version']) ? (float) $metadata['hasher_version'] : 1.0,
+
+            // Scans scale with security level
+            'scan' => isset($metadata['security_level']) && is_numeric($metadata['security_level']) ? 1 + ((int) $metadata['security_level'] * 0.2) : 1.0,
+
+            // Exploits scale with difficulty
+            'exploit_ssh', 'exploit_ftp' => isset($metadata['difficulty']) && is_numeric($metadata['difficulty']) ? 1 + ((int) $metadata['difficulty'] * 0.3) : 1.0,
+
+            // Install scales with software size
+            'install' => isset($metadata['size_mb']) && is_numeric($metadata['size_mb']) ? max(1.0, (float) $metadata['size_mb'] / 10) : 1.0,
+
+            // Logs are fixed time
+            'log' => 1.0,
+
+            default => 1.0,
+        };
+
+        return max(1, (int) ceil($base * $multiplier));
+    }
+
+    public function start($action, $metadata = []) {
         $user = auth()->user();
-
-        $data = $request->validate([
-            'action' => 'required|string|in:install,log,bruteforce,scan,ssh,ftp',
-            'metadata' => 'array',
-        ]);
-
-        $action = $data['action'];
-        $metadata = $data['metadata'] ?? [];
 
         return DB::transaction(function () use ($user, $action, $metadata) {
 
@@ -77,8 +115,9 @@ class UserProcessController extends Controller
 
             $workUnits = $this->computeWorkUnits($action, $metadata);
 
-            // Ideal seconds at 100% share
-            $idealSeconds = (int) max(1, ceil($workUnits / $cpu_power));
+            $duration = $this->calculateProcessDuration($action, $metadata);
+            $duration = max(1, (int) ceil($duration - ($cpu_power / 100)));
+
 
             $now = Carbon::now();
 
@@ -88,68 +127,71 @@ class UserProcessController extends Controller
                 'action' => $action,
                 'metadata' => $metadata,
                 'work_units' => $workUnits,
-                'ideal_seconds' => $idealSeconds,
+                'ideal_seconds' => $duration,
+                'remaining_ideal_seconds' => $duration,
+                'ideal_done' => 0,
+                'last_progress_at' => $now,
                 'cpu_power_snapshot' => $cpu_power,
                 'share_percent' => 100,
                 'status' => 'running',
                 'started_at' => $now,
-                'ends_at' => $now->copy()->addSeconds($idealSeconds),
+                'ends_at' => $now->copy()->addSeconds($duration),
             ]);
 
             // Rebalance all running CPU processes (including new one)
             $this->rebalanceUserCpuProcesses($user->id);
-
-            return response()->json([
-                'process_id' => $process->id,
-                'status' => 'started',
-            ]);
         });
     }
 
-    public function rebalanceUserCpuProcesses(int $userId) {
-
+    public function rebalanceUserCpuProcesses(int $userId): void
+    {
         $now = now();
 
-        // Lock rows to avoid race conditions when starting multiple processes quickly
-        $processes = UserProcess::where('user_id', $userId)->where('resource_type', 'cpu')->where('status', 'running')->orderBy('id')->lockForUpdate()->get();
+        $processes = UserProcess::where('user_id', $userId)
+            ->where('resource_type', 'cpu')
+            ->where('status', 'running')
+            ->orderBy('id')
+            ->lockForUpdate()
+            ->get();
 
         $n = $processes->count();
-        if ($n === 0) {
-            return;
-        }
+        if ($n === 0) return;
 
-        // Even split. Priority of a process might be implemented later.
         $newShare = (int) max(1, floor(100 / $n));
 
-        foreach ($processes as $process) {
-            $oldShare = (int) max(1, $process->share_percent);
+        foreach ($processes as $p) {
+            $oldShare = (int) max(1, (int) $p->share_percent);
 
-            // If started_at missing, treat as started now
-            $startedAt = $process->started_at ?? $now;
+            // Initialize for old rows
+            if ($p->remaining_ideal_seconds === null) {
+                $p->remaining_ideal_seconds = (int) $p->ideal_seconds;
+            }
+            if ($p->last_progress_at === null) {
+                $p->last_progress_at = $p->started_at ?? $now;
+            }
 
-            $elapsedReal = max(0, $now->diffInSeconds($startedAt));
-            $elapsedIdeal = (int) floor($elapsedReal * ($oldShare / 100));
+            // ✅ Credit progress since last_progress_at using OLD share
+            $deltaReal = max(0, $now->timestamp - $p->last_progress_at->timestamp);
+            $deltaIdeal = (int) floor($deltaReal * ($oldShare / 100));
 
-            $remainingIdeal = max(0, $process->ideal_seconds - $elapsedIdeal);
+            $p->remaining_ideal_seconds = (int) max(0, $p->remaining_ideal_seconds - $deltaIdeal);
+            $p->last_progress_at = $now;
 
-            // If ideal is done, mark completed immediately
-            if ($remainingIdeal <= 0) {
-                $process->status = 'completed';
-                $process->completed_at = $now;
-                $process->ends_at = $now;
-                $process->share_percent = $newShare;
-                $process->save();
+            if ($p->remaining_ideal_seconds <= 0) {
+                $p->status = 'completed';
+                $p->completed_at = $now;
+                $p->ends_at = $now;
+                $p->share_percent = $newShare;
+                $p->save();
                 continue;
             }
 
-            $newRemainingReal = (int) ceil($remainingIdeal * (100 / $newShare));
-            $newEndsAt = $now->copy()->addSeconds($newRemainingReal);
+            // ✅ Convert remaining ideal -> remaining real using NEW share
+            $remainingReal = (int) ceil($p->remaining_ideal_seconds * (100 / $newShare));
 
-            $process->share_percent = $newShare;
-            $process->ends_at = $newEndsAt;
-
-            // Important: do NOT change started_at here (keeps history)
-            $process->save();
+            $p->share_percent = $newShare;
+            $p->ends_at = $now->copy()->addSeconds($remainingReal);
+            $p->save();
         }
     }
 
@@ -386,34 +428,128 @@ class UserProcessController extends Controller
         }
     }
 
-    public function applyCpuProcessEffects(UserProcess $p, NetworkLogService $logs): void {
-        if ($p->action !== 'log') return;
+    public function applyCpuProcessEffects(UserProcess $process, NetworkLogService $logs): void {
 
-        $m = $p->metadata ?? [];
-        $networkId = $m['network_id'] ?? null;
-        $baseHash  = $m['base_hash'] ?? null;
+        if ($process->action === 'bruteforce') {
 
-        if (!$networkId || !$baseHash) {
-            $p->status = 'failed';
-            $p->save();
-            return;
+            $network = UserNetwork::findOrFail($process->metadata['target_network_id']);
+            $hacked = new HackedNetworks();
+
+            $hacked->create([
+                'user_id' => $process->user->id,
+                'network_id' => $network->id,
+                'user' => $network->user,
+                'password' => $network->password,
+                'ip' => $network->ip,
+            ]);
+
+            $logs->saveEdited($process->user->network->id, $process->user->id,
+                sprintf("[%s] - [%s] successfully penetrated into [%s]", now()->format('Y-m-d H:i:s'), $process->user->network->ip, $network->ip)
+            );
         }
 
-        // Use payload_text if present, else fallback to metadata (not recommended)
-        $content = $p->payload_text ?? ($m['content'] ?? null);
-        if ($content === null) {
-            $p->status = 'failed';
-            $p->save();
-            return;
+    }
+
+    public function status(Request $request) {
+        $user = $request->user();
+        $now = now();
+
+        $tasks = UserProcess::where('user_id', $user->id)
+            ->whereIn('status', ['running', 'completed', 'failed'])
+            ->orderByDesc('id')
+            ->get()
+            ->map(function ($p) use ($now) {
+                $started = $p->started_at?->toISOString();
+                $ends = $p->ends_at?->toISOString();
+
+                $progress = 0.0;
+                $remaining = 0;
+
+                if ($p->status === 'running' && $p->started_at && $p->ends_at) {
+                    $total = max(1, $p->ends_at->timestamp - $p->started_at->timestamp);
+                    $remaining = max(0, $p->ends_at->timestamp - $now->timestamp);
+                    $elapsed = $total - $remaining;
+                    $progress = min(1.0, max(0.0, $elapsed / $total));
+                } elseif ($p->status === 'completed') {
+                    $progress = 1.0;
+                }
+
+                return [
+                    'id' => $p->id,
+                    'status' => $p->status,
+                    'started_at' => $started,
+                    'ends_at' => $ends,
+                    'progress' => $progress,
+                    'remaining_seconds' => $remaining,
+                    'action' => $p->action,
+                    'resource_type' => $p->resource_type,
+                ];
+            });
+
+        return response()->json([
+            'now' => $now->toISOString(),
+            'tasks' => $tasks,
+        ]);
+    }
+
+    public function finalize(Request $request, UserProcess $process) {
+        $user = $request->user();
+        $now = now();
+
+        // Only allow finalizing your own running tasks
+        if ($process->user_id !== $user->id) {
+            abort(403, "What the fuck?");
         }
 
-        // This is your existing safe-save (checks expected hash)
-        $logs->saveEdited(
-            networkId: (int) $networkId,
-            actorId: (int) $p->user_id,
-            newContent: $content,
-//            expectedBaseHash: $baseHash
-        );
+        return DB::transaction(function () use ($process, $now) {
+            // lock row to prevent double-finalize
+            $p = UserProcess::whereKey($process->id)->lockForUpdate()->first();
+
+            if (!$p || $p->status !== 'running') {
+                return response()->json(['status' => 'noop']);
+            }
+
+            if (!$p->ends_at || $p->ends_at->isFuture()) {
+                return response()->json(['status' => 'still_running']);
+            }
+
+            // OPTIONAL: apply effects based on action/resource_type here
+            $this->applyCpuProcessEffects($p, app(NetworkLogService::class));
+
+            $p->status = 'completed';
+            $p->completed_at = $now;
+            $p->ends_at = $now;
+            $p->save();
+
+            $this->rebalanceUserCpuProcesses($process->user->id);
+
+            return response()->json([
+                'status' => 'completed',
+                // optionally send redirect URL from server
+                // 'redirect' => $this->getRedirectForProcess($p),
+            ]);
+        });
+    }
+
+    public function cancel(Request $request, UserProcess $process) {
+        $user = $request->user();
+
+        if ($process->user_id !== $user->id) {
+            abort(403, "What the fuck?");
+        }
+
+        if ($process->status !== 'running') {
+            return response()->json(['status' => 'noop']);
+        }
+
+        $process->status = 'canceled';
+        $process->completed_at = now();
+        $process->ends_at = now();
+        $process->save();
+
+        $this->rebalanceUserCpuProcesses($user->id);
+
+        return response()->json(['status' => 'canceled']);
     }
 
 }

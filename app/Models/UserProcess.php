@@ -20,6 +20,9 @@ class UserProcess extends Model
         'started_at',
         'ends_at',
         'completed_at',
+        'ideal_done',
+        'last_progress_at',
+        'remaining_ideal_seconds',
     ];
 
     protected $casts = [
@@ -27,9 +30,26 @@ class UserProcess extends Model
         'started_at' => 'datetime',
         'ends_at' => 'datetime',
         'completed_at' => 'datetime',
+        'last_progress_at'  => 'datetime',
     ];
 
     public function user() {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function whatAction(): array {
+
+        if ($this->action === 'bruteforce') {
+            $metadata = $this->metadata;
+            $network = UserNetwork::findOrFail($metadata['target_network_id']);
+
+            $matches = [
+                'text' => 'Bruteforce with: ' ?? 'Unknown',
+                'software' => "{$this->user->cracker->name} v{$this->user->cracker->version}" ?? 'Unknown',
+                'target' => "{$network->ip}" ?? 'Unknown',
+            ];
+        }
+
+        return $matches;
     }
 }

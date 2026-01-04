@@ -61,6 +61,20 @@ class NPCSeeder extends Seeder
             NPCController::generateHardware($npc, $server);
         }
 
+        $npc = NPC::find(1);
+        $npc->software()->create([
+            'type' => 'crc',
+            'name' => 'Amateur Cracker',
+            'version' => '1.0',
+            'size' => 21
+        ]);
+        $npc->software()->create([
+            'type' => 'hash',
+            'name' => 'Amateur Hasher',
+            'version' => '1.0',
+            'size' => 21
+        ]);
+
         # Update main NPCs with essential information
         $mainNPCsID = [1,2,3,4];
         NPC::whereKey(1)->update([

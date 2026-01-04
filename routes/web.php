@@ -7,7 +7,6 @@ use App\Http\Controllers\Dashboard;
 use App\Http\Controllers\InternetController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserProcessController;
-use App\Models\ServerSoftwares;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -34,6 +33,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/internet/{ip}/hack', [InternetController::class, 'hackShow'])->name('internet.hackShow');
 
+    # Target Bruteforce
+    Route::post('/internet/{ip}/attack/bruteforce', [InternetController::class, 'bruteforce'])->name('internet.attack.bruteforce');
+
     Route::get('/internet/target', [TargetController::class, 'index'])->name('target.index');
     Route::get('/internet/target/software', [TargetController::class, 'software'])->name('target.software');
 
@@ -53,6 +55,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     # Get info for the software
     Route::get('/internet/software/{software}/json', [ServerSoftwaresController::class, 'json'])->name('internet.software.json');
+
+    # Task Manager
+    Route::get('/tasks', [UserProcessController::class, 'index'])->name('tasks.index');
+    Route::get('/tasks/cpu', [UserProcessController::class, 'cpu_tasks'])->name('tasks.cpu');
+    Route::get('/tasks/download', [UserProcessController::class, 'download-tasks'])->name('tasks.download');
+    Route::get('/tasks/running', [UserProcessController::class, 'running-tasks'])->name('tasks.running');
+
+    # Task Status
+    Route::get('/tasks/status', [UserProcessController::class, 'status'])->name('tasks.status');
+    Route::post('/tasks/{process}/finalize', [UserProcessController::class, 'finalize'])->name('tasks.finalize');
+    Route::post('/tasks/{process}/cancel', [UserProcessController::class, 'cancel'])->name('tasks.cancel');
 
 });
 require __DIR__.'/auth.php';

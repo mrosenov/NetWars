@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Http\Controllers\HardwarePartsController;
 use App\Http\Controllers\UserNetworkController;
+use Illuminate\Console\View\Components\Task;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
@@ -132,6 +133,33 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function software(): \Illuminate\Database\Eloquent\Relations\MorphMany {
         return $this->morphMany(ServerSoftwares::class, 'owner');
+    }
+
+    public function runningSoftware() {
+        return $this->hasMany(RunningSoftware::class, 'network_id');
+    }
+
+    public function tasks() {
+        return $this->hasMany(UserProcess::class, 'user_id');
+    }
+
+    public function cracker() {
+        return $this->hasOneThrough(
+            ServerSoftwares::class,
+            RunningSoftware::class,
+            'network_id',   // FK on running_softwares
+            'id',           // FK on softwares
+            'id',           // local key on networks
+            'software_id'   // local key on running_softwares
+        )
+            ->where('software.type', 'crc')
+            ->orderByDesc('software.version');
+    }
+
+    public function hasher() {
+        return $this->hasOneThrough(ServerSoftwares::class, RunningSoftware::class, 'network_id', 'id', 'id', 'software_id')
+            ->where('software.type', 'hash')
+            ->orderByDesc('software.version');
     }
 
 

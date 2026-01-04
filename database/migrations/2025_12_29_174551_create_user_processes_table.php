@@ -20,7 +20,10 @@ return new class extends Migration
             $table->enum('action', ['install', 'log', 'bruteforce', 'scan', 'ssh', 'ftp', 'download', 'upload']);
             $table->json('metadata')->nullable();
             $table->unsignedBigInteger('work_units');
-            $table->unsignedInteger('ideal_seconds');
+            $table->float('ideal_seconds');
+            $table->unsignedInteger('remaining_ideal_seconds')->nullable();
+            $table->unsignedInteger('ideal_done')->default(0);
+            $table->timestamp('last_progress_at')->nullable()->index();
             $table->unsignedInteger('cpu_power_snapshot');
             $table->unsignedTinyInteger('share_percent')->default(100);
             $table->timestamp('started_at')->nullable();

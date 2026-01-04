@@ -57,5 +57,18 @@ class UserSeeder extends Seeder
             'user' => $username,
             'password' => Str::random(8),
         ]);
+
+        $user->software()->create([
+            'type' => 'crc',
+            'name' => 'Amateur Cracker',
+            'version' => '1.0',
+            'size' => 21
+        ]);
+        $user->software()->create([
+            'type' => 'hash',
+            'name' => 'Amateur Hasher',
+            'version' => '1.0',
+            'size' => 21
+        ]);
     }
 }
