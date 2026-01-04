@@ -100,16 +100,6 @@ class TargetController extends Controller
     }
 
 
-    public function download(ServerSoftwares $software) {
-        $user = auth()->user();
-
-        $copy = $software->replicate();
-        $copy->owner()->associate($user);
-        $copy->save();
-
-        return redirect()->back()->with('success', 'Software downloaded successfully.');
-    }
-
     public function logout() {
         $user = auth()->user();
         $user->network()->update([
