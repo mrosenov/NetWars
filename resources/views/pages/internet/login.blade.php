@@ -5,6 +5,7 @@
 
         <!-- IP BAR -->
         @include('pages.internet.partials.search')
+        @include('pages.internet.partials.alertLogged')
         <!-- IP BAR -->
         @if (session('error'))
             <x-alert type="danger">

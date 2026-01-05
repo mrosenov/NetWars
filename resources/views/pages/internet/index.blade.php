@@ -4,6 +4,7 @@
     <section class="space-y-5">
         <!-- IP BAR -->
         @include('pages.internet.partials.search')
+        @include('pages.internet.partials.alertLogged')
         <!-- IP BAR -->
         @if (session('logout_ok'))
             <x-alert type="warning">
