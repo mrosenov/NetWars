@@ -1,4 +1,4 @@
-@section('title', 'Task Manager')
+@section('title', 'CPU Tasks')
 
 <x-app-layout>
     @include('pages.tasks.subnav')
@@ -29,11 +29,7 @@
                     $endsIso = optional($task->ends_at)->toISOString();
                 @endphp
 
-                <tr class="align-middle hover:bg-slate-50/70 transition dark:hover:bg-white/5"
-                    data-task-id="{{ $task->id }}"
-                    data-status="{{ $status }}"
-                    data-started-at="{{ $startedIso }}"
-                    data-ends-at="{{ $endsIso }}"
+                <tr class="align-middle hover:bg-slate-50/70 transition dark:hover:bg-white/5" data-task-id="{{ $task->id }}" data-status="{{ $status }}" data-started-at="{{ $startedIso }}" data-ends-at="{{ $endsIso }}"
                     data-finalize-url="{{ route('tasks.finalize', ['process' => $task->id]) }}"
                     data-cancel-url="{{ route('tasks.cancel', ['process' => $task->id]) }}"
                 >
@@ -43,29 +39,20 @@
                             <div class="text-sm leading-6 text-slate-700 dark:text-slate-200">
                                 <span class="text-slate-500 dark:text-slate-400">{{ $task->whatAction()['text'] }}</span>
                                 <span class="font-semibold text-slate-900 dark:text-white">{{ $task->whatAction()['software'] }}</span>
-                                <span class="text-slate-500 dark:text-slate-400">{{ $task->whatAction()['what'] }}</span>
+                                <span class="text-slate-500 dark:text-slate-400">on</span>
                                 <span class="font-medium text-slate-800 dark:text-slate-200">{{ $task->whatAction()['target'] }}</span>
                             </div>
                         </div>
 
                         <!-- Mobile-only meta -->
                         <div class="mt-2 lg:hidden">
-                            @if($task->resource_type === 'cpu')
-                                <div class="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
-                                    <span class="font-semibold text-slate-600 dark:text-slate-300" data-role="pct">0%</span>
-                                    <span data-role="time">--</span>
-                                </div>
-                                <div class="mt-1.5 h-3 rounded-md border border-slate-300 bg-white/60 p-[2px] dark:border-white/10 dark:bg-white/5">
-                                    <div class="h-full w-0 rounded-[5px] bg-cyan-500/80 dark:bg-cyan-400/80" data-role="bar"></div>
-                                </div>
-                            @elseif($task->resource_type === 'network')
-                                <div class="flex items-center gap-2">
-                                    <span class="grid h-4 w-4 place-items-center rounded border border-slate-300 bg-white/70 dark:border-white/10 dark:bg-white/5">
-                                        <span class="h-2.5 w-2.5 rounded-sm bg-slate-500/60 dark:bg-slate-300/40"></span>
-                                    </span>
-                                    <span class="font-medium">@if($task->action === 'download'){{ $downloadSpeed[$task->id]['mbps'] }} @else{{ $uploadSpeed[$task->id]['mbps'] }} @endif MB/s</span>
-                                </div>
-                            @endif
+                            <div class="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
+                                <span class="font-semibold text-slate-600 dark:text-slate-300" data-role="pct">0%</span>
+                                <span data-role="time">--</span>
+                            </div>
+                            <div class="mt-1.5 h-3 rounded-md border border-slate-300 bg-white/60 p-[2px] dark:border-white/10 dark:bg-white/5">
+                                <div class="h-full w-0 rounded-[5px] bg-cyan-500/80 dark:bg-cyan-400/80" data-role="bar"></div>
+                            </div>
                         </div>
                     </td>
 
@@ -83,29 +70,12 @@
                     <!-- Stats (desktop/tablet) -->
                     <td class="hidden px-4 py-3 sm:px-5 lg:table-cell">
                         <div class="flex items-center gap-6 text-xs text-slate-600 dark:text-slate-300">
-                            @if($task->resource_type === 'cpu')
-                                <div class="flex items-center gap-2">
-                                    <span class="grid h-4 w-4 place-items-center rounded border border-slate-300 bg-white/70 dark:border-white/10 dark:bg-white/5" title="CPU allocation">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-emerald-500/80" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                            <rect x="4" y="4" width="16" height="16" rx="2" ry="2" />
-                                            <rect x="9" y="9" width="6" height="6" />
-                                            <path d="M9 1v3M15 1v3M9 20v3M15 20v3M1 9h3M1 15h3M20 9h3M20 15h3" />
-                                        </svg>
-                                    </span>
-                                    <span class="font-medium">{{ $task->share_percent }}%</span>
-                                </div>
-                            @elseif($task->resource_type === 'network')
-                                <div class="flex items-center gap-2">
-                                    <span class="grid h-6 w-6 place-items-center rounded border border-slate-300 bg-white/70 dark:border-white/10 dark:bg-white/5" title="Network allocation">
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
-                                          <path stroke-linecap="round" stroke-linejoin="round" d="M8.288 15.038a5.25 5.25 0 0 1 7.424 0M5.106 11.856c3.807-3.808 9.98-3.808 13.788 0M1.924 8.674c5.565-5.565 14.587-5.565 20.152 0M12.53 18.22l-.53.53-.53-.53a.75.75 0 0 1 1.06 0Z" />
-                                        </svg>
-                                    </span>
-                                    <span class="font-medium">
-                                        @if($task->action === 'download'){{ $downloadSpeed[$task->id]['mbps'] }}@else{{ $uploadSpeed[$task->id]['mbps'] }}@endif MB/s
-                                    </span>
-                                </div>
-                            @endif
+                            <div class="flex items-center gap-2">
+                                <span class="grid h-4 w-4 place-items-center rounded border border-slate-300 bg-white/70 dark:border-white/10 dark:bg-white/5">
+                                    <span class="h-2.5 w-2.5 rounded-sm bg-emerald-500/80"></span>
+                                </span>
+                                <span class="font-medium">{{ $task->share_percent }}%</span>
+                            </div>
                         </div>
                     </td>
 

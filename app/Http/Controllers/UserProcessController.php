@@ -10,18 +10,43 @@ use App\Services\NetworkLogService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class UserProcessController extends Controller
 {
 
     public function index() {
         $hacker = auth()->user();
+        $connection = $this->getUserNetTotals();
 
         $tasks = $hacker->tasks()->where('status', 'running')->get();
 
         return view('pages.tasks.index', [
             'tasks' => $tasks,
+            'connection' => $connection,
+            'downloadSpeed' => $this->getActiveDownloadSpeeds(),
+            'uploadSpeed' => $this->getActiveUploadSpeeds(),
+        ]);
+    }
+
+    public function cpu_index() {
+        $hacker = auth()->user();
+
+        $tasks = $hacker->tasks()->where('status', 'running')->where('resource_type', 'cpu')->get();
+
+        return view('pages.tasks.cpu', [
+            'tasks' => $tasks,
+        ]);
+    }
+
+    public function network_index() {
+        $hacker = auth()->user();
+
+        $tasks = $hacker->tasks()->where('status', 'running')->where('resource_type', 'network')->get();
+
+        return view('pages.tasks.network', [
+            'tasks' => $tasks,
+            'downloadSpeed' => $this->getActiveDownloadSpeeds(),
+            'uploadSpeed' => $this->getActiveUploadSpeeds(),
         ]);
     }
 
@@ -72,7 +97,7 @@ class UserProcessController extends Controller
         $base = match ($action) {
             'install' => 12,
             'log' => 3,
-            'bruteforce' => 20,
+            'bruteforce' => 10,
             'scan' => 30,
             'exploit_ssh' => 15,
             'exploit_ftp' => 12,
@@ -170,7 +195,6 @@ class UserProcessController extends Controller
                 $p->last_progress_at = $p->started_at ?? $now;
             }
 
-            // ✅ Credit progress since last_progress_at using OLD share
             $deltaReal = max(0, $now->timestamp - $p->last_progress_at->timestamp);
             $deltaIdeal = (int) floor($deltaReal * ($oldShare / 100));
 
@@ -186,7 +210,6 @@ class UserProcessController extends Controller
                 continue;
             }
 
-            // ✅ Convert remaining ideal -> remaining real using NEW share
             $remainingReal = (int) ceil($p->remaining_ideal_seconds * (100 / $newShare));
 
             $p->share_percent = $newShare;
@@ -212,6 +235,67 @@ class UserProcessController extends Controller
         ];
     }
 
+    public function getActiveDownloadSpeeds(): array {
+        $user = auth()->user();
+        $net = $this->getUserNetTotals();
+        $totalDownMbps = (float) ($net['down_mbps'] ?? 0);
+
+        $totalDownBps = (int) floor(($totalDownMbps * 1_000_000) / 8);
+
+        $downloads = UserProcess::where('user_id', $user->id)
+            ->where('resource_type', 'network')
+            ->where('action', 'download')
+            ->where('status', 'running')
+            ->get();
+
+        $result = [];
+
+        foreach ($downloads as $p) {
+            $share = max(1, (int) $p->share_percent);
+            $bps = (int) floor($totalDownBps * ($share / 100));
+
+            $result[$p->id] = [
+                'bps'   => $bps,
+                'kbps'  => round($bps / 1024, 1),
+                'mbps'  => round(($bps * 8) / 1_000_000, 2),
+                'share' => $share,
+            ];
+        }
+
+        return $result;
+    }
+
+    public function getActiveUploadSpeeds(): array {
+        $user = auth()->user();
+        $net = $this->getUserNetTotals();
+        $totalUploadMbps = (float) ($net['up_mbps'] ?? 0);
+
+        $totalUploadBps = (int) floor(($totalUploadMbps * 1_000_000) / 16);
+
+        $downloads = UserProcess::where('user_id', $user->id)
+            ->where('resource_type', 'network')
+            ->where('action', 'upload')
+            ->where('status', 'running')
+            ->get();
+
+        $result = [];
+
+        foreach ($downloads as $p) {
+            $share = max(1, (int) $p->share_percent);
+            $bps = (int) floor($totalUploadBps * ($share / 100));
+
+            $result[$p->id] = [
+                'bps'   => $bps,
+                'kbps'  => round($bps / 1024, 1),
+                'mbps'  => round(($bps * 16) / 1_000_000, 2),
+                'share' => $share,
+            ];
+        }
+
+        return $result;
+    }
+
+
     public function startDownload(Request $request, ServerSoftwares $software) {
         $user = auth()->user();
 
@@ -228,9 +312,20 @@ class UserProcessController extends Controller
             abort(403, 'You do not have enough storage space.');
         }
 
+        $alreadyOwned = ServerSoftwares::query()
+            ->where('owner_type', \App\Models\User::class)
+            ->where('owner_id', $user->id)
+            ->where('type', $software->type)
+            ->where('version', $software->version)
+            ->exists();
+
+        if ($alreadyOwned) {
+            return redirect()->route('target.software')->with('error', 'You already own this software.');
+        }
+
         return DB::transaction(function () use ($user, $direction, $software, $sizeMb) {
             $net = $this->getUserNetTotals();
-            $downMBps = $net['down_bps'];
+            $downMBps = $net['down_mbps'];
 
             if ($downMBps <= 0) {
                 abort(422, "No {$direction} link bandwidth available.");
@@ -254,6 +349,8 @@ class UserProcessController extends Controller
                 ],
                 'work_units' => $sizeMb,
                 'ideal_seconds' => $idealSeconds,
+                'remaining_ideal_seconds' => $idealSeconds,
+                'last_progress_at' => $now,
                 'cpu_power_snapshot' => 0,
                 'share_percent' => 100,
                 'status' => 'running',
@@ -263,12 +360,7 @@ class UserProcessController extends Controller
 
             $this->rebalanceUserNetProcesses($user->id, $direction);
 
-            return response()->json([
-                'process_id' => $process->id,
-                'ideal_seconds' => $idealSeconds,
-                'ends_at' => $process->ends_at,
-            ]);
-
+            return redirect()->route('tasks.index');
         });
 
     }
@@ -308,6 +400,17 @@ class UserProcessController extends Controller
             abort(403, 'Not enough free storage (uploads in progress).');
         }
 
+        $alreadyOnTarget = ServerSoftwares::query()
+            ->where('owner_type', get_class($targetNetwork->owner))
+            ->where('owner_id', (int) $targetNetwork->owner->id)
+            ->where('type', $software->type)
+            ->where('version', $software->version)
+            ->exists();
+
+        if ($alreadyOnTarget) {
+            return redirect()->route('target.software')->with('error', 'The software already exists on the target network.');
+        }
+
         $direction = 'upload';
         $sizeMb = (float) $software->size;
 
@@ -337,6 +440,8 @@ class UserProcessController extends Controller
                 ],
                 'work_units' => $sizeMb,
                 'ideal_seconds' => $idealSeconds,
+                'remaining_ideal_seconds' => $idealSeconds,
+                'last_progress_at' => $now,
                 'cpu_power_snapshot' => 0,
                 'share_percent' => 100,
                 'status' => 'running',
@@ -347,11 +452,7 @@ class UserProcessController extends Controller
 
             $this->rebalanceUserNetProcesses($user->id, $direction);
 
-            return response()->json([
-                'process_id' => $process->id,
-                'ideal_seconds' => $idealSeconds,
-                'ends_at' => $process->ends_at,
-            ]);
+            return redirect()->route('tasks.index');
         });
 
     }
@@ -361,6 +462,7 @@ class UserProcessController extends Controller
         $now = now();
 
         $query = UserProcess::where('user_id', $userId)->where('resource_type', 'network')->where('status', 'running');
+
         $query->whereIn('action', $direction === 'download' ? ['download'] : ['upload']);
 
         $processes = $query->orderBy('id')->lockForUpdate()->get();
@@ -368,32 +470,44 @@ class UserProcessController extends Controller
         $n = $processes->count();
         if ($n === 0) return;
 
-        $newShare = (int) max(1, floor(100 / $n));
+        $base = intdiv(100, $n);
+        $rem  = 100 - ($base * $n);
 
-        foreach ($processes as $process) {
-            $oldShare = (int) max(1, $process->share_percent);
-            $startedAt = $process->started_at ?? $now;
+        foreach ($processes as $i => $p) {
+            $newShare = $base + ($i < $rem ? 1 : 0);
+            $oldShare = (int) max(1, (int) $p->share_percent);
 
-            $elapsedReal = max(0, $now->diffInSeconds($startedAt));
-            $elapsedIdeal = (int) floor($elapsedReal * ($oldShare / 100));
+            // init for older rows
+            if ($p->remaining_ideal_seconds === null) {
+                $p->remaining_ideal_seconds = (int) $p->ideal_seconds;
+            }
+            if ($p->last_progress_at === null) {
+                $p->last_progress_at = $p->started_at ?? $now;
+            }
 
-            $remainingIdeal = max(0, $process->ideal_seconds - $elapsedIdeal);
+            $deltaReal = max(0, $p->last_progress_at->diffInSeconds($now));
+            $deltaIdeal = (int) floor($deltaReal * ($oldShare / 100));
 
-            if ($remainingIdeal <= 0) {
-                $process->status = 'completed';
-                $process->completed_at = $now;
-                $process->ends_at = $now;
-                $process->share_percent = $newShare;
-                $process->save();
+            $p->remaining_ideal_seconds = (int) max(0, $p->remaining_ideal_seconds - $deltaIdeal);
+            $p->last_progress_at = $now;
+
+            if ($p->remaining_ideal_seconds <= 0) {
+                $p->status = 'completed';
+                $p->completed_at = $now;
+                $p->ends_at = $now;
+                $p->share_percent = $newShare;
+                $p->save();
                 continue;
             }
 
-            $newRemainingReal = (int) ceil($remainingIdeal * (100 / $newShare));
-            $process->share_percent = $newShare;
-            $process->ends_at = $now->copy()->addSeconds($newRemainingReal);
-            $process->save();
+            $newRemainingReal = (int) ceil($p->remaining_ideal_seconds * (100 / $newShare));
+
+            $p->share_percent = $newShare;
+            $p->ends_at = $now->copy()->addSeconds($newRemainingReal);
+            $p->save();
         }
     }
+
 
     public function applyNetworkProcessEffects(UserProcess $process): void {
         $metadata = $process->metadata ?? [];
@@ -513,8 +627,8 @@ class UserProcessController extends Controller
                 return response()->json(['status' => 'still_running']);
             }
 
-            // OPTIONAL: apply effects based on action/resource_type here
             $this->applyCpuProcessEffects($p, app(NetworkLogService::class));
+            $this->applyNetworkProcessEffects($p);
 
             $p->status = 'completed';
             $p->completed_at = $now;
@@ -522,11 +636,10 @@ class UserProcessController extends Controller
             $p->save();
 
             $this->rebalanceUserCpuProcesses($process->user->id);
+            $this->rebalanceUserNetProcesses($p->user->id, $p->action);
 
             return response()->json([
                 'status' => 'completed',
-                // optionally send redirect URL from server
-                // 'redirect' => $this->getRedirectForProcess($p),
             ]);
         });
     }

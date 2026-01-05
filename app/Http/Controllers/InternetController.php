@@ -28,7 +28,7 @@ class InternetController extends Controller
         $ip = $user->network?->connected?->ip ?? null;
 
         if ($ip) {
-            return redirect()->route('internet.show', ['ip' => $ip]);
+            return redirect()->route('target.logs');
         }
 
         return view('pages.internet.index');
@@ -37,6 +37,13 @@ class InternetController extends Controller
     public function show(string $ip) {
         // Optional extra safety (routes already restrict, but this is explicit)
         abort_unless(filter_var($ip, FILTER_VALIDATE_IP), 404);
+
+        $hacker = auth()->user();
+        $connectedTo = $hacker->network?->connected?->ip;
+
+        if ($ip === $connectedTo) {
+            return redirect()->route('target.logs');
+        }
 
         $network = UserNetwork::where('ip', $ip)->with(['owner', 'hardware'])->firstOrFail();
         $metadata = $network->owner->metadata;
@@ -159,19 +166,24 @@ class InternetController extends Controller
             return redirect()->route('internet.index')->with('error', 'You cannot bruteforce your own network.');
         }
 
-        $network = UserNetwork::where('ip', $ip)->with(['owner'])->firstOrFail();
+        $network = UserNetwork::where('ip', $ip)->with(['owner', 'hasher'])->firstOrFail();
 
         if ($network->isHacked()) {
             return redirect()->route('internet.login', $ip)->with('error', 'This network is already hacked.');
         }
 
-        if ($network->hasher->version > $hacker->network->cracker->version) {
+        $hasherVersion  = $network->hasher->version ?? null;
+        $crackerVersion = $hacker->network->cracker->version;
+
+        if ($hasherVersion !== null && $hasherVersion > $crackerVersion) {
             return redirect()->route('internet.show', $ip)->with('error', 'Your cracker is not strong enough.');
         }
 
         # Pass action and its multiplier
-        $userProcess = new UserProcessController();
-        $userProcess->start('bruteforce', ['hasher_version' => $network->hasher->version, 'target_network_id' => $network->id]);
+        app(UserProcessController::class)->start('bruteforce', [
+            'hasher_version' => $hasherVersion ?? 0.0,
+            'target_network_id' => $network->id,
+        ]);
 
         return redirect()->route('tasks.index');
     }

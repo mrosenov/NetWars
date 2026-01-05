@@ -9,13 +9,7 @@ class TargetController extends Controller
 {
 
     public function index() {
-        $user = auth()->user();
-        $target = $user->connectedNetwork();
-
-        return view('pages.target.index', [
-            'target' => $target,
-            'user' => $user,
-        ]);
+        return redirect()->route('target.logs');
     }
 
     public function software() {

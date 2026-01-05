@@ -58,8 +58,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     # Task Manager
     Route::get('/tasks', [UserProcessController::class, 'index'])->name('tasks.index');
-    Route::get('/tasks/cpu', [UserProcessController::class, 'cpu_tasks'])->name('tasks.cpu');
-    Route::get('/tasks/download', [UserProcessController::class, 'download-tasks'])->name('tasks.download');
+    Route::get('/tasks/cpu', [UserProcessController::class, 'cpu_index'])->name('tasks.cpu');
+    Route::get('/tasks/network', [UserProcessController::class, 'network_index'])->name('tasks.network');
     Route::get('/tasks/running', [UserProcessController::class, 'running-tasks'])->name('tasks.running');
 
     # Task Status

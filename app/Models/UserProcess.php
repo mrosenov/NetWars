@@ -38,15 +38,33 @@ class UserProcess extends Model
     }
 
     public function whatAction(): array {
+        $metadata = $this->metadata;
+        $network = UserNetwork::findOrFail($metadata['target_network_id']);
 
         if ($this->action === 'bruteforce') {
-            $metadata = $this->metadata;
-            $network = UserNetwork::findOrFail($metadata['target_network_id']);
-
             $matches = [
-                'text' => 'Bruteforce with: ' ?? 'Unknown',
+                'text' => 'Bruteforce with ' ?? 'Unknown',
                 'software' => "{$this->user->cracker->name} v{$this->user->cracker->version}" ?? 'Unknown',
                 'target' => "{$network->ip}" ?? 'Unknown',
+                'what' => 'on',
+            ];
+        }
+        elseif ($this->action === 'download') {
+            $software = ServerSoftwares::findOrFail($metadata['software_id']);
+            $matches = [
+                'text' => 'Downloading ' ?? 'Unknown',
+                'software' => "{$software->name} v{$software->version}" ?? 'Unknown',
+                'target' => "{$network->ip}" ?? 'Unknown',
+                'what' => 'from',
+            ];
+        }
+        elseif ($this->action === 'upload') {
+            $software = ServerSoftwares::findOrFail($metadata['software_id']);
+            $matches = [
+                'text' => 'Uploading ' ?? 'Unknown',
+                'software' => "{$software->name} v{$software->version}" ?? 'Unknown',
+                'target' => "{$network->ip}" ?? 'Unknown',
+                'what' => 'on',
             ];
         }
 
