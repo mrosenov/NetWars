@@ -136,7 +136,7 @@
                 modal.querySelector('[data-sw-name]').textContent = 'Loading…';
 
                 try {
-                    const res = await fetch(`/internet/software/${id}/json`, {
+                    const res = await fetch(`/software/${id}/json`, {
                         headers: { 'Accept': 'application/json' }
                     });
 

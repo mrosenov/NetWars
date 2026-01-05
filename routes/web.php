@@ -13,7 +13,6 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -54,18 +53,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/internet/target/logout', [TargetController::class, 'logout'])->name('target.logout');
 
     # Get info for the software
-    Route::get('/internet/software/{software}/json', [ServerSoftwaresController::class, 'json'])->name('internet.software.json');
+    Route::get('/software/{software}/json', [ServerSoftwaresController::class, 'json'])->name('internet.software.json');
 
     # Task Manager
     Route::get('/tasks', [UserProcessController::class, 'index'])->name('tasks.index');
     Route::get('/tasks/cpu', [UserProcessController::class, 'cpu_index'])->name('tasks.cpu');
     Route::get('/tasks/network', [UserProcessController::class, 'network_index'])->name('tasks.network');
-    Route::get('/tasks/running', [UserProcessController::class, 'running-tasks'])->name('tasks.running');
+    Route::get('/tasks/running', [UserProcessController::class, 'running_index'])->name('tasks.running');
 
     # Task Status
     Route::get('/tasks/status', [UserProcessController::class, 'status'])->name('tasks.status');
     Route::post('/tasks/{process}/finalize', [UserProcessController::class, 'finalize'])->name('tasks.finalize');
     Route::post('/tasks/{process}/cancel', [UserProcessController::class, 'cancel'])->name('tasks.cancel');
+    Route::post('/tasks/{process}/uninstall', [UserProcessController::class, 'uninstall'])->name('tasks.cancel');
 
 });
 require __DIR__.'/auth.php';
