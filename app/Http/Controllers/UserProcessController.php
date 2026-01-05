@@ -10,6 +10,7 @@ use App\Services\NetworkLogService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use App\Support\Format;
 
 class UserProcessController extends Controller
 {
@@ -47,6 +48,32 @@ class UserProcessController extends Controller
             'tasks' => $tasks,
             'downloadSpeed' => $this->getActiveDownloadSpeeds(),
             'uploadSpeed' => $this->getActiveUploadSpeeds(),
+        ]);
+    }
+
+    public function running_index() {
+        $hacker = auth()->user();
+
+        $network = $hacker->network; // or connectedNetwork()
+        $running = $network ? $network->runningSoftware()->with('software')->get() : collect();
+
+        $ramUsedMb = (int) $running->sum->usage;
+
+        $totals = $hacker->totalResources();
+
+        $ramTotalMb = (int) ($totals['ram_mb'] ?? 0);
+
+        $ramUsed = Format::ram($ramUsedMb);
+        $ramTotal = Format::ram($ramTotalMb);
+
+        $pct = $ramTotalMb > 0 ? (int) round(($ramUsedMb / $ramTotalMb) * 100) : 0;
+        $pct = max(0, min(100, $pct));
+
+        return view('pages.tasks.running', [
+            'running' => $running,
+            'ramUsed' => $ramUsed,
+            'ramTotal' => $ramTotal,
+            'pct' => $pct,
         ]);
     }
 

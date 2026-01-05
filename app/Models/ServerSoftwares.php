@@ -13,6 +13,10 @@ class ServerSoftwares extends Model
         'software_id'
     ];
 
+    protected $casts = [
+        'requirements' => 'array',
+    ];
+
     public function owner() {
         return $this->morphTo();
     }

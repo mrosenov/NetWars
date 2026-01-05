@@ -135,12 +135,35 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->morphMany(ServerSoftwares::class, 'owner');
     }
 
-    public function runningSoftware() {
-        return $this->hasMany(RunningSoftware::class, 'network_id');
-    }
-
     public function tasks() {
         return $this->hasMany(UserProcess::class, 'user_id');
+    }
+
+    public function totalResources(): array {
+        $servers = $this->servers()->with(['resources.hardware'])->get();
+
+        $totals = [
+            'ram_mb' => 0,
+            'storage_mb' => 0,
+            'down_mbps' => 0.0,
+            'up_mbps' => 0.0,
+            'cpu_compute' => 0,
+            'stability' => 0,
+        ];
+
+        foreach ($servers as $server) {
+            $t = $server->resource_totals;
+
+            $totals['ram_mb'] += (int) ($t['ram_mb'] ?? 0);
+            $totals['storage_mb'] += (int) ($t['storage_gb'] ?? 0);
+            $totals['down_mbps'] += (float) ($t['down_mbps'] ?? 0);
+            $totals['up_mbps'] += (float) ($t['up_mbps'] ?? 0);
+            $totals['cpu_compute'] += (int) ($t['cpu_compute'] ?? 0);
+
+            $totals['stability'] = max($totals['stability'], (int) ($t['stability'] ?? 0));
+        }
+
+        return $totals;
     }
 
     public function cracker() {

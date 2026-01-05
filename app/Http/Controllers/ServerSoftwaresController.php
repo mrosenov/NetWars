@@ -9,7 +9,7 @@ class ServerSoftwaresController extends Controller
 {
     public function json(ServerSoftwares $software) {
 
-        $spec = json_decode($software->requirements, true) ?? [];
+        $spec = $software->requirements ?? [];
 
         $ramUsage = $this->convertRAMUsage(data_get($spec, 'ram_mb', 0));
 
