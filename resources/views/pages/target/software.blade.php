@@ -12,10 +12,16 @@
 
 <x-app-layout>
     <section class="space-y-5">
+        @include('pages.internet.partials.search')
         {{-- Top Tabs --}}
         @include('pages.target.subnav')
         {{-- Top Tabs --}}
 
+        @if (session('error'))
+            <x-alert type="danger">
+                {{ session('error') }}
+            </x-alert>
+        @endif
 
         {{-- Main Layout --}}
         <div class="flex flex-col lg:flex-row gap-5 items-start">

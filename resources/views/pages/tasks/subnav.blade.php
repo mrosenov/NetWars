@@ -10,8 +10,8 @@
                 All Tasks
             </a>
 
-            <a href="{{ route('tasks.cpu') }}" @class(['inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-white/5 dark:hover:text-white', 'bg-white dark:bg-white/10 ring-1 ring-slate-200 dark:ring-white/10 shadow-sm hover:ring-slate-300' => request()->routeIs('target.software')])>
-                <span @class(['grid h-6 w-6 place-items-center rounded-lg text-cyan-700 dark:text-cyan-300' => request()->routeIs('target.software'),'grid h-6 w-6 place-items-center rounded-lg text-slate-700 dark:text-slate-200' => !request()->routeIs('target.software')])>
+            <a href="{{ route('tasks.cpu') }}" @class(['inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-white/5 dark:hover:text-white', 'bg-white dark:bg-white/10 ring-1 ring-slate-200 dark:ring-white/10 shadow-sm hover:ring-slate-300' => request()->routeIs('tasks.cpu')])>
+                <span @class(['grid h-6 w-6 place-items-center rounded-lg text-cyan-700 dark:text-cyan-300' => request()->routeIs('tasks.cpu'),'grid h-6 w-6 place-items-center rounded-lg text-slate-700 dark:text-slate-200' => !request()->routeIs('tasks.cpu')])>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 19.5V21M12 3v1.5m0 15V21m3.75-18v1.5m0 15V21m-9-1.5h10.5a2.25 2.25 0 0 0 2.25-2.25V6.75a2.25 2.25 0 0 0-2.25-2.25H6.75A2.25 2.25 0 0 0 4.5 6.75v10.5a2.25 2.25 0 0 0 2.25 2.25Zm.75-12h9v9h-9v-9Z" />
                     </svg>
@@ -19,8 +19,8 @@
                 CPU Tasks
             </a>
 
-            <a href="{{ route('tasks.download') }}" @class(['inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-white/5 dark:hover:text-white', 'bg-white dark:bg-white/10 ring-1 ring-slate-200 dark:ring-white/10 shadow-sm hover:ring-slate-300' => request()->routeIs('target.logout')])>
-                <span @class(['grid h-6 w-6 place-items-center rounded-lg text-cyan-700 dark:text-cyan-300' => request()->routeIs('target.logout'),'grid h-6 w-6 place-items-center rounded-lg text-slate-700 dark:text-slate-200' => !request()->routeIs('target.logout')])>
+            <a href="{{ route('tasks.network') }}" @class(['inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-white/5 dark:hover:text-white', 'bg-white dark:bg-white/10 ring-1 ring-slate-200 dark:ring-white/10 shadow-sm hover:ring-slate-300' => request()->routeIs('tasks.network')])>
+                <span @class(['grid h-6 w-6 place-items-center rounded-lg text-cyan-700 dark:text-cyan-300' => request()->routeIs('tasks.network'),'grid h-6 w-6 place-items-center rounded-lg text-slate-700 dark:text-slate-200' => !request()->routeIs('tasks.network')])>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
                     </svg>
@@ -28,8 +28,8 @@
                 Download Manager
             </a>
 
-            <a href="{{ route('tasks.running') }}" @class(['inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-white/5 dark:hover:text-white', 'bg-white dark:bg-white/10 ring-1 ring-slate-200 dark:ring-white/10 shadow-sm hover:ring-slate-300' => request()->routeIs('target.logout')])>
-                <span @class(['grid h-6 w-6 place-items-center rounded-lg text-cyan-700 dark:text-cyan-300' => request()->routeIs('target.logout'),'grid h-6 w-6 place-items-center rounded-lg text-slate-700 dark:text-slate-200' => !request()->routeIs('target.logout')])>
+            <a href="{{ route('tasks.running') }}" @class(['inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-white/5 dark:hover:text-white', 'bg-white dark:bg-white/10 ring-1 ring-slate-200 dark:ring-white/10 shadow-sm hover:ring-slate-300' => request()->routeIs('tasks.running')])>
+                <span @class(['grid h-6 w-6 place-items-center rounded-lg text-cyan-700 dark:text-cyan-300' => request()->routeIs('tasks.running'),'grid h-6 w-6 place-items-center rounded-lg text-slate-700 dark:text-slate-200' => !request()->routeIs('tasks.running')])>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
                     </svg>

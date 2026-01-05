@@ -12,6 +12,7 @@
 
 <x-app-layout>
     <section class="space-y-5">
+        @include('pages.internet.partials.search')
         {{-- Top Tabs --}}
         @include('pages.target.subnav')
         {{-- Top Tabs --}}
