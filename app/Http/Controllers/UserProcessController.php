@@ -574,31 +574,114 @@ class UserProcessController extends Controller
 
     public function applyCpuProcessEffects(UserProcess $process, NetworkLogService $logs): void {
 
+        // Metadata
         $metadata = $process->metadata ?? [];
 
-        $networkId = $metadata['target_network_id'] ?? null;
+        $targetNetworkId = $metadata['target_network_id'] ?? null;
+        $softwareId = (int) ($metadata['software_id'] ?? null);
+        $taskId = (int) ($metadata['task_id'] ?? null);
 
-        if (!$networkId) {
-            // Not a memory-related process, or bad metadata: do nothing or throw
+        // Silent fail if no target network ID
+        if (!$targetNetworkId) {
             return;
         }
 
+        // Player network
+        $hacker = $process->user ?? User::findOrFail($process->user_id);
+        $playerNetwork = $hacker->network;
+
+        // Initialization of models that we need to prevent duplication of initialization.
+        $targetNetwork = UserNetwork::findOrFail($targetNetworkId);
+
+        // Process actions
         if ($process->action === 'bruteforce') {
-
-            $network = UserNetwork::findOrFail($process->metadata['target_network_id']);
-            $hacked = new HackedNetworks();
-
+            $hacked = app(HackedNetworks::class);
+//            $hacked = new HackedNetworks();
             $hacked->create([
                 'user_id' => $process->user->id,
-                'network_id' => $network->id,
-                'user' => $network->user,
-                'password' => $network->password,
-                'ip' => $network->ip,
+                'network_id' => $targetNetwork->id,
+                'user' => $targetNetwork->user,
+                'password' => $targetNetwork->password,
+                'ip' => $targetNetwork->ip,
             ]);
 
             $logs->appendLine(
                 networkId: $process->user->network->id,
-                line: sprintf("[%s] - [%s] successfully penetrated into [%s]", now()->format('Y-m-d H:i:s'), $process->user->network->ip, $network->ip)
+                line: sprintf("[%s] - [%s] successfully penetrated into [%s]", now()->format('Y-m-d H:i:s'), $process->user->network->ip, $targetNetwork->ip)
+            );
+        }
+
+        if (!$softwareId) {
+            return;
+        }
+
+        $software = ServerSoftwares::findOrFail($softwareId);
+
+        $ts = now()->format('Y-m-d H:i:s');
+        $softwareLabel = sprintf('%s.%s v(%s)', $software->name, $software->type, $software->version);
+        $isLocalTarget = ((int) $playerNetwork->id === (int) $targetNetwork->id);
+
+        if ($process->action === 'install') {
+            RunningSoftware::create([
+                'network_id' => $targetNetworkId,
+                'software_id' => $softwareId,
+            ]);
+
+            if ($isLocalTarget) {
+                // Installing on own network. localhost uninstalled X
+                $logs->appendLine(
+                    networkId: $playerNetwork->id,
+                    line: sprintf("[%s] - localhost installed [%s]", $ts, $softwareLabel)
+                );
+
+                return;
+            }
+
+            // Installing on victim network
+            // Victim sees: PlayerIP Installed X
+            $logs->appendLine(
+                networkId: $targetNetwork->id,
+                line: sprintf("[%s] - [%s] installed [%s] on localhost", $ts, $playerNetwork->ip, $softwareLabel)
+            );
+
+            // Player sees: localhost installed X from VictimIP
+            $logs->appendLine(
+                networkId: $playerNetwork->id,
+                line: sprintf("[%s] - localhost installed [%s] on [%s]", $ts, $softwareLabel, $targetNetwork->ip)
+            );
+        }
+
+
+        if ($process->action === 'uninstall') {
+            if (!$taskId) {
+                return;
+            }
+
+            // RunningSoftware row: deleting it "frees RAM" because usage is derived from running rows
+            $task = RunningSoftware::findOrFail($taskId);
+            $task->delete();
+
+            if ($isLocalTarget) {
+                // Uninstalling on own network. localhost uninstalled X
+                $logs->appendLine(
+                    networkId: $playerNetwork->id,
+                    line: sprintf("[%s] - localhost uninstalled [%s]", $ts, $softwareLabel)
+                );
+
+                return;
+            }
+
+            // Uninstalling on victim network
+            // Victim sees: PlayerIP uninstalled X
+            $logs->appendLine(
+                networkId: $targetNetwork->id,
+                line: sprintf("[%s] - [%s] uninstalled [%s]", $ts, $playerNetwork->ip, $softwareLabel)
+            );
+
+            // Player sees: localhost uninstalled X from VictimIP
+            $logs->appendLine(
+                networkId: $playerNetwork->id,
+                line: sprintf("[%s] - localhost uninstalled [%s] from [%s]", $ts, $softwareLabel, $targetNetwork->ip)
             );
         }
 
@@ -669,7 +752,6 @@ class UserProcessController extends Controller
 
             $this->applyCpuProcessEffects($p, app(NetworkLogService::class));
             $this->applyNetworkProcessEffects($p);
-            $this->applyMemoryEffects($p);
 
             $p->status = 'completed';
             $p->completed_at = $now;
@@ -705,102 +787,6 @@ class UserProcessController extends Controller
 
         return response()->json(['status' => 'canceled']);
     }
-
-    public function applyMemoryEffects(UserProcess $process): void {
-        $meta = $process->metadata ?? [];
-
-        $targetNetworkId = (int) ($meta['target_network_id'] ?? null);
-        $softwareId = (int) ($meta['software_id'] ?? null);
-        $taskId = (int) ($meta['task_id'] ?? null);
-
-        if (!$targetNetworkId || !$softwareId) {
-            // Not a memory-related process, or bad metadata: do nothing or throw
-            return;
-        }
-
-        // Target network = where uninstall happens (could be player's own or victim)
-        $targetNetwork = UserNetwork::findOrFail($targetNetworkId);
-
-        // Software being uninstalled
-        $software = ServerSoftwares::findOrFail($softwareId);
-
-        $hacker = $process->user ?? User::findOrFail($process->user_id);
-
-        // Players network
-        $playerNetwork = $hacker->network;
-
-        if (!$playerNetwork) {
-            throw new \RuntimeException('Player has no active network');
-        }
-
-        $logs = app(\App\Services\NetworkLogService::class);
-
-        $ts = now()->format('Y-m-d H:i:s');
-        $softwareLabel = sprintf('%s.%s v(%s)', $software->name, $software->type, $software->version);
-        $isLocalTarget = ((int) $playerNetwork->id === (int) $targetNetwork->id);
-
-        if ($process->action === 'uninstall') {
-
-            // RunningSoftware row: deleting it "frees RAM" because usage is derived from running rows
-            $task = RunningSoftware::findOrFail($taskId);
-            $task->delete();
-
-            if ($isLocalTarget) {
-                // Uninstalling on own network. localhost uninstalled X
-                $logs->appendLine(
-                    networkId: $playerNetwork->id,
-                    line: sprintf("[%s] - localhost uninstalled [%s]", $ts, $softwareLabel)
-                );
-
-                return;
-            }
-
-            // Uninstalling on victim network
-            // Victim sees: PlayerIP uninstalled X
-            $logs->appendLine(
-                networkId: $targetNetwork->id,
-                line: sprintf("[%s] - [%s] uninstalled [%s]", $ts, $playerNetwork->ip, $softwareLabel)
-            );
-
-            // Player sees: localhost uninstalled X from VictimIP
-            $logs->appendLine(
-                networkId: $playerNetwork->id,
-                line: sprintf("[%s] - localhost uninstalled [%s] from [%s]", $ts, $softwareLabel, $targetNetwork->ip)
-            );
-        }
-        elseif ($process->action === 'install') {
-
-            $task = RunningSoftware::create([
-                'network_id' => $targetNetworkId,
-                'software_id' => $softwareId,
-            ]);
-
-            if ($isLocalTarget) {
-                // Installing on own network. localhost uninstalled X
-                $logs->appendLine(
-                    networkId: $playerNetwork->id,
-                    line: sprintf("[%s] - localhost installed [%s]", $ts, $softwareLabel)
-                );
-
-                return;
-            }
-
-            // Installing on victim network
-            // Victim sees: PlayerIP Installed X
-            $logs->appendLine(
-                networkId: $targetNetwork->id,
-                line: sprintf("[%s] - [%s] installed [%s]", $ts, $playerNetwork->ip, $softwareLabel)
-            );
-
-            // Player sees: localhost installed X from VictimIP
-            $logs->appendLine(
-                networkId: $playerNetwork->id,
-                line: sprintf("[%s] - localhost installed [%s] on [%s]", $ts, $softwareLabel, $targetNetwork->ip)
-            );
-        }
-
-    }
-
 
     public function install(Request $request, ServerSoftwares $software) {
         $hacker = auth()->user();
