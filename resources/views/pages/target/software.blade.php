@@ -69,7 +69,7 @@
 
                                     <td class="px-4 py-3">
                                         <div class="flex items-center gap-3 text-slate-500 dark:text-slate-400">
-                                            <button type="button" data-modal-open="swModal" data-hw-id="{{ $soft->id }}" class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white hover:bg-slate-50 dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10 text-cyan-600 dark:text-cyan-300">
+                                            <button title="Info" type="button" data-modal-open="swModal" data-hw-id="{{ $soft->id }}" class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white hover:bg-slate-50 dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10 text-cyan-600 dark:text-cyan-300">
                                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                                                     <path d="M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20Z" stroke="currentColor" stroke-width="2"/>
                                                     <path d="M12 11v6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -80,13 +80,35 @@
                                             <form method="POST" action="{{ route('target.software.download', $soft->id) }}">
                                                 @csrf
                                                 <input type="hidden" name="action" value="download">
-                                                <button class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white hover:bg-slate-50 dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10 text-green-500 dark:text-green-400">
+                                                <button title="Download" class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white hover:bg-slate-50 dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10 text-green-500 dark:text-green-400">
                                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                                                         <path d="M12 3v10m0 0 4-4m-4 4-4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                                         <path d="M4 17v3h16v-3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                                                     </svg>
                                                 </button>
                                             </form>
+                                            @if(!$soft->isRunning())
+                                                <form method="POST" action="{{ route('tasks.install', $soft->id) }}">
+                                                    @csrf
+                                                    <input type="hidden" name="action" value="install">
+                                                    <input type="hidden" name="target" value="remote">
+                                                    <button title="Install" class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white hover:bg-slate-50 dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10 text-orange-500 dark:orange-green-400">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+                                                        </svg>
+                                                    </button>
+                                                </form>
+                                            @else
+                                                <form method="POST" action="{{ route('tasks.uninstall', $soft->runningInstance->id) }}">
+                                                    @csrf
+                                                    <input type="hidden" name="action" value="uninstall">
+                                                    <button title="Uninstall" class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white hover:bg-slate-50 dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10 text-red-500 dark:orange-red-400">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 7.5A2.25 2.25 0 0 1 7.5 5.25h9a2.25 2.25 0 0 1 2.25 2.25v9a2.25 2.25 0 0 1-2.25 2.25h-9a2.25 2.25 0 0 1-2.25-2.25v-9Z" />
+                                                        </svg>
+                                                    </button>
+                                                </form>
+                                            @endif
                                         </div>
                                     </td>
                                 </tr>

@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\HackedNetworks;
+use App\Models\RunningSoftware;
 use App\Models\ServerSoftwares;
+use App\Models\User;
 use App\Models\UserNetwork;
 use App\Models\UserProcess;
 use App\Services\NetworkLogService;
@@ -102,6 +104,7 @@ class UserProcessController extends Controller
         return (int) $cpu_power;
     }
 
+    # Deprecated
     public function computeWorkUnits(string $action, array $metadata): int {
         return match ($action) {
             'install' => 20_000 + (int)($metadata['software_size'] ?? 1) * 15_000,
@@ -123,6 +126,7 @@ class UserProcessController extends Controller
     public function calculateProcessDuration(string $action, array $metadata): float {
         $base = match ($action) {
             'install' => 12,
+            'uninstall' => 12,
             'log' => 3,
             'bruteforce' => 10,
             'scan' => 30,
@@ -142,10 +146,10 @@ class UserProcessController extends Controller
             // Exploits scale with difficulty
             'exploit_ssh', 'exploit_ftp' => isset($metadata['difficulty']) && is_numeric($metadata['difficulty']) ? 1 + ((int) $metadata['difficulty'] * 0.3) : 1.0,
 
-            // Install scales with software size
-            'install' => isset($metadata['size_mb']) && is_numeric($metadata['size_mb']) ? max(1.0, (float) $metadata['size_mb'] / 10) : 1.0,
+            // Install & Uninstall scales with software size
+            'install', 'uninstall' => isset($metadata['size_mb']) && is_numeric($metadata['size_mb']) ? max(1.0, (float) $metadata['size_mb'] / 10) : 1.0,
 
-            // Logs are fixed time
+            // Logs are fixed time TODO: deprecate the other way of log saving and start using this one instead and scale with log length size.
             'log' => 1.0,
 
             default => 1.0,
@@ -162,7 +166,7 @@ class UserProcessController extends Controller
             $cpu_power = $this->getUserCpuPowerTotal();
 
             if ($cpu_power <= 0) {
-                abort(422, 'No CPU resources available.');
+                abort(404, 'No CPU resources available.');
             }
 
             $workUnits = $this->computeWorkUnits($action, $metadata);
@@ -195,16 +199,10 @@ class UserProcessController extends Controller
         });
     }
 
-    public function rebalanceUserCpuProcesses(int $userId): void
-    {
+    public function rebalanceUserCpuProcesses(int $userId): void {
         $now = now();
 
-        $processes = UserProcess::where('user_id', $userId)
-            ->where('resource_type', 'cpu')
-            ->where('status', 'running')
-            ->orderBy('id')
-            ->lockForUpdate()
-            ->get();
+        $processes = UserProcess::where('user_id', $userId)->where('resource_type', 'cpu')->where('status', 'running')->orderBy('id')->lockForUpdate()->get();
 
         $n = $processes->count();
         if ($n === 0) return;
@@ -542,8 +540,13 @@ class UserProcessController extends Controller
         $softwareId = $metadata['software_id'] ?? null;
         $networkId = $metadata['target_network_id'] ?? null;
 
-        $software = ServerSoftwares::find($softwareId);
-        $targetNetwork = UserNetwork::find($networkId);
+        if (!$softwareId || !$networkId) {
+            // Not a memory-related process, or bad metadata: do nothing or throw
+            return;
+        }
+
+        $software = ServerSoftwares::findOrFail($softwareId);
+        $targetNetwork = UserNetwork::findOrFail($networkId);
 
         if (!$software) return;
         if (!$targetNetwork) return;
@@ -571,6 +574,15 @@ class UserProcessController extends Controller
 
     public function applyCpuProcessEffects(UserProcess $process, NetworkLogService $logs): void {
 
+        $metadata = $process->metadata ?? [];
+
+        $networkId = $metadata['target_network_id'] ?? null;
+
+        if (!$networkId) {
+            // Not a memory-related process, or bad metadata: do nothing or throw
+            return;
+        }
+
         if ($process->action === 'bruteforce') {
 
             $network = UserNetwork::findOrFail($process->metadata['target_network_id']);
@@ -584,8 +596,9 @@ class UserProcessController extends Controller
                 'ip' => $network->ip,
             ]);
 
-            $logs->saveEdited($process->user->network->id, $process->user->id,
-                sprintf("[%s] - [%s] successfully penetrated into [%s]", now()->format('Y-m-d H:i:s'), $process->user->network->ip, $network->ip)
+            $logs->appendLine(
+                networkId: $process->user->network->id,
+                line: sprintf("[%s] - [%s] successfully penetrated into [%s]", now()->format('Y-m-d H:i:s'), $process->user->network->ip, $network->ip)
             );
         }
 
@@ -656,6 +669,7 @@ class UserProcessController extends Controller
 
             $this->applyCpuProcessEffects($p, app(NetworkLogService::class));
             $this->applyNetworkProcessEffects($p);
+            $this->applyMemoryEffects($p);
 
             $p->status = 'completed';
             $p->completed_at = $now;
@@ -690,6 +704,153 @@ class UserProcessController extends Controller
         $this->rebalanceUserCpuProcesses($user->id);
 
         return response()->json(['status' => 'canceled']);
+    }
+
+    public function applyMemoryEffects(UserProcess $process): void {
+        $meta = $process->metadata ?? [];
+
+        $targetNetworkId = (int) ($meta['target_network_id'] ?? null);
+        $softwareId = (int) ($meta['software_id'] ?? null);
+        $taskId = (int) ($meta['task_id'] ?? null);
+
+        if (!$targetNetworkId || !$softwareId) {
+            // Not a memory-related process, or bad metadata: do nothing or throw
+            return;
+        }
+
+        // Target network = where uninstall happens (could be player's own or victim)
+        $targetNetwork = UserNetwork::findOrFail($targetNetworkId);
+
+        // Software being uninstalled
+        $software = ServerSoftwares::findOrFail($softwareId);
+
+        $hacker = $process->user ?? User::findOrFail($process->user_id);
+
+        // Players network
+        $playerNetwork = $hacker->network;
+
+        if (!$playerNetwork) {
+            throw new \RuntimeException('Player has no active network');
+        }
+
+        $logs = app(\App\Services\NetworkLogService::class);
+
+        $ts = now()->format('Y-m-d H:i:s');
+        $softwareLabel = sprintf('%s.%s v(%s)', $software->name, $software->type, $software->version);
+        $isLocalTarget = ((int) $playerNetwork->id === (int) $targetNetwork->id);
+
+        if ($process->action === 'uninstall') {
+
+            // RunningSoftware row: deleting it "frees RAM" because usage is derived from running rows
+            $task = RunningSoftware::findOrFail($taskId);
+            $task->delete();
+
+            if ($isLocalTarget) {
+                // Uninstalling on own network. localhost uninstalled X
+                $logs->appendLine(
+                    networkId: $playerNetwork->id,
+                    line: sprintf("[%s] - localhost uninstalled [%s]", $ts, $softwareLabel)
+                );
+
+                return;
+            }
+
+            // Uninstalling on victim network
+            // Victim sees: PlayerIP uninstalled X
+            $logs->appendLine(
+                networkId: $targetNetwork->id,
+                line: sprintf("[%s] - [%s] uninstalled [%s]", $ts, $playerNetwork->ip, $softwareLabel)
+            );
+
+            // Player sees: localhost uninstalled X from VictimIP
+            $logs->appendLine(
+                networkId: $playerNetwork->id,
+                line: sprintf("[%s] - localhost uninstalled [%s] from [%s]", $ts, $softwareLabel, $targetNetwork->ip)
+            );
+        }
+        elseif ($process->action === 'install') {
+
+            $task = RunningSoftware::create([
+                'network_id' => $targetNetworkId,
+                'software_id' => $softwareId,
+            ]);
+
+            if ($isLocalTarget) {
+                // Installing on own network. localhost uninstalled X
+                $logs->appendLine(
+                    networkId: $playerNetwork->id,
+                    line: sprintf("[%s] - localhost installed [%s]", $ts, $softwareLabel)
+                );
+
+                return;
+            }
+
+            // Installing on victim network
+            // Victim sees: PlayerIP Installed X
+            $logs->appendLine(
+                networkId: $targetNetwork->id,
+                line: sprintf("[%s] - [%s] installed [%s]", $ts, $playerNetwork->ip, $softwareLabel)
+            );
+
+            // Player sees: localhost installed X from VictimIP
+            $logs->appendLine(
+                networkId: $playerNetwork->id,
+                line: sprintf("[%s] - localhost installed [%s] on [%s]", $ts, $softwareLabel, $targetNetwork->ip)
+            );
+        }
+
+    }
+
+
+    public function install(Request $request, ServerSoftwares $software) {
+        $hacker = auth()->user();
+
+        $data = $request->validate([
+            'target' => ['required', 'in:local,remote'],
+        ]);
+
+        $localNetwork = $hacker->network;
+
+        // Kinda pointless condition since players can't have a null network.
+        if (!$localNetwork) {
+            abort(404, 'Local network not found.');
+        }
+
+        if ($data['target'] === 'local') {
+            $targetNetwork = $localNetwork;
+        }
+        else {
+            // Try to install the software on the remote network(victim)
+            $targetNetwork = $hacker->connectedNetwork();
+
+            if (!$targetNetwork) {
+                abort(404, 'No remote target network found.');
+            }
+
+            // Optional: permission checks (root/admin session etc.)
+            // TODO: Implement permissions more like check if user is root if so then you can install otherwise no.
+            // if (!$user->canInstallOnNetwork($targetNetwork)) abort(403, 'No permission.');
+        }
+
+
+        $this->start('install', [
+            'software_id' => $software->id,
+            'target_network_id' => $targetNetwork->id,
+        ]);
+
+        return redirect()->route('tasks.index');
+    }
+
+    public function uninstall(Request $request, RunningSoftware $task) {
+
+        $this->start('uninstall', [
+            'software_id' => $task->software_id,
+            'task_id' => $task->id,
+            'target_network_id' => $task->network_id,
+            'executor_id' => $request->user()->id,
+        ]);
+
+        return redirect()->route('tasks.index');
     }
 
 }

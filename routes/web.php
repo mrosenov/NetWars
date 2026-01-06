@@ -35,15 +35,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
     # Target Bruteforce
     Route::post('/internet/{ip}/attack/bruteforce', [InternetController::class, 'bruteforce'])->name('internet.attack.bruteforce');
 
-    Route::get('/internet/target', [TargetController::class, 'index'])->name('target.index');
-    Route::get('/internet/target/software', [TargetController::class, 'software'])->name('target.software');
-
     # Download and Upload from the target server
     Route::post('/internet/target/software/{software}/download', [UserProcessController::class, 'startDownload'])->name('target.software.download');
     Route::post('/internet/target/software/upload', [UserProcessController::class, 'startUpload'])->name('target.software.upload');
 
-    # Save and read logs from the target server
+    # Display victim logs/software.
+    Route::get('/internet/target', [TargetController::class, 'index'])->name('target.index');
     Route::get('/internet/target/logs', [NetworkLogfileController::class, 'show'])->name('target.logs');
+    Route::get('/internet/target/software', [TargetController::class, 'software'])->name('target.software');
+
+    # Save logs to the database this should be reworked
     Route::post('/networks/{networkId}/logs', [NetworkLogfileController::class, 'save'])->middleware('throttle:10,1')->name('target.logs.save');
     Route::get('/networks/{networkId}/log-save-status', [NetworkLogfileController::class, 'logSaveStatus']);
     Route::get('/networks/{networkId}/logs/content', [NetworkLogfileController::class, 'content']);
@@ -61,11 +62,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/tasks/network', [UserProcessController::class, 'network_index'])->name('tasks.network');
     Route::get('/tasks/running', [UserProcessController::class, 'running_index'])->name('tasks.running');
 
-    # Task Status
+    # Task Actions
     Route::get('/tasks/status', [UserProcessController::class, 'status'])->name('tasks.status');
     Route::post('/tasks/{process}/finalize', [UserProcessController::class, 'finalize'])->name('tasks.finalize');
     Route::post('/tasks/{process}/cancel', [UserProcessController::class, 'cancel'])->name('tasks.cancel');
-    Route::post('/tasks/{process}/uninstall', [UserProcessController::class, 'uninstall'])->name('tasks.cancel');
+    Route::post('/tasks/{task}/uninstall', [UserProcessController::class, 'uninstall'])->name('tasks.uninstall');
+    Route::post('/tasks/{software}/install', [UserProcessController::class, 'install'])->name('tasks.install');
 
 });
 require __DIR__.'/auth.php';

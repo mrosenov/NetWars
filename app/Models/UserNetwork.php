@@ -35,27 +35,38 @@ class UserNetwork extends Model
         return $this->belongsTo(HardwareParts::class, 'connectivity_id');
     }
 
-    public function hackedNetwork() {
-        return $this->hasOne(HackedNetworks::class, 'network_id');
-    }
-
-    public function isHacked(): bool {
-        return $this->hackedNetwork()->exists();
-    }
+//    public function hackedNetwork() {
+//        return $this->hasOne(HackedNetworks::class, 'network_id');
+//    }
+//
+//    public function isHacked(): bool {
+//        return $this->hackedNetwork()->exists();
+//    }
 
     public function runningSoftware() {
         return $this->hasMany(RunningSoftware::class, 'network_id');
     }
 
-    public function cracker() {
-        return $this->hasOneThrough(ServerSoftwares::class, RunningSoftware::class, 'network_id', 'id', 'id', 'software_id')
-            ->where('software.type', 'crc')
-            ->orderByDesc('software.version');
+    public function bestRunningSoftwareByType(string $type): ?ServerSoftwares {
+        $softwareTable = (new \App\Models\ServerSoftwares)->getTable();
+        $runningTable = (new \App\Models\RunningSoftware)->getTable();
+
+        return \App\Models\ServerSoftwares::query()
+            ->select("{$softwareTable}.*")
+            ->join($runningTable, "{$runningTable}.software_id", '=', "{$softwareTable}.id")
+            ->where("{$runningTable}.network_id", $this->id)
+            ->where("{$softwareTable}.type", $type)
+            ->orderByDesc("{$softwareTable}.version")
+            ->first();
     }
 
-    public function hasher() {
-        return $this->hasOneThrough(ServerSoftwares::class, RunningSoftware::class, 'network_id', 'id', 'id', 'software_id')
-            ->where('software.type', 'hash')
-            ->orderByDesc('software.version');
+    public function hasher(): ?ServerSoftwares {
+        return $this->bestRunningSoftwareByType('hash');
     }
+
+    public function cracker(): ?ServerSoftwares
+    {
+        return $this->bestRunningSoftwareByType('crc');
+    }
+
 }

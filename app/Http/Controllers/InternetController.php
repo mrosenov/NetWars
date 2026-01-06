@@ -99,14 +99,7 @@ class InternetController extends Controller
         session()->forget($key);
 
         if (($network->owner->type ?? null) !== 'download') {
-            app(NetworkLogService::class)->appendLine(
-                $network->id,
-                sprintf(
-                    "[%s] - [%s] logged in as root",
-                    now()->format('Y-m-d H:i:s'),
-                    $hacker->network->ip
-                )
-            );
+            app(NetworkLogService::class)->appendLine($network->id, sprintf("[%s] - [%s] logged in as root", now()->format('Y-m-d H:i:s'), $hacker->network->ip));
         }
 
 //        if ($network->owner instanceof NPC && $network->owner->type =! 'download') {
@@ -140,13 +133,16 @@ class InternetController extends Controller
     public function loginShow(string $ip) {
         $targetType = $this->targetType($ip);
         $network = UserNetwork::where('ip', $ip)->with(['owner', 'hardware'])->firstOrFail();
-        $isHacked = $network?->isHacked() ?? false;
+        $isHacked = auth()->user()->hasHackedNetwork($network->id) ?? false;
+        $victim = auth()->user()->hackedNetworkEntry($network->id);
+//        $isHacked = $network?->isHacked() ?? false;
 
         return view('pages.internet.login', [
             'ip' => $ip,
             'targetType' => $targetType,
             'network' => $network,
             'isHacked' => $isHacked,
+            'victim' => $victim,
         ]);
     }
 
@@ -166,14 +162,22 @@ class InternetController extends Controller
             return redirect()->route('internet.index')->with('error', 'You cannot bruteforce your own network.');
         }
 
-        $network = UserNetwork::where('ip', $ip)->with(['owner', 'hasher'])->firstOrFail();
+        $network = UserNetwork::where('ip', $ip)->with(['owner'])->firstOrFail();
 
-        if ($network->isHacked()) {
+        if ($hacker->hasHackedNetwork($network->id)) {
             return redirect()->route('internet.login', $ip)->with('error', 'This network is already hacked.');
         }
 
-        $hasherVersion  = $network->hasher->version ?? null;
-        $crackerVersion = $hacker->network->cracker->version;
+        $cracker = $hacker?->cracker;
+        $hasher = $network?->hasher();
+
+        $hasherVersion = $hasher->version ?? 0;
+
+        if (!$cracker || !$cracker->version) {
+            return redirect()->route('internet.show', $ip)->with('error', 'Please install a cracker first.');
+        }
+
+        $crackerVersion = $cracker->version;
 
         if ($hasherVersion !== null && $hasherVersion > $crackerVersion) {
             return redirect()->route('internet.show', $ip)->with('error', 'Your cracker is not strong enough.');
@@ -181,7 +185,7 @@ class InternetController extends Controller
 
         # Pass action and its multiplier
         app(UserProcessController::class)->start('bruteforce', [
-            'hasher_version' => $hasherVersion ?? 0.0,
+            'hasher_version' => $hasherVersion,
             'target_network_id' => $network->id,
         ]);
 

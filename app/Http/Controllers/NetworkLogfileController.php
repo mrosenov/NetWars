@@ -234,29 +234,4 @@ class NetworkLogfileController extends Controller
             return response()->json(['status' => 'completed']);
         });
     }
-
-
-
-//    public function save(Request $request, int $networkId, NetworkLogService $logs) {
-//        // TODO: enforce permissions: require root/admin + connected session, etc.
-//
-//        // Optional: rate limit saves (recommended)
-//        // $request->validate([...]) then throttle middleware on route
-//
-//        $data = $request->validate([
-//            'content' => ['required', 'string'],
-//            'base_hash' => ['required', 'string', 'size:64'], // sha256 hex
-//        ]);
-//
-//        $actorId = $request->user()?->id; // adapt to your auth/player system
-//
-//        $logs->saveEdited(
-//            networkId: $networkId,
-//            actorId: $actorId,
-//            newContent: $data['content'],
-//            expectedBaseHash: $data['base_hash']
-//        );
-//
-//        return redirect()->back()->with('status', 'Saved.');
-//    }
 }

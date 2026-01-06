@@ -139,6 +139,28 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(UserProcess::class, 'user_id');
     }
 
+    public function getCrackerAttribute(): ?ServerSoftwares {
+        return $this->network?->cracker();
+    }
+
+    public function getHasherAttribute(): ?ServerSoftwares {
+        return $this->network?->hasher();
+    }
+
+    /** auth()->user()->hackedVictims()->with('network')->get(); */
+    public function hackedVictims(): User|\Illuminate\Database\Eloquent\Relations\HasMany {
+        return $this->hasMany(HackedNetworks::class, 'user_id');
+    }
+
+    /** $isHacked = auth()->user()->hasHackedNetwork($visitedNetwork->id); */
+    public function hasHackedNetwork(int $networkId): bool {
+        return $this->hackedVictims()->where('network_id', $networkId)->exists();
+    }
+
+    public function hackedNetworkEntry(int $networkId) {
+        return $this->hackedVictims()->where('network_id', $networkId)->first();
+    }
+
     public function totalResources(): array {
         $servers = $this->servers()->with(['resources.hardware'])->get();
 
@@ -165,26 +187,6 @@ class User extends Authenticatable implements MustVerifyEmail
 
         return $totals;
     }
-
-    public function cracker() {
-        return $this->hasOneThrough(
-            ServerSoftwares::class,
-            RunningSoftware::class,
-            'network_id',   // FK on running_softwares
-            'id',           // FK on softwares
-            'id',           // local key on networks
-            'software_id'   // local key on running_softwares
-        )
-            ->where('software.type', 'crc')
-            ->orderByDesc('software.version');
-    }
-
-    public function hasher() {
-        return $this->hasOneThrough(ServerSoftwares::class, RunningSoftware::class, 'network_id', 'id', 'id', 'software_id')
-            ->where('software.type', 'hash')
-            ->orderByDesc('software.version');
-    }
-
 
     public function totalStorageMb(): float {
         $resources = $this->resources()->with('hardware')->get();

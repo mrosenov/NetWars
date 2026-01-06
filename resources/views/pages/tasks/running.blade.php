@@ -99,11 +99,14 @@
                                     </button>
 
                                     <!-- STOP -->
-                                    <button type="button" aria-label="Stop" class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white hover:bg-red-50 text-red-500 hover:text-red-600 dark:border-white/10 dark:bg-white/5 dark:hover:bg-red-500/10 dark:text-red-400 dark:hover:text-red-300 focus:outline-none focus:ring-2 focus:ring-red-400/40">
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                                            <rect x="5.25" y="5.25" width="13.5" height="13.5" rx="2.25" stroke="currentColor" stroke-width="2"/>
-                                        </svg>
-                                    </button>
+                                    <form method="POST" action="{{ route('tasks.uninstall', $task->id) }}">
+                                        @csrf
+                                        <button type="submit" aria-label="Stop" class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white hover:bg-red-50 text-red-500 hover:text-red-600 dark:border-white/10 dark:bg-white/5 dark:hover:bg-red-500/10 dark:text-red-400 dark:hover:text-red-300 focus:outline-none focus:ring-2 focus:ring-red-400/40" >
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                                <rect x="5.25" y="5.25" width="13.5" height="13.5" rx="2.25" stroke="currentColor" stroke-width="2"/>
+                                            </svg>
+                                        </button>
+                                    </form>
                                 </div>
                             </td>
                         </tr>

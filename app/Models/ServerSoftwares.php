@@ -21,6 +21,14 @@ class ServerSoftwares extends Model
         return $this->morphTo();
     }
 
+    public function isRunning():bool {
+        return RunningSoftware::where('software_id', $this->id)->exists();
+    }
+
+    public function runningInstance() {
+        return $this->hasOne(RunningSoftware::class, 'software_id');
+    }
+
     public function convertSize() {
         $size = 0;
 

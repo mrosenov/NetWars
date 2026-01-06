@@ -41,6 +41,12 @@ class UserProcess extends Model
         $metadata = $this->metadata;
         $network = UserNetwork::findOrFail($metadata['target_network_id']);
 
+        $hacker = auth()->user();
+
+        if ($network->ip === $hacker->network->ip) {
+            $network->ip = 'localhost';
+        }
+//dd($this->user->cracker);
         if ($this->action === 'bruteforce') {
             $matches = [
                 'text' => 'Bruteforce with ' ?? 'Unknown',
@@ -62,6 +68,24 @@ class UserProcess extends Model
             $software = ServerSoftwares::findOrFail($metadata['software_id']);
             $matches = [
                 'text' => 'Uploading ' ?? 'Unknown',
+                'software' => "{$software->name} v{$software->version}" ?? 'Unknown',
+                'target' => "{$network->ip}" ?? 'Unknown',
+                'what' => 'on',
+            ];
+        }
+        elseif ($this->action === 'uninstall') {
+            $software = ServerSoftwares::findOrFail($metadata['software_id']);
+            $matches = [
+                'text' => 'Uninstalling ' ?? 'Unknown',
+                'software' => "{$software->name} v{$software->version}" ?? 'Unknown',
+                'target' => "{$network->ip}" ?? 'Unknown',
+                'what' => 'from',
+            ];
+        }
+        elseif ($this->action === 'install') {
+            $software = ServerSoftwares::findOrFail($metadata['software_id']);
+            $matches = [
+                'text' => 'Installing ' ?? 'Unknown',
                 'software' => "{$software->name} v{$software->version}" ?? 'Unknown',
                 'target' => "{$network->ip}" ?? 'Unknown',
                 'what' => 'on',

@@ -19,10 +19,8 @@ class HackedNetworks extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function network()
-    {
+    public function network() {
         return $this->belongsTo(UserNetwork::class, 'network_id');
     }
-
 
 }
