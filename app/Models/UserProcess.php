@@ -91,6 +91,15 @@ class UserProcess extends Model
                 'what' => 'from',
             ];
         }
+        elseif ($this->action === 'delete') {
+            $software = ServerSoftwares::findOrFail($metadata['software_id']);
+            $matches = [
+                'text' => 'Deleting ' ?? 'Unknown',
+                'software' => "{$software->name} v{$software->version}" ?? 'Unknown',
+                'target' => "{$network->ip}" ?? 'Unknown',
+                'what' => 'from',
+            ];
+        }
         elseif ($this->action === 'log') {
             $matches = [
                 'text' => 'Edit ',

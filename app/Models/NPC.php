@@ -3,10 +3,12 @@
 namespace App\Models;
 
 use App\Http\Controllers\HardwarePartsController;
+use App\Models\Concerns\HasStorage;
 use Illuminate\Database\Eloquent\Model;
 
 class NPC extends Model
 {
+    use HasStorage;
     protected $fillable = [
         'server_id',
         'hardware_id',
@@ -38,158 +40,35 @@ class NPC extends Model
         return $this->morphMany(ServerSoftwares::class, 'owner');
     }
 
-    public function TotalStorage() {
-        $resources = $this->resources()->with('hardware')->get();
-
-        $storage = 0;
-
-        foreach ($resources as $resource) {
-            $hardware = $resource->hardware;
-
-            if (!$hardware || $hardware->type !== 'disk') continue;
-
-            $spec = $hardware->specifications ?? [];
-            $storage += (float) data_get($spec, 'capacity_gb', 0);
-        }
-
-        if ($storage < 1) {
-            $unit = 'MB';
-            $storage = round($storage * 1000);
-        }
-        elseif ($storage < 1000) {
-            $unit = 'GB';
-        }
-        else {
-            $storage = round($storage / 1000,1);
-            $unit = 'TB';
-        }
-
-        return [
-            'capacity' => $storage,
-            'unit' => $unit,
-        ];
-
+    public function totalStorageMb(): int {
+        $totals = $this->totalResources();
+        return (int) ($totals['storage_mb'] ?? 0);
     }
 
-    public function totalStorageMb(): float {
-        $resources = $this->resources()->with('hardware')->get();
+    public function totalResources(): array {
+        $servers = $this->servers()->with(['resources.hardware'])->get();
 
-        $storageGb = 0.0;
-
-        foreach ($resources as $resource) {
-            $hardware = $resource->hardware;
-
-            if (!$hardware || $hardware->type !== 'disk') {
-                continue;
-            }
-
-            $spec = $hardware->specifications ?? [];
-            $storageGb += (float) data_get($spec, 'capacity_gb', 0);
-        }
-
-        // Convert GB → MB
-        return $storageGb * 1000;
-    }
-
-
-    public function totalUsedStorageMb(): float {
-        return $this->software->sum(fn ($soft) => (float) $soft->size);
-    }
-
-    public function availableStorageMb(): float {
-        return max(0, $this->totalStorageMb() - $this->totalUsedStorageMb());
-    }
-
-
-    public function TotalUsedStorage()
-    {
-        $size = 0;
-
-        foreach ($this->software as $soft) {
-            $size += $soft->size; // MB
-        }
-
-        if ($size < 1000) {
-            $unit = 'MB';
-        } elseif ($size < 1000 * 1000) {
-            $unit = 'GB';
-            $size = round($size / 1000, 2);
-        } else {
-            $unit = 'TB';
-            $size = round($size / (1000 * 1000), 2);
-        }
-
-        return [
-            'totalUsed' => $size,
-            'unit' => $unit,
-        ];
-    }
-
-
-    public function OverallResources(): array
-    {
-        // Make sure we don't N+1 query hardware_parts
-        $resources = $this->resources()->with('hardware')->get();
-
-        // Sum in base units
         $totals = [
-            'clock_ghz' => 0.0,
-            'ram_gb' => 0.0,
-            'psu_w' => 0.0,
-            'disk_gb' => 0.0,
+            'ram_mb' => 0,
+            'storage_mb' => 0,
+            'down_mbps' => 0.0,
+            'up_mbps' => 0.0,
+            'cpu_compute' => 0,
+            'stability' => 0,
         ];
 
-        foreach ($resources as $resource) {
-            $hw = $resource->hardware;
+        foreach ($servers as $server) {
+            $t = $server->resource_totals;
 
-            if (!$hw) {
-                continue;
-            }
-
-            // Exclude motherboard
-            if ($hw->type === 'motherboard') {
-                continue;
-            }
-
-            $spec = is_array($hw->specifications) ? $hw->specifications : (array) $hw->specifications;
-
-            switch ($hw->type) {
-                case 'cpu':
-                    $mhz = (float) (data_get($spec, 'clock_ghz') ?? 0);
-                    $totals['clock_ghz'] += $mhz;
-                    break;
-
-                case 'ram':
-                    $mb = (int) (data_get($spec, 'capacity_mb') ?? 0);
-                    $totals['ram_gb'] += $mb;
-                    break;
-
-                case 'psu':
-                    $mb = (int) (data_get($spec, 'max_power_w') ?? 0);
-                    $totals['psu_w'] += $mb;
-                    break;
-
-                case 'disk':
-                    $mb = (float) (data_get($spec, 'capacity_gb') ?? 0);
-                    $totals['disk_gb'] += $mb;
-                    break;
-
-            }
+            $totals['ram_mb'] += (int) ($t['ram_mb'] ?? 0);
+            $totals['storage_mb'] += (int) ($t['storage_mb'] ?? 0);
+            $totals['down_mbps'] += (float) ($t['down_mbps'] ?? 0);
+            $totals['up_mbps'] += (float) ($t['up_mbps'] ?? 0);
+            $totals['cpu_compute'] += (int) ($t['cpu_compute'] ?? 0);
+            $totals['stability'] = max($totals['stability'], (int) ($t['stability'] ?? 0));
         }
 
-        $connectivity = $this->connectivity();
-
-        $hw = new HardwarePartsController();
-        $connectivityInfo = $hw->prettyNetwork(data_get($connectivity->specifications, 'connectivity_mbps'));
-
-        $hw = new HardwarePartsController();
-        return [
-            'CPU' => $hw->prettyCpu($totals['clock_ghz']),
-            'RAM' => $hw->prettyRAM($totals['ram_gb']),
-            'PSU' => $hw->prettyPSU($totals['psu_w']),
-            'Disk' => $hw->prettyStorage($totals['disk_gb']),
-            'Connectivity' => $connectivityInfo,
-        ];
+        return $totals;
     }
 
 }

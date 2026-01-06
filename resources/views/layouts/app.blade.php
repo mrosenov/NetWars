@@ -21,7 +21,7 @@
             @include('partials.header')
             <!-- Top bar -->
 
-            <div class="mx-auto max-w-[1400px] px-4 sm:px-6">
+            <div class="mx-auto max-w-[2000px] px-4 sm:px-6">
                 <div class="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-5 py-6">
                     <!-- Sidebar -->
                     @include('partials.sidebar')

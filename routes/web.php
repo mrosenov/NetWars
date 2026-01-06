@@ -54,6 +54,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     # Target logout
     Route::get('/internet/target/logout', [TargetController::class, 'logout'])->name('target.logout');
 
+    # User Software
+    Route::get('/software', [ServerSoftwaresController::class, 'index'])->name('software.index');
+    Route::post('/software/{software}/delete', [ServerSoftwaresController::class, 'destroy'])->name('software.destroy');
+
     # Get info for the software
     Route::get('/software/{software}/json', [ServerSoftwaresController::class, 'json'])->name('internet.software.json');
 

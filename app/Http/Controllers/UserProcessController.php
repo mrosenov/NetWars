@@ -127,6 +127,7 @@ class UserProcessController extends Controller
         $base = match ($action) {
             'install' => 12,
             'uninstall' => 12,
+            'delete' => 10,
             'log' => 3,
             'bruteforce' => 10,
             'scan' => 30,
@@ -146,8 +147,8 @@ class UserProcessController extends Controller
             // Exploits scale with difficulty
             'exploit_ssh', 'exploit_ftp' => isset($metadata['difficulty']) && is_numeric($metadata['difficulty']) ? 1 + ((int) $metadata['difficulty'] * 0.3) : 1.0,
 
-            // Install & Uninstall scales with software size
-            'install', 'uninstall' => isset($metadata['size_mb']) && is_numeric($metadata['size_mb']) ? max(1.0, (float) $metadata['size_mb'] / 10) : 1.0,
+            // Install, Uninstall, Delete scales with software size
+            'install', 'uninstall', 'delete' => isset($metadata['size_mb']) && is_numeric($metadata['size_mb']) ? max(1.0, (float) $metadata['size_mb'] / 10) : 1.0,
 
             // Log saving scales with log size in Bytes
             'log' => isset($metadata['log_size_bytes']) && is_numeric($metadata['log_size_bytes']) ? (1.0 + ((float) $metadata['log_size_bytes'] * 0.005263 / 3)) : 1.0,
@@ -545,7 +546,7 @@ class UserProcessController extends Controller
             return;
         }
 
-        $software = ServerSoftwares::findOrFail($softwareId);
+        $software = ServerSoftwares::find($softwareId);
         $targetNetwork = UserNetwork::findOrFail($networkId);
 
         if (!$software) return;
@@ -559,6 +560,10 @@ class UserProcessController extends Controller
             app(\App\Services\NetworkLogService::class)->appendLine($networkId,
                 sprintf("[%s] - [%s] downloaded [%s.%s (%s)] from localhost", now()->format('Y-m-d H:i:s'), $process->user->network->ip, $copy->name, $copy->type, $copy->version)
             );
+
+            app(\App\Services\NetworkLogService::class)->appendLine($process->user->network->id,
+                sprintf("[%s] - localhost downloaded [%s.%s (%s)] from [%s]", now()->format('Y-m-d H:i:s'), $copy->name, $copy->type, $copy->version, $targetNetwork->ip)
+            );
         }
 
         if ($process->action === 'upload') {
@@ -568,6 +573,10 @@ class UserProcessController extends Controller
 
             app(\App\Services\NetworkLogService::class)->appendLine($networkId,
                 sprintf("[%s] - [%s] uploaded [%s.%s (%s)] at localhost", now()->format('Y-m-d H:i:s'), $process->user->network->ip, $copy->name, $copy->type, $copy->version)
+            );
+
+            app(\App\Services\NetworkLogService::class)->appendLine($process->user->network->id,
+                sprintf("[%s] - localhost uploaded [%s.%s (%s)] at [%s]", now()->format('Y-m-d H:i:s'), $copy->name, $copy->type, $copy->version, $targetNetwork->ip)
             );
         }
     }
@@ -623,7 +632,9 @@ class UserProcessController extends Controller
             return;
         }
 
-        $software = ServerSoftwares::findOrFail($softwareId);
+        $software = ServerSoftwares::find($softwareId);
+
+        if (!$software) return;
 
         $ts = now()->format('Y-m-d H:i:s');
         $softwareLabel = sprintf('%s.%s v(%s)', $software->name, $software->type, $software->version);
@@ -693,6 +704,33 @@ class UserProcessController extends Controller
             );
         }
 
+        if ($process->action === 'delete') {
+            $software->delete();
+
+            if ($isLocalTarget) {
+                // Deleting on own network. localhost deleted X
+                $logs->appendLine(
+                    networkId: $playerNetwork->id,
+                    line: sprintf("[%s] - localhost deleted [%s]", $ts, $softwareLabel)
+                );
+
+                return;
+            }
+
+            // Deleting on victim network
+            // Victim sees: PlayerIP deleted X
+            $logs->appendLine(
+                networkId: $targetNetwork->id,
+                line: sprintf("[%s] - [%s] deleted [%s]", $ts, $playerNetwork->ip, $softwareLabel)
+            );
+
+            // Player sees: localhost deleted X from VictimIP
+            $logs->appendLine(
+                networkId: $playerNetwork->id,
+                line: sprintf("[%s] - localhost deleted [%s] from [%s]", $ts, $softwareLabel, $targetNetwork->ip)
+            );
+        }
+
     }
 
     public function status(Request $request) {
@@ -757,6 +795,9 @@ class UserProcessController extends Controller
             if (!$p->ends_at || $p->ends_at->isFuture()) {
                 return response()->json(['status' => 'still_running']);
             }
+
+            $p->status = 'completed';
+            $p->save();
 
             $this->applyCpuProcessEffects($p, app(NetworkLogService::class));
             $this->applyNetworkProcessEffects($p);
@@ -830,6 +871,7 @@ class UserProcessController extends Controller
         $this->start('install', [
             'software_id' => $software->id,
             'target_network_id' => $targetNetwork->id,
+            'size_mb' => $software->size,
         ]);
 
         return redirect()->route('tasks.index');
@@ -842,6 +884,7 @@ class UserProcessController extends Controller
             'task_id' => $task->id,
             'target_network_id' => $task->network_id,
             'executor_id' => $request->user()->id,
+            'size_mb' => $task->software->size,
         ]);
 
         return redirect()->route('tasks.index');

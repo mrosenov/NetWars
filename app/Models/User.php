@@ -4,10 +4,9 @@ namespace App\Models;
 
 use App\Http\Controllers\HardwarePartsController;
 use App\Http\Controllers\UserNetworkController;
-use Illuminate\Console\View\Components\Task;
+use App\Models\Concerns\HasStorage;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
@@ -15,7 +14,7 @@ use Illuminate\Support\Str;
 class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasStorage;
 
     /**
      * The attributes that are mass assignable.
@@ -161,7 +160,13 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hackedVictims()->where('network_id', $networkId)->first();
     }
 
-    public function totalResources(): array {
+    public function totalStorageMb(): int {
+        $totals = $this->totalResources();
+        return (int) ($totals['storage_mb'] ?? 0);
+    }
+
+    public function totalResources(): array
+    {
         $servers = $this->servers()->with(['resources.hardware'])->get();
 
         $totals = [
@@ -177,36 +182,35 @@ class User extends Authenticatable implements MustVerifyEmail
             $t = $server->resource_totals;
 
             $totals['ram_mb'] += (int) ($t['ram_mb'] ?? 0);
-            $totals['storage_mb'] += (int) ($t['storage_gb'] ?? 0);
+            $totals['storage_mb'] += (int) ($t['storage_mb'] ?? 0);
             $totals['down_mbps'] += (float) ($t['down_mbps'] ?? 0);
             $totals['up_mbps'] += (float) ($t['up_mbps'] ?? 0);
             $totals['cpu_compute'] += (int) ($t['cpu_compute'] ?? 0);
-
             $totals['stability'] = max($totals['stability'], (int) ($t['stability'] ?? 0));
         }
 
         return $totals;
     }
 
-    public function totalStorageMb(): float {
-        $resources = $this->resources()->with('hardware')->get();
-
-        $storageGb = 0.0;
-
-        foreach ($resources as $resource) {
-            $hardware = $resource->hardware;
-
-            if (!$hardware || $hardware->type !== 'disk') {
-                continue;
-            }
-
-            $spec = $hardware->specifications ?? [];
-            $storageGb += (float) data_get($spec, 'capacity_gb', 0);
-        }
-
-        // Convert GB → MB
-        return $storageGb * 1000;
-    }
+//    public function totalStorageMb(): float {
+//        $resources = $this->resources()->with('hardware')->get();
+//
+//        $storageGb = 0.0;
+//
+//        foreach ($resources as $resource) {
+//            $hardware = $resource->hardware;
+//
+//            if (!$hardware || $hardware->type !== 'disk') {
+//                continue;
+//            }
+//
+//            $spec = $hardware->specifications ?? [];
+//            $storageGb += (float) data_get($spec, 'capacity_gb', 0);
+//        }
+//
+//        // Convert GB → MB
+//        return $storageGb * 1000;
+//    }
 
 
     public function totalUsedStorageMb(): float {

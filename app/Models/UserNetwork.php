@@ -35,13 +35,10 @@ class UserNetwork extends Model
         return $this->belongsTo(HardwareParts::class, 'connectivity_id');
     }
 
-//    public function hackedNetwork() {
-//        return $this->hasOne(HackedNetworks::class, 'network_id');
-//    }
-//
-//    public function isHacked(): bool {
-//        return $this->hackedNetwork()->exists();
-//    }
+    public function software() {
+        return $this->hasMany(ServerSoftwares::class, 'network_id');
+    }
+
 
     public function runningSoftware() {
         return $this->hasMany(RunningSoftware::class, 'network_id');

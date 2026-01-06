@@ -3,19 +3,6 @@
 <x-app-layout>
     @include('pages.tasks.subnav')
 
-{{--    @php--}}
-{{--        // Example expected vars (adapt to your controller)--}}
-{{--        // $running = collection of running softwares--}}
-{{--        // each: name, type, version, ram_mb--}}
-{{--        // $ramUsedMb, $ramTotalMb--}}
-
-{{--        $ramUsedMb  = $ramUsedMb  ?? 24;--}}
-{{--        $ramTotalMb = $ramTotalMb ?? 256;--}}
-
-{{--        $pct = $ramTotalMb > 0 ? round(($ramUsedMb / $ramTotalMb) * 100) : 0;--}}
-{{--        $pct = max(0, min(100, $pct));--}}
-{{--    @endphp--}}
-
     <div class="flex flex-col gap-5 lg:flex-row">
         <!-- LEFT: TABLE (bigger) -->
         <div class="w-full lg:flex-1">
