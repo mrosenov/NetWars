@@ -73,6 +73,15 @@ class UserProcess extends Model
                 'what' => 'on',
             ];
         }
+        elseif ($this->action === 'install') {
+            $software = ServerSoftwares::findOrFail($metadata['software_id']);
+            $matches = [
+                'text' => 'Installing ' ?? 'Unknown',
+                'software' => "{$software->name} v{$software->version}" ?? 'Unknown',
+                'target' => "{$network->ip}" ?? 'Unknown',
+                'what' => 'on',
+            ];
+        }
         elseif ($this->action === 'uninstall') {
             $software = ServerSoftwares::findOrFail($metadata['software_id']);
             $matches = [
@@ -82,12 +91,11 @@ class UserProcess extends Model
                 'what' => 'from',
             ];
         }
-        elseif ($this->action === 'install') {
-            $software = ServerSoftwares::findOrFail($metadata['software_id']);
+        elseif ($this->action === 'log') {
             $matches = [
-                'text' => 'Installing ' ?? 'Unknown',
-                'software' => "{$software->name} v{$software->version}" ?? 'Unknown',
-                'target' => "{$network->ip}" ?? 'Unknown',
+                'text' => 'Edit ',
+                'software' => 'log',
+                'target' => "{$network->ip}",
                 'what' => 'on',
             ];
         }

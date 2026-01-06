@@ -149,8 +149,8 @@ class UserProcessController extends Controller
             // Install & Uninstall scales with software size
             'install', 'uninstall' => isset($metadata['size_mb']) && is_numeric($metadata['size_mb']) ? max(1.0, (float) $metadata['size_mb'] / 10) : 1.0,
 
-            // Logs are fixed time TODO: deprecate the other way of log saving and start using this one instead and scale with log length size.
-            'log' => 1.0,
+            // Log saving scales with log size in Bytes
+            'log' => isset($metadata['log_size_bytes']) && is_numeric($metadata['log_size_bytes']) ? (1.0 + ((float) $metadata['log_size_bytes'] * 0.005263 / 3)) : 1.0,
 
             default => 1.0,
         };
@@ -580,6 +580,7 @@ class UserProcessController extends Controller
         $targetNetworkId = $metadata['target_network_id'] ?? null;
         $softwareId = (int) ($metadata['software_id'] ?? null);
         $taskId = (int) ($metadata['task_id'] ?? null);
+        $logContent = $metadata['content'] ?? null;
 
         // Silent fail if no target network ID
         if (!$targetNetworkId) {
@@ -596,7 +597,6 @@ class UserProcessController extends Controller
         // Process actions
         if ($process->action === 'bruteforce') {
             $hacked = app(HackedNetworks::class);
-//            $hacked = new HackedNetworks();
             $hacked->create([
                 'user_id' => $process->user->id,
                 'network_id' => $targetNetwork->id,
@@ -608,6 +608,14 @@ class UserProcessController extends Controller
             $logs->appendLine(
                 networkId: $process->user->network->id,
                 line: sprintf("[%s] - [%s] successfully penetrated into [%s]", now()->format('Y-m-d H:i:s'), $process->user->network->ip, $targetNetwork->ip)
+            );
+        }
+
+        if ($process->action === 'log') {
+            $logs->saveEdited(
+                networkId: $targetNetwork->id,
+                actorId: $hacker->id,
+                newContent: (string)$logContent,
             );
         }
 

@@ -6,6 +6,7 @@ use App\Http\Controllers\TargetController;
 use App\Http\Controllers\Dashboard;
 use App\Http\Controllers\InternetController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserProcessController;
 use Illuminate\Support\Facades\Route;
 
@@ -68,6 +69,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/tasks/{process}/cancel', [UserProcessController::class, 'cancel'])->name('tasks.cancel');
     Route::post('/tasks/{task}/uninstall', [UserProcessController::class, 'uninstall'])->name('tasks.uninstall');
     Route::post('/tasks/{software}/install', [UserProcessController::class, 'install'])->name('tasks.install');
+
+    Route::get('/logs', [UserController::class, 'logs_index'])->name('user.logs');
+    Route::post('/logs/save', [UserController::class, 'logs_save'])->name('user.logs.save');
 
 });
 require __DIR__.'/auth.php';
