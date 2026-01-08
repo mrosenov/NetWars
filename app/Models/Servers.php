@@ -40,15 +40,10 @@ class Servers extends Model
         $totals = [
             'ram_mb' => 0,
             'storage_mb' => 0,
-            'down_mbps' => 0.0,
-            'up_mbps' => 0.0,
             'cpu_compute' => 0,
             'stability' => 0,
         ];
 
-        $net = app()->make(UserProcessController::class)->getUserNetTotals();
-        $totals['down_mbps'] += (float) ($net['down_mbps'] ?? 0);
-        $totals['up_mbps'] += (float) ($net['up_mbps'] ?? 0);
 
         foreach ($resources as $resource) {
             $hw = $resource?->hardware;

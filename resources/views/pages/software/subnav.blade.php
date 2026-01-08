@@ -10,8 +10,8 @@
                 Software
             </a>
 
-            <a href="{{ route('tasks.cpu') }}" @class(['inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-white/5 dark:hover:text-white', 'bg-white dark:bg-white/10 ring-1 ring-slate-200 dark:ring-white/10 shadow-sm hover:ring-slate-300' => request()->routeIs('tasks.cpu')])>
-                <span @class(['grid h-6 w-6 place-items-center rounded-lg text-cyan-700 dark:text-cyan-300' => request()->routeIs('tasks.cpu'),'grid h-6 w-6 place-items-center rounded-lg text-slate-700 dark:text-slate-200' => !request()->routeIs('tasks.cpu')])>
+            <a href="{{ route('software.external') }}" @class(['inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-white/5 dark:hover:text-white', 'bg-white dark:bg-white/10 ring-1 ring-slate-200 dark:ring-white/10 shadow-sm hover:ring-slate-300' => request()->routeIs('software.external')])>
+                <span @class(['grid h-6 w-6 place-items-center rounded-lg text-cyan-700 dark:text-cyan-300' => request()->routeIs('software.external'),'grid h-6 w-6 place-items-center rounded-lg text-slate-700 dark:text-slate-200' => !request()->routeIs('software.external')])>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
                     </svg>

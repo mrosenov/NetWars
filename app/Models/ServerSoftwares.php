@@ -8,10 +8,7 @@ class ServerSoftwares extends Model
 {
     protected $table = 'software';
 
-    protected $fillable = ['id',
-        'user_id',
-        'software_id'
-    ];
+    protected $fillable = ['type', 'name', 'version', 'size', 'requirements', 'is_hidden'];
 
     protected $casts = [
         'requirements' => 'array',

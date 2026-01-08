@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Http\Controllers\HardwarePartsController;
 use App\Http\Controllers\UserNetworkController;
+use App\Http\Controllers\UserProcessController;
 use App\Models\Concerns\HasStorage;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -134,6 +135,10 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->morphMany(ServerSoftwares::class, 'owner');
     }
 
+    public function externalSoftware() {
+        return $this->morphMany(ExternalSoftware::class, 'owner');
+    }
+
     public function tasks() {
         return $this->hasMany(UserProcess::class, 'user_id');
     }
@@ -165,6 +170,19 @@ class User extends Authenticatable implements MustVerifyEmail
         return (int) ($totals['storage_mb'] ?? 0);
     }
 
+    public function totalUsedExternalStorageMb(): float {
+        return $this->externalSoftware->sum(fn ($soft) => (float) $soft->size);
+    }
+
+    public function availableExternalStorageMb(): float {
+        return max(0, $this->totalExternalStorageMb() - $this->totalUsedExternalStorageMb());
+    }
+
+    public function totalExternalStorageMb(): int {
+        $totals = $this->totalResources();
+        return (int) ($totals['external_mb'] ?? 0);
+    }
+
     public function totalResources(): array
     {
         $servers = $this->servers()->with(['resources.hardware'])->get();
@@ -172,11 +190,19 @@ class User extends Authenticatable implements MustVerifyEmail
         $totals = [
             'ram_mb' => 0,
             'storage_mb' => 0,
+            'external_mb' => 0,
             'down_mbps' => 0.0,
             'up_mbps' => 0.0,
             'cpu_compute' => 0,
             'stability' => 0,
         ];
+
+        $net = app()->make(UserProcessController::class)->getUserNetTotals();
+        $totals['down_mbps'] += (float) ($net['down_mbps'] ?? 0);
+        $totals['up_mbps'] += (float) ($net['up_mbps'] ?? 0);
+
+        $ExtraCapacityGb = (float) ($this->externalStorage->hardware->specifications['extra_capacity_gb'] ?? 0);
+        $totals['external_mb'] += (int) round($ExtraCapacityGb * 1000);
 
         foreach ($servers as $server) {
             $t = $server->resource_totals;

@@ -8,6 +8,7 @@ use App\Http\Controllers\InternetController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserProcessController;
+use App\Http\Controllers\UsersExternalStorageController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -57,6 +58,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     # User Software
     Route::get('/software', [ServerSoftwaresController::class, 'index'])->name('software.index');
     Route::post('/software/{software}/delete', [ServerSoftwaresController::class, 'destroy'])->name('software.destroy');
+
+    Route::get('/software/external', [UsersExternalStorageController::class, 'index'])->name('software.external');
+    Route::post('/software/external/{software}/copy', [UsersExternalStorageController::class, 'copy'])->name('software.external.copy');
+    Route::post('/software/external/{software}/backup', [UsersExternalStorageController::class, 'backup'])->name('software.external.backup');
+    Route::post('/software/external/{software}/destroy', [UsersExternalStorageController::class, 'destroy'])->name('software.external.destroy');
 
     # Get info for the software
     Route::get('/software/{software}/json', [ServerSoftwaresController::class, 'json'])->name('internet.software.json');

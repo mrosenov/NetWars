@@ -148,10 +148,13 @@ class InternetController extends Controller
 
     public function hackShow(string $ip) {
         $targetType = $this->targetType($ip);
+        $hacker = auth()->user();
+        $cracker = $hacker->cracker;
 
         return view('pages.internet.hack', [
             'ip' => $ip,
             'targetType' => $targetType,
+            'cracker' => $cracker,
         ]);
     }
 

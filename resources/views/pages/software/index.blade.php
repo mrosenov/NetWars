@@ -3,18 +3,18 @@
 <x-app-layout>
 
     @include('pages.software.subnav')
-    <div class="flex flex-col gap-5 lg:flex-row">
-        @if (session('success'))
-            <x-alert type="success">
-                {{ session('success') }}
-            </x-alert>
-        @endif
+    @if (session('success'))
+        <x-alert type="success">
+            {{ session('success') }}
+        </x-alert>
+    @endif
 
-        @if (session('error'))
-            <x-alert type="danger">
-                {{ session('error') }}
-            </x-alert>
-        @endif
+    @if (session('error'))
+        <x-alert type="danger">
+            {{ session('error') }}
+        </x-alert>
+    @endif
+    <div class="flex flex-col gap-5 lg:flex-row">
             <div class="w-full lg:flex-1">
                 <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white/70 shadow-sm backdrop-blur dark:border-white/10 dark:bg-white/5">
                     <div class="flex items-center gap-2 border-b border-slate-200/70 bg-white/40 px-4 py-3 text-xs text-slate-600 dark:border-white/10 dark:bg-white/5 dark:text-slate-300">
@@ -32,8 +32,8 @@
                         <colgroup>
                             <col class="w-[58%]" />
                             <col class="w-[12%]" />
-                            <col class="w-[15%]" />
-                            <col class="w-[15%]" />
+                            <col class="w-[10%]" />
+                            <col class="w-[20%]" />
                         </colgroup>
 
                         <thead>
@@ -41,7 +41,7 @@
                                 <th class="px-4 py-3 font-semibold">Software name</th>
                                 <th class="px-4 py-3 font-semibold">Version</th>
                                 <th class="px-4 py-3 font-semibold">Size</th>
-                                <th class="px-4 py-3 font-semibold text-center">Actions</th>
+                                <th class="px-4 py-3 font-semibold text-left">Actions</th>
                             </tr>
                         </thead>
 
@@ -93,7 +93,7 @@
                                                 <form method="POST" action="{{ route('target.software.upload') }}">
                                                     @csrf
                                                     <input type="hidden" name="software_id" value="{{ $soft->id }}">
-                                                    <button title="Upload" class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white hover:bg-slate-50 dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10 text-green-500 dark:text-green-400">
+                                                    <button title="Upload to {{ $hacker->connectedNetwork()->ip }}" class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white hover:bg-slate-50 dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10 text-green-500 dark:text-green-400">
                                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
                                                             <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
                                                         </svg>
@@ -105,7 +105,7 @@
                                                 <form method="POST" action="{{ route('tasks.install', $soft->id) }}">
                                                     @csrf
                                                     <input type="hidden" name="action" value="install">
-                                                    <input type="hidden" name="target" value="remote">
+                                                    <input type="hidden" name="target" value="local">
                                                     <button title="Install" class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white hover:bg-slate-50 dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10 text-orange-500 dark:orange-green-400">
                                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
                                                             <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
@@ -130,6 +130,15 @@
                                                 <button title="Delete" class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white hover:bg-slate-50 dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10 text-red-500 dark:orange-red-400">
                                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
                                                         <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                                                    </svg>
+                                                </button>
+                                            </form>
+
+                                            <form method="POST" action="{{ route('software.external.backup', $soft->id) }}">
+                                                @csrf
+                                                <button title="Backup" class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white hover:bg-slate-50 dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10 text-fuchsia-500 dark:fuchsia-red-400">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
                                                     </svg>
                                                 </button>
                                             </form>
@@ -171,9 +180,9 @@
                     </div>
 
                     <div class="mt-3 text-center text-[11px] text-slate-600 dark:text-slate-300">
-                        <span class="font-semibold text-emerald-600 dark:text-emerald-400">{{ $storageUsed['value'] }} {{ $storageUsed['unit'] }}</span>
+                        <span class="font-semibold text-emerald-600 dark:text-emerald-400">{{ $storageUsed }}</span>
                         <span class="text-slate-400 dark:text-slate-500">/</span>
-                        <span class="font-semibold text-red-600/80 dark:text-red-400/80">{{ $storageTotal['value'] }} {{ $storageTotal['unit'] }}</span>
+                        <span class="font-semibold text-red-600/80 dark:text-red-400/80">{{ $storageTotal }}</span>
                     </div>
                 </div>
             </div>

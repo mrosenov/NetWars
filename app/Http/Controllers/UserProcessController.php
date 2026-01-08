@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ExternalSoftware;
 use App\Models\HackedNetworks;
 use App\Models\RunningSoftware;
 use App\Models\ServerSoftwares;
@@ -128,6 +129,9 @@ class UserProcessController extends Controller
             'install' => 12,
             'uninstall' => 12,
             'delete' => 10,
+            'ex_delete' => 10,
+            'copy' => 10,
+            'backup' => 10,
             'log' => 3,
             'bruteforce' => 10,
             'scan' => 30,
@@ -149,6 +153,9 @@ class UserProcessController extends Controller
 
             // Install, Uninstall, Delete scales with software size
             'install', 'uninstall', 'delete' => isset($metadata['size_mb']) && is_numeric($metadata['size_mb']) ? max(1.0, (float) $metadata['size_mb'] / 10) : 1.0,
+
+            // Copy, Backup scales with size AND access speed
+            'copy', 'backup', 'ex_delete' => (isset($metadata['size_mb'], $metadata['access_speed']) && is_numeric($metadata['size_mb']) && is_numeric($metadata['access_speed']) && $metadata['access_speed'] > 0) ? max(0.2, ((float) $metadata['size_mb'] / 10) / max(0.5, ((float) $metadata['access_speed']))) : 1.0,
 
             // Log saving scales with log size in Bytes
             'log' => isset($metadata['log_size_bytes']) && is_numeric($metadata['log_size_bytes']) ? (1.0 + ((float) $metadata['log_size_bytes'] * 0.005263 / 3)) : 1.0,
@@ -326,11 +333,12 @@ class UserProcessController extends Controller
         $user = auth()->user();
 
         $direction = 'download';
-        $sizeMb = (float) $software->size;
 
         if (!$software) {
             abort(404, 'Software not found.');
         }
+
+        $sizeMb = (float) $software->size;
 
         $availableMb = $user->availableStorageMb();
 
@@ -733,6 +741,69 @@ class UserProcessController extends Controller
 
     }
 
+    public function applyDiskProcessEffects(UserProcess $process) {
+        $metadata = $process->metadata ?? [];
+        $targetNetworkId = $metadata['target_network_id'] ?? null;
+        $network = UserNetwork::find($targetNetworkId);
+
+        if (!$targetNetworkId || !$network) {
+            return redirect()->route('software.index')->with('error', 'Missing Network.');
+        }
+
+        $hacker = $network->owner;
+
+        if ($process->action === 'copy') {
+
+            $softwareId = (int) ($metadata['external_software_id'] ?? null);
+            $software = ExternalSoftware::find($softwareId);
+
+            if (!$softwareId || !$software) {
+                return redirect()->route('software.index')->with('error', 'Missing Software information.');
+            }
+
+            $hacker->software()->create([
+                'type' => $software->type,
+                'name' => $software->name,
+                'version' => $software->version,
+                'size' => $software->size,
+                'requirements' => $software->requirements,
+            ]);
+
+            return redirect()->route('software.index')->with('success', 'Software successfully copied.');
+        }
+        elseif ($process->action === 'backup') {
+            $softwareId = (int) ($metadata['software_id'] ?? null);
+            $software = ServerSoftwares::find($softwareId);
+
+            if (!$softwareId || !$software) {
+                return redirect()->route('software.index')->with('error', 'Missing Software information.');
+            }
+
+            $hacker->externalSoftware()->create([
+                'type' => $software->type,
+                'name' => $software->name,
+                'version' => $software->version,
+                'size' => $software->size,
+                'requirements' => $software->requirements,
+            ]);
+
+            return redirect()->route('software.index')->with('success', 'Software successfully saved.');
+        }
+        elseif ($process->action === 'delete') {
+            $softwareId = (int) ($metadata['external_software_id'] ?? null);
+            $software = ExternalSoftware::find($softwareId);
+
+            if (!$softwareId || !$software) {
+                return redirect()->route('software.index')->with('error', 'Missing Software information.');
+            }
+
+            $software->delete();
+
+            return redirect()->route('software.index')->with('success', 'Software successfully deleted.');
+        }
+
+    }
+
     public function status(Request $request) {
         $user = $request->user();
         $now = now();
@@ -799,16 +870,27 @@ class UserProcessController extends Controller
             $p->status = 'completed';
             $p->save();
 
-            $this->applyCpuProcessEffects($p, app(NetworkLogService::class));
-            $this->applyNetworkProcessEffects($p);
+            if ($p->resource_type === 'cpu') {
+                $this->applyCpuProcessEffects($p, app(NetworkLogService::class));
+            }
+            elseif ($p->resource_type === 'network') {
+                $this->applyNetworkProcessEffects($p);
+            }
+            elseif ($p->resource_type === 'disk') {
+                $this->applyDiskProcessEffects($p);
+            }
 
             $p->status = 'completed';
             $p->completed_at = $now;
             $p->ends_at = $now;
             $p->save();
 
-            $this->rebalanceUserCpuProcesses($process->user->id);
-            $this->rebalanceUserNetProcesses($p->user->id, $p->action);
+            if ($p->resource_type === 'cpu') {
+                $this->rebalanceUserCpuProcesses($process->user->id);
+            }
+            elseif ($p->resource_type === 'network') {
+                $this->rebalanceUserNetProcesses($p->user->id, $p->action);
+            }
 
             return response()->json([
                 'status' => 'completed',

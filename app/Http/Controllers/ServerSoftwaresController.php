@@ -40,9 +40,9 @@ class ServerSoftwaresController extends Controller
             'pct' => $pct,
 
             // formatted for display
-            'storageUsed' => Format::storage($storageUsedMb),
-            'storageTotal' => Format::storage($storageTotalMb),
-            'storageFree' => Format::storage($storageFreeMb),
+            'storageUsed' => Format::storageHuman($storageUsedMb),
+            'storageTotal' => Format::storageHuman($storageTotalMb),
+            'storageFree' => Format::storageHuman($storageFreeMb),
         ]);
     }
 

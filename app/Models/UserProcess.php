@@ -92,7 +92,7 @@ class UserProcess extends Model
             ];
         }
         elseif ($this->action === 'delete') {
-            $software = ServerSoftwares::findOrFail($metadata['software_id']);
+            $software = !empty($metadata['software_id']) ? ServerSoftwares::findOrFail($metadata['software_id']) : ExternalSoftware::findOrFail($metadata['external_software_id']);
             $matches = [
                 'text' => 'Deleting ' ?? 'Unknown',
                 'software' => "{$software->name} v{$software->version}" ?? 'Unknown',
@@ -105,6 +105,24 @@ class UserProcess extends Model
                 'text' => 'Edit ',
                 'software' => 'log',
                 'target' => "{$network->ip}",
+                'what' => 'on',
+            ];
+        }
+        elseif ($this->action === 'copy') {
+            $software = ExternalSoftware::findOrFail($metadata['external_software_id']);
+            $matches = [
+                'text' => 'Copying ',
+                'software' => "{$software->name} v{$software->version}" ?? 'Unknown',
+                'target' => "{$network->ip}",
+                'what' => 'to',
+            ];
+        }
+        elseif ($this->action === 'backup') {
+            $software = ServerSoftwares::findOrFail($metadata['software_id']);
+            $matches = [
+                'text' => 'Backup ',
+                'software' => "{$software->name} v{$software->version}" ?? 'Unknown',
+                'target' => "External Drive",
                 'what' => 'on',
             ];
         }

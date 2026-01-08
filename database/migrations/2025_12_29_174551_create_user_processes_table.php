@@ -17,7 +17,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->enum('resource_type', ['cpu', 'ram', 'disk', 'network']);
-            $table->enum('action', ['install', 'uninstall', 'delete', 'log', 'bruteforce', 'scan', 'ssh', 'ftp', 'download', 'upload']);
+            $table->enum('action', ['install', 'uninstall', 'copy', 'backup', 'delete', 'log', 'bruteforce', 'scan', 'ssh', 'ftp', 'download', 'upload']);
             $table->json('metadata')->nullable();
             $table->unsignedBigInteger('work_units');
             $table->float('ideal_seconds');
