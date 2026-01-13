@@ -188,6 +188,7 @@ class User extends Authenticatable implements MustVerifyEmail
         $servers = $this->servers()->with(['resources.hardware'])->get();
 
         $totals = [
+            'clock_mhz' => 0,
             'ram_mb' => 0,
             'storage_mb' => 0,
             'external_mb' => 0,
@@ -207,6 +208,7 @@ class User extends Authenticatable implements MustVerifyEmail
         foreach ($servers as $server) {
             $t = $server->resource_totals;
 
+            $totals['clock_mhz'] += (float) ($t['clock_mhz'] ?? 0);
             $totals['ram_mb'] += (int) ($t['ram_mb'] ?? 0);
             $totals['storage_mb'] += (int) ($t['storage_mb'] ?? 0);
             $totals['down_mbps'] += (float) ($t['down_mbps'] ?? 0);
@@ -218,27 +220,6 @@ class User extends Authenticatable implements MustVerifyEmail
         return $totals;
     }
 
-//    public function totalStorageMb(): float {
-//        $resources = $this->resources()->with('hardware')->get();
-//
-//        $storageGb = 0.0;
-//
-//        foreach ($resources as $resource) {
-//            $hardware = $resource->hardware;
-//
-//            if (!$hardware || $hardware->type !== 'disk') {
-//                continue;
-//            }
-//
-//            $spec = $hardware->specifications ?? [];
-//            $storageGb += (float) data_get($spec, 'capacity_gb', 0);
-//        }
-//
-//        // Convert GB → MB
-//        return $storageGb * 1000;
-//    }
-
-
     public function totalUsedStorageMb(): float {
         return $this->software->sum(fn ($soft) => (float) $soft->size);
     }
@@ -246,7 +227,6 @@ class User extends Authenticatable implements MustVerifyEmail
     public function availableStorageMb(): float {
         return max(0, $this->totalStorageMb() - $this->totalUsedStorageMb());
     }
-
 
     public function OverallResources(): array
     {
@@ -329,7 +309,7 @@ class User extends Authenticatable implements MustVerifyEmail
         $connectivityInfo = $hw->prettyNetwork(data_get($connectivity->specifications, 'connectivity_mbps'));
 
         $hw = new HardwarePartsController();
-        $test = [
+        return [
             'CPU' => $hw->prettyCpu($totals['clock_ghz']),
             'RAM' => $hw->prettyRAM($totals['ram_gb']),
             'PSU' => $hw->prettyPSU($totals['psu_w']),
@@ -337,8 +317,6 @@ class User extends Authenticatable implements MustVerifyEmail
             'externalDrive' => $hw->prettyStorage($totals['externalDrive_gb']),
             'Connectivity' => $connectivityInfo,
         ];
-//        dd($test);
-        return $test;
     }
 
 

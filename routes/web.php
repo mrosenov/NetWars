@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\HardwarePartsController;
 use App\Http\Controllers\NetworkLogfileController;
 use App\Http\Controllers\ServerSoftwaresController;
 use App\Http\Controllers\TargetController;
@@ -24,6 +25,31 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     # Dashboard
     Route::get('/dashboard', [Dashboard::class, 'index'])->name('dashboard');
+
+    # Task Manager
+    Route::get('/tasks', [UserProcessController::class, 'index'])->name('tasks.index');
+    Route::get('/tasks/cpu', [UserProcessController::class, 'cpu_index'])->name('tasks.cpu');
+    Route::get('/tasks/network', [UserProcessController::class, 'network_index'])->name('tasks.network');
+    Route::get('/tasks/running', [UserProcessController::class, 'running_index'])->name('tasks.running');
+
+    # Task Actions
+    Route::get('/tasks/status', [UserProcessController::class, 'status'])->name('tasks.status');
+    Route::post('/tasks/{process}/finalize', [UserProcessController::class, 'finalize'])->name('tasks.finalize');
+    Route::post('/tasks/{process}/cancel', [UserProcessController::class, 'cancel'])->name('tasks.cancel');
+    Route::post('/tasks/{task}/uninstall', [UserProcessController::class, 'uninstall'])->name('tasks.uninstall');
+    Route::post('/tasks/{software}/install', [UserProcessController::class, 'install'])->name('tasks.install');
+
+    # User Software
+    Route::get('/software', [ServerSoftwaresController::class, 'index'])->name('software.index');
+    Route::post('/software/{software}/delete', [ServerSoftwaresController::class, 'destroy'])->name('software.destroy');
+
+    Route::get('/software/external', [UsersExternalStorageController::class, 'index'])->name('software.external');
+    Route::post('/software/external/{software}/copy', [UsersExternalStorageController::class, 'copy'])->name('software.external.copy');
+    Route::post('/software/external/{software}/backup', [UsersExternalStorageController::class, 'backup'])->name('software.external.backup');
+    Route::post('/software/external/{software}/destroy', [UsersExternalStorageController::class, 'destroy'])->name('software.external.destroy');
+
+    # Get info for the software
+    Route::get('/software/{software}/json', [ServerSoftwaresController::class, 'json'])->name('internet.software.json');
 
     # Internet
     Route::get('/internet', [InternetController::class, 'index'])->name('internet.index');
@@ -55,33 +81,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     # Target logout
     Route::get('/internet/target/logout', [TargetController::class, 'logout'])->name('target.logout');
 
-    # User Software
-    Route::get('/software', [ServerSoftwaresController::class, 'index'])->name('software.index');
-    Route::post('/software/{software}/delete', [ServerSoftwaresController::class, 'destroy'])->name('software.destroy');
-
-    Route::get('/software/external', [UsersExternalStorageController::class, 'index'])->name('software.external');
-    Route::post('/software/external/{software}/copy', [UsersExternalStorageController::class, 'copy'])->name('software.external.copy');
-    Route::post('/software/external/{software}/backup', [UsersExternalStorageController::class, 'backup'])->name('software.external.backup');
-    Route::post('/software/external/{software}/destroy', [UsersExternalStorageController::class, 'destroy'])->name('software.external.destroy');
-
-    # Get info for the software
-    Route::get('/software/{software}/json', [ServerSoftwaresController::class, 'json'])->name('internet.software.json');
-
-    # Task Manager
-    Route::get('/tasks', [UserProcessController::class, 'index'])->name('tasks.index');
-    Route::get('/tasks/cpu', [UserProcessController::class, 'cpu_index'])->name('tasks.cpu');
-    Route::get('/tasks/network', [UserProcessController::class, 'network_index'])->name('tasks.network');
-    Route::get('/tasks/running', [UserProcessController::class, 'running_index'])->name('tasks.running');
-
-    # Task Actions
-    Route::get('/tasks/status', [UserProcessController::class, 'status'])->name('tasks.status');
-    Route::post('/tasks/{process}/finalize', [UserProcessController::class, 'finalize'])->name('tasks.finalize');
-    Route::post('/tasks/{process}/cancel', [UserProcessController::class, 'cancel'])->name('tasks.cancel');
-    Route::post('/tasks/{task}/uninstall', [UserProcessController::class, 'uninstall'])->name('tasks.uninstall');
-    Route::post('/tasks/{software}/install', [UserProcessController::class, 'install'])->name('tasks.install');
-
+    # Log file
     Route::get('/logs', [UserController::class, 'logs_index'])->name('user.logs');
     Route::post('/logs/save', [UserController::class, 'logs_save'])->name('user.logs.save');
+
+    # Hardware
+    Route::get('/hardware', [HardwarePartsController::class, 'index'])->name('user.hardware');
+    Route::get('/hardware/server/{server}', [HardwarePartsController::class, 'server'])->name('user.hardware.server');
 
 });
 require __DIR__.'/auth.php';

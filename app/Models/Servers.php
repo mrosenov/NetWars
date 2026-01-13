@@ -38,6 +38,7 @@ class Servers extends Model
             : $this->resources()->with('hardware')->get();
 
         $totals = [
+            'clock_mhz' => 0,
             'ram_mb' => 0,
             'storage_mb' => 0,
             'cpu_compute' => 0,
@@ -52,11 +53,17 @@ class Servers extends Model
 
             $spec = $hw->specifications ?? [];
 
-            $totals['ram_mb'] += (int) ($spec['capacity_mb'] ?? 0);
+            $totals['clock_mhz'] += (float) ($spec['clock_mhz'] ?? 0);
+            if ($hw->type === 'ram') {
+                $totals['ram_mb'] += (int) ($spec['capacity_mb'] ?? 0);
+            }
+
 
             // Disk: capacity_gb -> MB
-            $capacityGb = (float) ($spec['capacity_gb'] ?? 0);
-            $totals['storage_mb'] += (int) round($capacityGb * 1000);
+            if ($hw->type === 'disk') {
+                $totals['storage_mb'] += (float)$spec['capacity_mb'] ?? 0;
+            }
+
 
             $totals['cpu_compute'] += (int) ($spec['compute_power'] ?? 0);
             $totals['stability'] = max($totals['stability'], (int) ($spec['stability'] ?? 0));
