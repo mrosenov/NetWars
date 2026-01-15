@@ -2,10 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BankAccount;
 use App\Models\HardwareParts;
+use App\Models\ServerResources;
 use App\Models\Servers;
 use App\Support\Format;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class HardwarePartsController extends Controller
 {
@@ -36,6 +40,8 @@ class HardwarePartsController extends Controller
         $InstalledSupply = $server->resources->first(fn ($r) => $r->hardware?->type === 'psu')?->hardware;
         $InstalledStorage = $server->resources->first(fn ($r) => $r->hardware?->type === 'disk')?->hardware;
         $InstalledNetwork = $server->owner->network?->hardware;
+        $hacker = auth()->user();
+        $bankAccounts = $hacker->bankAccounts;
 
         return view('pages.hardware.server', [
             'server' => $server,
@@ -52,6 +58,9 @@ class HardwarePartsController extends Controller
             'installedSupply' => $InstalledSupply,
             'installedStorage' => $InstalledStorage,
             'installedNetwork' => $InstalledNetwork,
+
+            'hacker' => $hacker,
+            'bankAccounts' => $bankAccounts,
         ]);
     }
 
@@ -149,6 +158,82 @@ class HardwarePartsController extends Controller
         $InstalledNetwork = $server->owner->network?->hardware;
 
         return HardwareParts::where('type', 'network')->where('specifications->bandwidth_mbps', '>=', $InstalledNetwork->specifications['bandwidth_mbps'])->orderBy('price', 'asc')->get();
+    }
+
+    public function json(HardwareParts $hardware) {
+        return response()->json([
+            'id' => $hardware->id,
+            'name' => $hardware->name,
+            'price' => Format::moneyHuman($hardware->price),
+            'specs' => $hardware->getSpecsLabelAttribute()
+        ]);
+    }
+
+    public function buy(Request $request) {
+        $hacker = auth()->user();
+
+        $data = $request->validate([
+            'server_id' => ['required', 'integer', 'exists:servers,id',
+                Rule::exists('servers', 'id')->where(function ($q) use ($hacker) {
+                    $q->where('owner_type', get_class($hacker))->where('owner_id', $hacker->id);
+                })
+            ],
+            'buy_type' => ['required', 'string', 'in:motherboard,cpu,ram,psu,disk,externalDrive,network,server,internet'],
+            'hardware_id' => ['required', 'integer', 'exists:hardware_parts,id'],
+            'bankAccount' => ['required', 'string', 'exists:bank_accounts,iban',
+                Rule::exists('bank_accounts', 'iban')->where(function ($q) use ($hacker) {
+                    $q->where('user_id', $hacker->id);
+                }),
+            ],
+        ]);
+
+        return DB::transaction(function () use ($hacker, $data) {
+
+            // Lock bank account
+            $account = BankAccount::where('user_id', $hacker->id)->where('iban', $data['bankAccount'])->lockForUpdate()->firstOrFail();
+
+            // Lock server row (optional but good)
+            $server = Servers::whereKey($data['server_id'])->lockForUpdate()->firstOrFail();
+
+            // Lock the hardware being bought
+            $hardware = HardwareParts::whereKey($data['hardware_id'])->lockForUpdate()->firstOrFail();
+
+            // Ensure the hardware type matches the buy_type
+            if ($hardware->type !== $data['buy_type']) {
+                return back()->withErrors([
+                    'hardware_id' => 'Selected hardware does not match the requested upgrade type.',
+                ])->withInput();
+            }
+
+            $price = (float) $hardware->price;
+
+            // Re-check balance under lock (prevents double-spend)
+            if ((float) $account->balance < $price) {
+                return back()->withErrors(['bankAccount' => 'Insufficient funds.'])->withInput();
+            }
+
+            // Lock the "slot" row on server_resources for this server+type
+            $slot = ServerResources::where('server_id', $server->id)->whereHas('hardware', fn($q) => $q->where('type', $data['buy_type']))->with('hardware')->lockForUpdate()->first();
+
+            if (!$slot) {
+                $slot = new ServerResources();
+                $slot->server_id = $server->id;
+            }
+
+            // Deduct funds
+            $account->balance = (float) $account->balance - $price;
+            $account->save();
+
+            // Update installed hardware in that slot
+            $slot->hardware_id = $hardware->id;
+            $slot->save();
+
+            // TODO: Add logs for purchases, deducting money from which account how much was spent, what was bought. when it was bought, something like server upgrade history with old and new hardware.
+            // TODO: Add transaction history for bank account
+
+            return redirect()->back()->with('status', "Purchased {$hardware->name} for \${$price}.");
+        });
+
     }
 
     public function prettyCpu(float $ghz): array {

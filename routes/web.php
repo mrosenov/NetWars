@@ -88,6 +88,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     # Hardware
     Route::get('/hardware', [HardwarePartsController::class, 'index'])->name('user.hardware');
     Route::get('/hardware/server/{server}', [HardwarePartsController::class, 'server'])->name('user.hardware.server');
+    Route::get('/hardware/{hardware}/json', [HardwarePartsController::class, 'json'])->name('user.hardware.json');
+    Route::post('/hardware/buy', [HardwarePartsController::class, 'buy'])->name('user.hardware.buy');
 
 });
 require __DIR__.'/auth.php';

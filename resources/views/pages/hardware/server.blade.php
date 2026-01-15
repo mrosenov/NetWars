@@ -3,7 +3,20 @@
 <x-app-layout>
     @include('pages.hardware.subnav')
 
-
+    @if ($errors->any())
+        <div class="mb-4 rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-500/40 dark:bg-red-500/10 dark:text-red-300">
+            <ul class="list-disc pl-5">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+    @if (session('error'))
+        <x-alert type="danger">
+            {{ session('error') }}
+        </x-alert>
+    @endif
     <div class="flex flex-col gap-5 lg:flex-row">
         <div class="flex flex-col gap-5 lg:w-1/2">
             <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white/70 shadow-sm backdrop-blur dark:border-white/10 dark:bg-white/5">
@@ -60,13 +73,13 @@
                                 @if($motherboard->id == $installedMotherboard->id)
                                     <span class="text-slate-600 dark:text-slate-300">Installed</span>
                                 @else
-                                    ${{ number_format($motherboard->price) }}
+                                    {{ \App\Support\Format::moneyHuman($motherboard->price) }}
                                 @endif
                             </td>
 
                             <td class="px-4 py-3 text-right">
                                 @if($motherboard->id != $installedMotherboard->id)
-                                    <button type="button" class="inline-flex items-center justify-center rounded-lg border px-3 py-1.5 text-sm font-semibold transition border-cyan-500 text-cyan-600 hover:bg-cyan-50 dark:text-cyan-400 dark:hover:bg-cyan-500/10">
+                                    <button type="button" data-modal-open="buyModal" data-hw-id="{{ $motherboard->id }}" data-buy-type="motherboard" class="inline-flex items-center justify-center rounded-lg border px-3 py-1.5 text-sm font-semibold transition border-cyan-500 text-cyan-600 hover:bg-cyan-50 dark:text-cyan-400 dark:hover:bg-cyan-500/10">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5Z" />
                                         </svg>
@@ -487,17 +500,46 @@
         </div>
 
     </div>
-    {{-- Example: click handler (optional) --}}
+
+    @include('modals.buyModal')
     <script>
         document.addEventListener('click', async (e) => {
-            const btn = e.target.closest('[data-upgrade-cpu-id]');
+            const btn = e.target.closest('[data-modal-open="buyModal"]');
             if (!btn) return;
 
-            const cpuId = btn.dataset.upgradeCpuId;
+            const id = btn.dataset.hwId;
+            if (!id) return;
 
-            // Replace with your endpoint/modal action
-            // window.location.href = `/hardware/upgrade/cpu/${cpuId}`;
-            console.log('upgrade cpu', cpuId);
+            const modal = document.getElementById('buyModal');
+            if (!modal) return;
+
+            const type = btn.dataset.buyType;
+            if (!type) return;
+
+            // set hidden input for form submit
+            const hiddenId = modal.querySelector('[data-buy-hardware-id]');
+            if (hiddenId) hiddenId.value = id;
+
+            modal.querySelector('[data-buy-type-input]').value = type;
+
+            // set "loading" state
+            modal.querySelector('[data-buy-name]').textContent = type;
+
+            try {
+                const res = await fetch(`/hardware/${id}/json`, {
+                    headers: { 'Accept': 'application/json' }
+                });
+
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const data = await res.json();
+
+                modal.querySelector('[data-buy-name]').textContent = data.name ?? 'Name missing';
+                modal.querySelector('[data-buy-price]').textContent = data.price ?? 'Price missing';
+                modal.querySelector('[data-buy-specs]').textContent = data.specs ?? 'Specs missing';
+            } catch (err) {
+                modal.querySelector('[data-buy-name]').textContent = 'Error';
+                console.error(err);
+            }
         });
     </script>
 </x-app-layout>

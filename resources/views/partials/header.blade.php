@@ -31,7 +31,7 @@
                     <span class="text-slate-500 dark:text-slate-400">Password:</span>
                     <span class="font-semibold tracking-wide text-slate-900 dark:text-slate-100">{{ Auth::user()->network->password }}</span>
                     <span class="text-slate-500 dark:text-slate-400">Money:</span>
-                    <span class="font-semibold tracking-wide text-green-600 dark:text-green-300">500 $</span>
+                    <span class="font-semibold tracking-wide text-green-600 dark:text-green-300">{{ Auth::user()->totalBalance() }} $</span>
                 </div>
 
                 <div class="hidden md:flex items-center gap-2">

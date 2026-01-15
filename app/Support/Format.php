@@ -147,4 +147,16 @@ class Format
         $f = self::connectivity($mbps, $precision);
         return "{$f['value']} {$f['unit']}";
     }
+
+    public static function money(float $amount, int $precision = 2): array {
+        return [
+            'value' => (float) $amount,
+            'unit' => '$'
+        ];
+    }
+
+    public static function moneyHuman(float $amount, int $precision = 2): string {
+        $f = self::money($amount, $precision);
+        return number_format($f['value'],$precision) . ' ' . $f['unit'];
+    }
 }

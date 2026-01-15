@@ -165,6 +165,15 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hackedVictims()->where('network_id', $networkId)->first();
     }
 
+    public function bankAccounts() {
+        return $this->hasMany(BankAccount::class, 'user_id');
+    }
+
+    public function totalBalance() {
+        $accounts = $this->bankAccounts;
+        return $accounts->sum('balance');
+    }
+
     public function totalStorageMb(): int {
         $totals = $this->totalResources();
         return (int) ($totals['storage_mb'] ?? 0);
@@ -181,6 +190,14 @@ class User extends Authenticatable implements MustVerifyEmail
     public function totalExternalStorageMb(): int {
         $totals = $this->totalResources();
         return (int) ($totals['external_mb'] ?? 0);
+    }
+
+    public function totalUsedStorageMb(): float {
+        return $this->software->sum(fn ($soft) => (float) $soft->size);
+    }
+
+    public function availableStorageMb(): float {
+        return max(0, $this->totalStorageMb() - $this->totalUsedStorageMb());
     }
 
     public function totalResources(): array
@@ -218,14 +235,6 @@ class User extends Authenticatable implements MustVerifyEmail
         }
 
         return $totals;
-    }
-
-    public function totalUsedStorageMb(): float {
-        return $this->software->sum(fn ($soft) => (float) $soft->size);
-    }
-
-    public function availableStorageMb(): float {
-        return max(0, $this->totalStorageMb() - $this->totalUsedStorageMb());
     }
 
     public function OverallResources(): array
