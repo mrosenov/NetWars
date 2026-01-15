@@ -1,160 +1,250 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="csrf-token" content="{{ csrf_token() }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'Net Wars') }} - @yield('title')</title>
+    <title>{{ config('app.name', 'Net Wars') }} - @yield('title')</title>
 
-        <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
-        <!-- Scripts -->
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
-    </head>
-    <body class="h-full font-mono overflow-x-hidden bg-[#f8fafc] dark:bg-[#070A0F]">
-        <!-- App shell background -->
-        <div class="min-h-full crt grain bg-slate-50 text-slate-900 dark:bg-[#070A0F] dark:text-slate-100">
-            <!-- Top bar -->
-            @include('partials.header')
-            <!-- Top bar -->
+    <!-- Scripts -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+</head>
+<body style="margin: 0; font-family: Inter,Sans-Serif,serif">
+    <div class="min-h-screen bg-background-primary text-text-primary font-mono selection:bg-accent-primary selection:text-background-primary">
+        <div class="scanlines"></div>
 
-            <div class="mx-auto max-w-[2000px] px-4 sm:px-6">
-                <div class="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-5 py-6">
-                    <!-- Sidebar -->
-                    @include('partials.sidebar')
-                    <!-- Sidebar -->
+        <x-header />
 
-                    <!-- Main content -->
-                    <main class="space-y-5">
-                        <!-- Breadcrumb + quick actions -->
-                        @include('partials.breadcrumb')
-                        <!-- Breadcrumb + quick actions -->
+        <div class="pt-14 flex">
+            {{-- Mobile Sidebar Overlay --}}
+            <div id="sidebarOverlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 hidden lg:hidden"></div>
 
-                        {{ $slot }}
+            {{--Sidebar--}}
+            <x-sidebar />
 
-                        <!-- Footer -->
-                        @include('partials.footer')
-                        <!-- Footer -->
-                    </main>
+            {{-- Main Content --}}
+            <main id="mainContent" class="flex-1 p-4 ml-0 lg:ml-64 transition-all duration-300">
+                {{-- Breadcrumb / Page Title --}}
+                <div class="mb-6 bg-background-secondary border border-default border-border p-4 flex items-center justify-between">
+                    <h2 class="text-xl font-light text-text-primary">
+                        Dashboard
+                    </h2>
                 </div>
-            </div>
+
+                <div class="mb-6 text-xs text-text-secondary flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3 h-3">
+                        <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/>
+                        <path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                    </svg>
+                    <span>/</span>
+                    <span>Dashboard</span>
+                </div>
+
+                {{ $slot }}
+            </main>
         </div>
+    </div>
 
-        <!-- Modal -->
-        @include('modals.software')
-        <!-- Modal -->
+    <script>
+        (function () {
+            // Theme toggle (light/dark)
+            const themeToggle = document.getElementById('themeToggle');
+            const themeIconMoon = document.getElementById('themeIconMoon');
+            const themeIconSun = document.getElementById('themeIconSun');
+            const root = document.documentElement;
 
-        <script>
-            // Lightweight modal controller: open/close, ESC, backdrop click
-            (function () {
-                function openModal(id) {
-                    const modal = document.getElementById(id);
-                    if (!modal) return;
-                    modal.classList.remove("hidden");
-                    modal.setAttribute("aria-hidden", "false");
-                    document.body.style.overflow = "hidden";
+            function applyTheme(theme, persist = true) {
+                root.classList.remove('light', 'dark');
+                root.classList.add(theme);
 
-                    // focus first autofocus element (or first input/button)
-                    const focusEl =
-                        modal.querySelector("[autofocus]") ||
-                        modal.querySelector("button, [href], input, select, textarea, [tabindex]:not([tabindex='-1'])");
-                    focusEl && focusEl.focus();
-                }
+                // Icon logic: show moon in light mode (switch to dark), show sun in dark mode (switch to light)
+                if (themeIconMoon) themeIconMoon.classList.toggle('hidden', theme === 'dark');
+                if (themeIconSun) themeIconSun.classList.toggle('hidden', theme !== 'dark');
 
-                function closeModal(id) {
-                    const modal = document.getElementById(id);
-                    if (!modal) return;
-                    modal.classList.add("hidden");
-                    modal.setAttribute("aria-hidden", "true");
-                    document.body.style.overflow = "";
-                }
+                if (themeToggle) themeToggle.setAttribute('aria-pressed', theme === 'dark' ? 'true' : 'false');
+                if (persist) localStorage.setItem('theme', theme);
+            }
 
-                // Open buttons
-                document.addEventListener("click", (e) => {
-                    const openBtn = e.target.closest("[data-modal-open]");
-                    if (openBtn) openModal(openBtn.getAttribute("data-modal-open"));
+            function getInitialTheme() {
+                const saved = localStorage.getItem('theme');
+                if (saved === 'light' || saved === 'dark') return saved;
+                return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            }
 
-                    const closeBtn = e.target.closest("[data-modal-close]");
-                    if (closeBtn) closeModal(closeBtn.getAttribute("data-modal-close"));
+            // Set initial theme ASAP
+            applyTheme(getInitialTheme(), false);
+
+            themeToggle?.addEventListener('click', () => {
+                const next = root.classList.contains('dark') ? 'light' : 'dark';
+                applyTheme(next, true);
+            });
+
+            // If user hasn't chosen a theme, keep in sync with OS changes
+            const mql = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+            if (mql) {
+                mql.addEventListener?.('change', (e) => {
+                    const saved = localStorage.getItem('theme');
+                    if (saved === 'light' || saved === 'dark') return;
+                    applyTheme(e.matches ? 'dark' : 'light', false);
                 });
+            }
 
-                // ESC to close (closes topmost visible modal by z-index assumption)
-                document.addEventListener("keydown", (e) => {
-                    if (e.key !== "Escape") return;
-                    const openModals = [...document.querySelectorAll('[id][aria-hidden="false"]')];
-                    if (!openModals.length) return;
-                    closeModal(openModals[openModals.length - 1].id);
-                });
-            })();
-        </script>
-        <script>
-            // Theme toggle with persistence + keyboard shortcut (CTRL+L)
-            (function () {
-                const root = document.documentElement;
-                const btn = document.getElementById("themeToggle");
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            const overlay = document.getElementById('sidebarOverlay');
+            const toggleBtn = document.getElementById('sidebarToggle');
+            const collapseBtn = document.getElementById('sidebarCollapse');
 
-                // init from localStorage OR system preference (fallback)
-                const saved = localStorage.getItem("hw-theme");
-                if (saved === "light") root.classList.remove("dark");
-                if (saved === "dark") root.classList.add("dark");
-                if (!saved) {
-                    const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
-                    root.classList.toggle("dark", prefersDark);
-                }
 
-                function toggleTheme() {
-                    root.classList.toggle("dark");
-                    localStorage.setItem("hw-theme", root.classList.contains("dark") ? "dark" : "light");
-                }
+            const userMenuBtn = document.getElementById('userMenuButton');
+            const userMenu = document.getElementById('userMenu');
 
-                btn.addEventListener("click", toggleTheme);
+            const openBtn = document.getElementById('openMissionModal');
+            const modal = document.getElementById('missionModal');
+            const modalPanel = document.getElementById('missionModalPanel');
 
-                window.addEventListener("keydown", (e) => {
-                    const isCtrlL = (e.ctrlKey || e.metaKey) && (e.key.toLowerCase() === "l");
-                    if (isCtrlL) {
-                        e.preventDefault();
-                        toggleTheme();
-                    }
-                });
-            })();
-        </script>
-        <script>
-            document.addEventListener('click', async (e) => {
-                const btn = e.target.closest('[data-modal-open="swModal"]');
-                if (!btn) return;
+            function isLg() {
+                return window.matchMedia('(min-width: 1024px)').matches;
+            }
 
-                const id = btn.dataset.hwId;
-                if (!id) return;
+            function setAriaExpanded(el, val) {
+                if (!el) return;
+                el.setAttribute('aria-expanded', val ? 'true' : 'false');
+            }
+// ----- User menu (mobile dropdown) -----
+            function openUserMenu() {
+                if (!userMenu) return;
+                userMenu.classList.remove('hidden');
+                setAriaExpanded(userMenuBtn, true);
+            }
 
-                const modal = document.getElementById('swModal');
-                if (!modal) return;
+            function closeUserMenu() {
+                if (!userMenu) return;
+                userMenu.classList.add('hidden');
+                setAriaExpanded(userMenuBtn, false);
+            }
 
-                // set "loading" state
-                modal.querySelector('[data-sw-name]').textContent = 'Loading…';
+            function toggleUserMenu() {
+                if (!userMenuBtn || !userMenu) return;
+                const isOpen = !userMenu.classList.contains('hidden');
+                isOpen ? closeUserMenu() : openUserMenu();
+            }
 
-                try {
-                    const res = await fetch(`/software/${id}/json`, {
-                        headers: { 'Accept': 'application/json' }
-                    });
+            userMenuBtn?.addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleUserMenu();
+            });
 
-                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                    const data = await res.json();
-                    console.log(data)
-                    modal.querySelector('[data-sw-name]').textContent = data.name ?? '(no title)';
-                    modal.querySelector('[data-sw-version]').textContent = data.version ?? '(no version)';
-                    modal.querySelector('[data-sw-license]').textContent = data.license ?? '(None)';
-                    modal.querySelector('[data-sw-type]').textContent = data.type ?? 'Cant load..';
-                    modal.querySelector('[data-sw-size]').textContent = data.size ?? 'Cant load..';
-                    modal.querySelector('[data-sw-usage]').textContent = data.usage ?? 'Cant load..';
-                    modal.querySelector('[data-sw-created]').textContent = data.created ?? 'Cant load..';
-                } catch (err) {
-                    modal.querySelector('[data-sw-name]').textContent = 'Failed to load';
-                    console.error(err);
+            userMenu?.addEventListener('click', (e) => {
+                // allow clicking inside menu without closing immediately
+                e.stopPropagation();
+            });
+
+            document.addEventListener('click', () => {
+                if (!userMenu || userMenu.classList.contains('hidden')) return;
+                closeUserMenu();
+            });
+
+
+
+            // ----- Sidebar (mobile off-canvas + desktop collapse) -----
+            function openMobileSidebar() {
+                sidebar.classList.remove('-translate-x-full');
+                sidebar.classList.add('translate-x-0');
+                overlay.classList.remove('hidden');
+                setAriaExpanded(toggleBtn, true);
+            }
+
+            function closeMobileSidebar() {
+                sidebar.classList.add('-translate-x-full');
+                sidebar.classList.remove('translate-x-0');
+                overlay.classList.add('hidden');
+                setAriaExpanded(toggleBtn, false);
+            }
+
+            function handleSidebarToggle() {
+                if (!sidebar || !overlay || !toggleBtn) return;
+
+                // Requirement: toggle button is for mobile only.
+                if (isLg()) return;
+
+                // On mobile: slide in/out
+                const isOpen = !sidebar.classList.contains('-translate-x-full');
+                isOpen ? closeMobileSidebar() : openMobileSidebar();
+            }
+
+            toggleBtn?.addEventListener('click', handleSidebarToggle);
+
+            overlay?.addEventListener('click', closeMobileSidebar);
+
+            // Ensure correct state on resize
+            window.addEventListener('resize', () => {
+                if (isLg()) closeUserMenu();
+                if (isLg()) {
+                    overlay?.classList.add('hidden');
+                    sidebar?.classList.remove('translate-x-0');
+                    sidebar?.classList.add('lg:translate-x-0');
+                    setAriaExpanded(toggleBtn, false);
+                } else {
+                    // Mobile should start closed
+                    sidebar?.classList.add('-translate-x-full');
+                    sidebar?.classList.remove('translate-x-0');
+                    overlay?.classList.add('hidden');
+                    setAriaExpanded(toggleBtn, false);
                 }
             });
-        </script>
-    </body>
+
+            // ----- Modal -----
+            function openModal() {
+                if (!modal) return;
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                setAriaExpanded(openBtn, true);
+
+                // entrance animation
+                modal.classList.add('animate-in', 'fade-in');
+                modalPanel?.classList.add('animate-in', 'zoom-in-95', 'slide-in-from-bottom-2');
+
+                // focus first close button
+                const close = modal.querySelector('[data-modal-close]');
+                close?.focus();
+            }
+
+            function closeModal() {
+                if (!modal) return;
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                setAriaExpanded(openBtn, false);
+                openBtn?.focus();
+            }
+
+            openBtn?.addEventListener('click', openModal);
+
+            modal?.addEventListener('click', (e) => {
+                // click outside panel closes
+                if (e.target === modal) closeModal();
+            });
+
+            modal?.querySelectorAll('[data-modal-close]')?.forEach((btn) => {
+                btn.addEventListener('click', closeModal);
+            });
+
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    if (userMenu && !userMenu.classList.contains('hidden')) closeUserMenu();
+                    if (!modal?.classList.contains('hidden')) closeModal();
+                    if (!isLg() && overlay && !overlay.classList.contains('hidden')) closeMobileSidebar();
+                }
+            });
+
+            // Initial state: mobile closed, desktop expanded
+            if (!isLg()) closeMobileSidebar();
+        })();
+    </script>
+</body>
 </html>
