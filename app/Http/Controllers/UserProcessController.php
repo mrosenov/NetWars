@@ -55,6 +55,18 @@ class UserProcessController extends Controller
     }
 
     public function running_index() {
+        $ramUsage = $this->UserRamUsage();
+        $running = $this->UserRunningSoftware();
+
+        return view('pages.tasks.running', [
+            'running' => $running,
+            'ramUsed' => $ramUsage['ramUsed'],
+            'ramTotal' => $ramUsage['ramTotal'],
+            'pct' => $ramUsage['pct'],
+        ]);
+    }
+
+    public function UserRamUsage() {
         $hacker = auth()->user();
 
         $network = $hacker->network; // or connectedNetwork()
@@ -72,12 +84,17 @@ class UserProcessController extends Controller
         $pct = $ramTotalMb > 0 ? (int) round(($ramUsedMb / $ramTotalMb) * 100) : 0;
         $pct = max(0, min(100, $pct));
 
-        return view('pages.tasks.running', [
-            'running' => $running,
+        return [
             'ramUsed' => $ramUsed,
             'ramTotal' => $ramTotal,
             'pct' => $pct,
-        ]);
+        ];
+    }
+
+    public function UserRunningSoftware() {
+        $hacker = auth()->user();
+        $network = $hacker->network; // or connectedNetwork()
+        return $network ? $network->runningSoftware()->with('software')->get() : collect();
     }
 
     public function getUserCpuPowerTotal(): int {
