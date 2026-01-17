@@ -11,7 +11,8 @@
         <nav class="space-y-1 px-2">
             @foreach($routes as $route)
                 @php
-                    $isActive = request()->routeIs($route['route']);
+                    $active = $route['active'] ?? $route['route'];
+                    $isActive = is_array($active) ? request()->routeIs(...$active) : request()->routeIs($active);
                 @endphp
                 <a href="{{ route($route['route']) }}" class="group flex items-center px-3 py-2.5 text-sm font-medium transition-all duration-200 border-l-2 border-transparent hover:bg-[var(--bg-primary)] hover:border-text-accent-primary {{ $isActive ? 'text-accent-primary bg-background-primary' : 'text-text-secondary group-hover:text-accent-primary' }}">
                     <x-dynamic-component :component="'lucide-' . $route['icon']" class="mr-3 h-4 w-4 transition-colors {{ $isActive ? 'text-accent-primary' : 'text-text-secondary group-hover:text-accent-primary' }}" />

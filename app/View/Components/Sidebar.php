@@ -33,31 +33,37 @@ class Sidebar extends Component
             [
                 'label' => 'Dashboard',
                 'route' => 'dashboard',
+                'active' => ['dashboard.*'],
                 'icon' => 'home'
             ],
             [
                 'label' => 'Task Manager',
                 'route' => 'tasks.index',
+                'active' => ['tasks.*'],
                 'icon' => 'activity'
             ],
             [
                 'label' => 'Software',
                 'route' => 'software.index',
+                'active' => ['software.*'],
                 'icon' => 'folder-code'
             ],
             [
                 'label' => 'Internet',
                 'route' => 'internet.index',
+                'active' => ['internet.*','target.*'],
                 'icon' => 'globe'
             ],
             [
                 'label' => 'Network Log',
                 'route' => 'user.logs',
+                'active' => ['user.logs'],
                 'icon' => 'file-pen-line'
             ],
             [
                 'label' => 'Hardware',
                 'route' => 'user.hardware',
+                'active' => ['user.hardware', 'user.hardware.server'],
                 'icon' => 'hard-drive'
             ],
         ];
