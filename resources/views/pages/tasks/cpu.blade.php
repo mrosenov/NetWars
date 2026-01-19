@@ -2,104 +2,78 @@
 
 <x-app-layout>
     @include('pages.tasks.subnav')
+    <div class="card-hack h-full">
+        <div class="bg-background-secondary px-4 py-3 border-b border-border border-default flex items-center gap-2">
+            <x-lucide-cpu class="w-4 h-4 text-accent-primary" />
+            <h3 class="text-sm font-bold uppercase tracking-wider text-text-primary">
+                CPU Processes
+            </h3>
+        </div>
 
-    <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white/70 shadow-sm backdrop-blur dark:border-white/10 dark:bg-white/5">
-        <table class="w-full table-fixed">
-            <colgroup>
-                <col class="w-[46%]" />
-                <col class="w-[34%]" />
-                <col class="w-[14%]" />
-                <col class="w-[6%]" />
-            </colgroup>
-
-            <thead class="hidden lg:table-header-group">
-            <tr class="border-b border-slate-200/70 bg-white/40 text-left text-[11px] uppercase tracking-wide text-slate-500 dark:border-white/10 dark:bg-white/5 dark:text-slate-400">
-                <th class="px-5 py-3 font-semibold">Task</th>
-                <th class="px-5 py-3 font-semibold">Progress</th>
-                <th class="px-5 py-3 font-semibold">Stats</th>
-                <th class="px-5 py-3 font-semibold text-right"> </th>
-            </tr>
-            </thead>
-
-            <tbody class="divide-y divide-slate-200/70 dark:divide-white/10" id="tasksTbody">
-            @foreach ($tasks as $task)
-                @php
-                    $status = $task->status ?? 'running';
-                    $startedIso = optional($task->started_at)->toISOString();
-                    $endsIso = optional($task->ends_at)->toISOString();
-                @endphp
-
-                <tr class="align-middle hover:bg-slate-50/70 transition dark:hover:bg-white/5" data-task-id="{{ $task->id }}" data-status="{{ $status }}" data-started-at="{{ $startedIso }}" data-ends-at="{{ $endsIso }}"
-                    data-finalize-url="{{ route('tasks.finalize', ['process' => $task->id]) }}"
-                    data-cancel-url="{{ route('tasks.cancel', ['process' => $task->id]) }}"
-                >
-                    <!-- Task label -->
-                    <td class="px-4 py-3 sm:px-5">
-                        <div class="min-w-0">
-                            <div class="text-sm leading-6 text-slate-700 dark:text-slate-200">
-                                <span class="text-slate-500 dark:text-slate-400">{{ $task->whatAction()['text'] }}</span>
-                                <span class="font-semibold text-slate-900 dark:text-white">{{ $task->whatAction()['software'] }}</span>
-                                <span class="text-slate-500 dark:text-slate-400">on</span>
-                                <span class="font-medium text-slate-800 dark:text-slate-200">{{ $task->whatAction()['target'] }}</span>
-                            </div>
-                        </div>
-
-                        <!-- Mobile-only meta -->
-                        <div class="mt-2 lg:hidden">
-                            <div class="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
-                                <span class="font-semibold text-slate-600 dark:text-slate-300" data-role="pct">0%</span>
-                                <span data-role="time">--</span>
-                            </div>
-                            <div class="mt-1.5 h-3 rounded-md border border-slate-300 bg-white/60 p-[2px] dark:border-white/10 dark:bg-white/5">
-                                <div class="h-full w-0 rounded-[5px] bg-cyan-500/80 dark:bg-cyan-400/80" data-role="bar"></div>
-                            </div>
-                        </div>
-                    </td>
-
-                    <!-- Progress (desktop/tablet) -->
-                    <td class="hidden px-4 py-3 sm:px-5 lg:table-cell">
-                        <div class="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
-                            <span class="font-semibold text-slate-600 dark:text-slate-300" data-role="pct">0%</span>
-                            <span data-role="time">--</span>
-                        </div>
-                        <div class="mt-1.5 h-3 rounded-md border border-slate-300 bg-white/60 p-[2px] dark:border-white/10 dark:bg-white/5">
-                            <div class="h-full w-0 rounded-[5px] bg-cyan-500/80 dark:bg-cyan-400/80" data-role="bar"></div>
-                        </div>
-                    </td>
-
-                    <!-- Stats (desktop/tablet) -->
-                    <td class="hidden px-4 py-3 sm:px-5 lg:table-cell">
-                        <div class="flex items-center gap-6 text-xs text-slate-600 dark:text-slate-300">
-                            <div class="flex items-center gap-2">
-                                <span class="grid h-4 w-4 place-items-center rounded border border-slate-300 bg-white/70 dark:border-white/10 dark:bg-white/5">
-                                    <span class="h-2.5 w-2.5 rounded-sm bg-emerald-500/80"></span>
-                                </span>
-                                <span class="font-medium">{{ $task->share_percent }}%</span>
-                            </div>
-                        </div>
-                    </td>
-
-                    <!-- Close -->
-                    <td class="px-4 py-3 sm:px-5">
-                        <div class="flex justify-end">
-                            <button type="button" data-role="close" data-cancel-url="{{ route('tasks.cancel', ['process' => $task->id]) }}" class="grid aspect-square size-9 place-items-center rounded-md border border-slate-200 bg-white/70 text-slate-600 shadow-[0_1px_2px_rgba(0,0,0,0.08)]
-                                       hover:border-red-300 hover:text-red-600 hover:bg-red-50
-                                       dark:border-white/10 dark:bg-white/5 dark:text-slate-300 dark:hover:border-red-500/40 dark:hover:bg-red-500/10 dark:hover:text-red-300
-                                       focus:outline-none focus:ring-2 focus:ring-cyan-400/40
-                                       disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white/70 disabled:hover:text-slate-600 disabled:hover:border-slate-200"
-                                    aria-label="Close"
-                                    @if($status !== 'running') disabled @endif>
-                                <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" d="M7 7l10 10M17 7L7 17" />
-                                </svg>
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-            @endforeach
-            </tbody>
-        </table>
+        <div class="p-0">
+            <table class="w-full text-sm text-left">
+                <thead class="text-xs text-text-secondary uppercase bg-background-secondary/50 border-b border-border border-default">
+                    <tr>
+                        <th scope="col" class="px-4 py-2 w-40">
+                            Task
+                        </th>
+                        <th scope="col" class="px-4 py-2 w-40">
+                            Progress
+                        </th>
+                        <th scope="col" class="px-4 py-2 w-10 text-left">
+                            Stats
+                        </th>
+                        <th scope="col" class="px-4 py-2 w-10 text-right">
+                            Actions
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($tasks as $task)
+                        @php
+                            $status = $task->status ?? 'running';
+                            $startedIso = optional($task->started_at)->toISOString();
+                            $endsIso = optional($task->ends_at)->toISOString();
+                        @endphp
+                        <tr class="hover:bg-background-secondary transition-colors border border-border" data-task-id="{{ $task->id }}" data-status="{{ $status }}" data-started-at="{{ $startedIso }}" data-ends-at="{{ $endsIso }}" data-finalize-url="{{ route('tasks.finalize', ['process' => $task->id]) }}" data-cancel-url="{{ route('tasks.cancel', ['process' => $task->id]) }}">
+                            <td class="px-4 py-3 text-text-secondary font-mono text-xs whitespace-nowrap">
+                                {{ $task->whatAction()['text'] }} {{ $task->whatAction()['software'] }} {{ $task->whatAction()['what'] }} {{ $task->whatAction()['target'] }}
+                            </td>
+                            <td class="px-4 py-3 font-medium">
+                                <div class="flex justify-between mb-1 text-xs">
+                                    <span class="text-red-400" data-role="pct">0%</span>
+                                    <span class="text-red-400" data-role="time">---</span>
+                                </div>
+                                <div class="w-full bg-background-primary h-1 mb-2">
+                                    <div class="bg-red-400 h-1" data-role="bar"></div>
+                                </div>
+                            </td>
+                            <td class="px-4 py-3 text-right text-text-secondary text-xs whitespace-nowrap">
+                                <div class="flex items-center gap-2">
+                                    <x-lucide-cpu class="size-5 text-red-400"/>
+                                    <span class="font-medium">{{ $task->share_percent }}%</span>
+                                </div>
+                            </td>
+                            <td class="px-4 py-3 text-right text-text-secondary text-xs whitespace-nowrap">
+                                <div class="flex justify-end">
+                                    <button type="button" data-role="close" data-cancel-url="{{ route('tasks.cancel', ['process' => $task->id]) }}"
+                                            class="grid aspect-square size-9 place-items-center rounded-md border border-slate-200
+                                            bg-white/70 text-slate-600 shadow-[0_1px_2px_rgba(0,0,0,0.08)] hover:border-red-300 hover:text-red-600 hover:bg-red-50
+                                            dark:border-white/10 dark:bg-white/5 dark:text-slate-300 dark:hover:border-red-500/40 dark:hover:bg-red-500/10 dark:hover:text-red-300
+                                            focus:outline-none focus:ring-2 focus:ring-cyan-400/40
+                                            disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white/70 disabled:hover:text-slate-600 disabled:hover:border-slate-200"
+                                            aria-label="Close" @if($status !== 'running') disabled @endif>
+                                        <x-lucide-x class="w-4 h-4"/>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
     </div>
+
 
     <script>
         const statusUrl = @json(route('tasks.status'));

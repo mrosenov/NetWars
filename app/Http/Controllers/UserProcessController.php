@@ -57,13 +57,44 @@ class UserProcessController extends Controller
     public function running_index() {
         $ramUsage = $this->UserRamUsage();
         $running = $this->UserRunningSoftware();
+        $cpuUsage = $this->UserProcessorUsage();
 
         return view('pages.tasks.running', [
             'running' => $running,
-            'ramUsed' => $ramUsage['ramUsed'],
+            'ramUsedHuman' => Format::ramHuman($ramUsage['ramUsed']['value']),
+            'ramTotalHuman' => Format::ramHuman($ramUsage['ramTotal']['value']),
             'ramTotal' => $ramUsage['ramTotal'],
-            'pct' => $ramUsage['pct'],
+            'ram_pct' => $ramUsage['ram_pct'],
+
+            'cpuUsedHuman' => Format::cpuHuman($cpuUsage['cpu_used']['value']),
+            'cpuTotalHuman' => Format::cpuHuman($cpuUsage['cpu_total']['value']),
+            'cpuTotal' => $cpuUsage['cpu_total'],
+            'cpu_pct' => $cpuUsage['cpu_pct'],
         ]);
+    }
+
+    public function UserProcessorUsage() {
+        $hacker = auth()->user();
+
+        $network = $hacker->network;
+        $running = $network ? $network->runningSoftware()->with('software')->get() : collect();
+
+        $resources = $hacker->totalResources();
+
+        $total_cpu_mhz = $resources['clock_mhz'] ?? 0;
+        $used_cpu_mhz = $running->sum->processor_usage;
+
+        $cpu_total = Format::cpu($total_cpu_mhz);
+        $cpu_used = Format::cpu($used_cpu_mhz);
+
+        $pct = $total_cpu_mhz > 0 ? (int) round(($used_cpu_mhz / $total_cpu_mhz) * 100) : 0;
+        $pct = max(0, min(100, $pct));
+
+        return [
+            'cpu_used' => $cpu_used,
+            'cpu_total' => $cpu_total,
+            'cpu_pct' => $pct,
+        ];
     }
 
     public function UserRamUsage() {
@@ -72,10 +103,9 @@ class UserProcessController extends Controller
         $network = $hacker->network; // or connectedNetwork()
         $running = $network ? $network->runningSoftware()->with('software')->get() : collect();
 
-        $ramUsedMb = (int) $running->sum->usage;
-
         $totals = $hacker->totalResources();
 
+        $ramUsedMb = (int) $running->sum->ram_usage;
         $ramTotalMb = (int) ($totals['ram_mb'] ?? 0);
 
         $ramUsed = Format::ram($ramUsedMb);
@@ -87,7 +117,7 @@ class UserProcessController extends Controller
         return [
             'ramUsed' => $ramUsed,
             'ramTotal' => $ramTotal,
-            'pct' => $pct,
+            'ram_pct' => $pct,
         ];
     }
 

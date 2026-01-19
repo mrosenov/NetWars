@@ -29,17 +29,17 @@
     <div class="absolute bottom-0 w-full p-4 border-t border-border border-default bg-background-secondary text-xs text-text-secondary sidebar-footer">
         <div class="flex justify-between mb-1">
             <span>CPU</span>
-            <span class="text-accent-primary">12%</span>
+            <span class="text-accent-primary">{{ $cpuUsage['cpu_pct'] }}%</span>
         </div>
         <div class="w-full bg-background-primary h-1 mb-2">
-            <div class="bg-[var(--accent-primary)] h-1 w-[12%]"></div>
+            <div class="bg-[var(--accent-primary)] h-1" style="width: {{$cpuUsage['cpu_pct']}}%"></div>
         </div>
         <div class="flex justify-between mb-1">
             <span>RAM</span>
-            <span class="text-accent-secondary">{{ $ramUsage['pct'] }}%</span>
+            <span class="text-accent-secondary">{{ $ramUsage['ram_pct'] }}%</span>
         </div>
         <div class="w-full bg-background-primary h-1">
-            <div class="bg-[var(--accent-secondary)] h-1 w-[{{ $ramUsage['pct'] }}%]"></div>
+            <div class="bg-[var(--accent-secondary)] h-1" style="width: {{ $ramUsage['ram_pct'] }}%"></div>
         </div>
     </div>
 </aside>

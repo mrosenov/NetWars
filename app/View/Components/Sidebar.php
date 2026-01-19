@@ -27,6 +27,7 @@ class Sidebar extends Component
     public function render(): View|Closure|string
     {
         $ramUsage = app(UserProcessController::class)->UserRamUsage();
+        $cpuUsage = app(UserProcessController::class)->UserProcessorUsage();
 
         // Some dumbass way for the routes, but this is the fastest way I could think of at the moment, at least better than dealing with tons of HTML.
         $routes = [
@@ -71,6 +72,7 @@ class Sidebar extends Component
         return view('components.sidebar', [
             'routes' => $routes,
             'ramUsage' => $ramUsage,
+            'cpuUsage' => $cpuUsage,
         ]);
     }
 }

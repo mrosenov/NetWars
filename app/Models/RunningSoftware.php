@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\Format;
 use Illuminate\Database\Eloquent\Model;
 
 class RunningSoftware extends Model
@@ -15,23 +16,23 @@ class RunningSoftware extends Model
         return $this->belongsTo(ServerSoftwares::class, 'software_id');
     }
 
-    public function getUsageAttribute(): int {
+    public function getProcessorUsageAttribute(): int {
+        return (int) ($this->software->requirements['clock_mhz'] ?? 0);
+    }
+
+    public function getProcessorUsageFormattedAttribute(): string {
+        $mhz = $this->processor_usage;
+
+        return Format::cpuHuman($mhz);
+    }
+
+    public function getRAMUsageAttribute(): int {
         return (int) ($this->software->requirements['ram_mb'] ?? 0);
     }
 
-    public function getUsageFormattedAttribute(): array {
-        $mb = $this->usage;
+    public function getRAMUsageFormattedAttribute(): string {
+        $mb = $this->ram_usage;
 
-        if ($mb >= 1024) {
-            return [
-                'value' => round($mb / 1024, 2),
-                'unit'  => 'GB',
-            ];
-        }
-
-        return [
-            'value' => $mb,
-            'unit'  => 'MB',
-        ];
+        return Format::ramHuman($mb);
     }
 }

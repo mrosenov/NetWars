@@ -3,132 +3,104 @@
 <x-app-layout>
     @include('pages.tasks.subnav')
 
-    <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white/70 shadow-sm backdrop-blur dark:border-white/10 dark:bg-white/5">
-        <table class="w-full table-fixed">
-            <colgroup>
-                <col class="w-[46%]" />
-                <col class="w-[34%]" />
-                <col class="w-[14%]" />
-                <col class="w-[6%]" />
-            </colgroup>
+    <div class="card-hack h-full">
+        <div class="bg-background-secondary px-4 py-3 border-b border-border border-default flex items-center gap-2">
+            <x-lucide-list-todo class="w-4 h-4 text-accent-primary" />
+            <h3 class="text-sm font-bold uppercase tracking-wider text-text-primary">
+                Task Manager
+            </h3>
+        </div>
+        <div class="p-0">
+            <table class="w-full text-sm text-left">
+                <thead class="text-xs text-text-secondary uppercase bg-background-secondary/50 border-b border-border border-default">
+                    <tr>
+                        <th scope="col" class="px-4 py-2 w-40">
+                            Task
+                        </th>
+                        <th scope="col" class="px-4 py-2 w-40">
+                            Progress
+                        </th>
+                        <th scope="col" class="px-4 py-2 w-10 text-left">
+                            Stats
+                        </th>
+                        <th scope="col" class="px-4 py-2 w-10 text-right">
+                            Actions
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($tasks as $task)
+                        @php
+                            $status = $task->status ?? 'running';
+                            $startedIso = optional($task->started_at)->toISOString();
+                            $endsIso = optional($task->ends_at)->toISOString();
 
-            <thead class="hidden lg:table-header-group">
-            <tr class="border-b border-slate-200/70 bg-white/40 text-left text-[11px] uppercase tracking-wide text-slate-500 dark:border-white/10 dark:bg-white/5 dark:text-slate-400">
-                <th class="px-5 py-3 font-semibold">Task</th>
-                <th class="px-5 py-3 font-semibold">Progress</th>
-                <th class="px-5 py-3 font-semibold">Stats</th>
-                <th class="px-5 py-3 font-semibold text-right"> </th>
-            </tr>
-            </thead>
+                            $textColor = "text-sky-400";
+                            $bgColor = "bg-sky-400";
 
-            <tbody class="divide-y divide-slate-200/70 dark:divide-white/10" id="tasksTbody">
-            @foreach ($tasks as $task)
-                @php
-                    $status = $task->status ?? 'running';
-                    $startedIso = optional($task->started_at)->toISOString();
-                    $endsIso = optional($task->ends_at)->toISOString();
-                @endphp
-
-                <tr class="align-middle hover:bg-slate-50/70 transition dark:hover:bg-white/5"
-                    data-task-id="{{ $task->id }}"
-                    data-status="{{ $status }}"
-                    data-started-at="{{ $startedIso }}"
-                    data-ends-at="{{ $endsIso }}"
-                    data-finalize-url="{{ route('tasks.finalize', ['process' => $task->id]) }}"
-                    data-cancel-url="{{ route('tasks.cancel', ['process' => $task->id]) }}"
-                >
-                    <!-- Task label -->
-                    <td class="px-4 py-3 sm:px-5">
-                        <div class="min-w-0">
-                            <div class="text-sm leading-6 text-slate-700 dark:text-slate-200">
-                                <span class="text-slate-500 dark:text-slate-400">{{ $task->whatAction()['text'] }}</span>
-                                <span class="font-semibold text-slate-900 dark:text-white">{{ $task->whatAction()['software'] }}</span>
-                                <span class="text-slate-500 dark:text-slate-400">{{ $task->whatAction()['what'] }}</span>
-                                <span class="font-medium text-slate-800 dark:text-slate-200">{{ $task->whatAction()['target'] }}</span>
-                            </div>
-                        </div>
-
-                        <!-- Mobile-only meta -->
-                        <div class="mt-2 lg:hidden">
-                            @if($task->resource_type === 'cpu')
-                                <div class="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
-                                    <span class="font-semibold text-slate-600 dark:text-slate-300" data-role="pct">0%</span>
-                                    <span data-role="time">--</span>
+                            if ($task->resource_type === 'cpu') {
+                                $textColor = "text-red-400";
+                                $bgColor = "bg-red-400";
+                            }
+                            elseif ($task->resource_type === 'network') {
+                                if ($task->action === 'download') {
+                                    $textColor = "text-orange-400";
+                                    $bgColor = "bg-orange-400";
+                                }
+                                elseif ($task->action === 'upload') {
+                                    $textColor = "text-lime-400";
+                                    $bgColor = "bg-lime-400";
+                                }
+                            }
+                        @endphp
+                        <tr class="hover:bg-background-secondary transition-colors border border-border" data-task-id="{{ $task->id }}" data-status="{{ $status }}" data-started-at="{{ $startedIso }}" data-ends-at="{{ $endsIso }}" data-finalize-url="{{ route('tasks.finalize', ['process' => $task->id]) }}" data-cancel-url="{{ route('tasks.cancel', ['process' => $task->id]) }}">
+                            <td class="px-4 py-3 text-text-secondary font-mono text-xs whitespace-nowrap">
+                                {{ $task->whatAction()['text'] }} {{ $task->whatAction()['software'] }} {{ $task->whatAction()['what'] }} {{ $task->whatAction()['target'] }}
+                            </td>
+                            <td class="px-4 py-3 font-medium">
+                                <div class="flex justify-between mb-1 text-xs">
+                                    <span class="{{$textColor}}" data-role="pct">0%</span>
+                                    <span class="{{$textColor}}" data-role="time">---</span>
                                 </div>
-                                <div class="mt-1.5 h-3 rounded-md border border-slate-300 bg-white/60 p-[2px] dark:border-white/10 dark:bg-white/5">
-                                    <div class="h-full w-0 rounded-[5px] bg-cyan-500/80 dark:bg-cyan-400/80" data-role="bar"></div>
+                                <div class="w-full bg-background-primary h-1 mb-2">
+                                    <div class="{{$bgColor}} h-1" data-role="bar"></div>
                                 </div>
-                            @elseif($task->resource_type === 'network')
-                                <div class="flex items-center gap-2">
-                                    <span class="grid h-4 w-4 place-items-center rounded border border-slate-300 bg-white/70 dark:border-white/10 dark:bg-white/5">
-                                        <span class="h-2.5 w-2.5 rounded-sm bg-slate-500/60 dark:bg-slate-300/40"></span>
-                                    </span>
-                                    <span class="font-medium">@if($task->action === 'download'){{ $downloadSpeed[$task->id]['mbps'] }} @else{{ $uploadSpeed[$task->id]['mbps'] }} @endif MB/s</span>
+                            </td>
+                            <td class="px-4 py-3 text-right text-text-secondary text-xs whitespace-nowrap">
+                                @if($task->resource_type === 'cpu')
+                                    <div class="flex items-center gap-2">
+                                        <x-lucide-cpu class="size-5 {{ $textColor }}"/>
+                                        <span class="font-medium">{{ $task->share_percent }}%</span>
+                                    </div>
+                                @elseif($task->resource_type === 'network')
+                                    <div class="flex items-center gap-2">
+                                        @if($task->action === 'download')
+                                            <x-lucide-cloud-download class="size-5 {{ $textColor }}" />
+                                        @else
+                                            <x-lucide-cloud-upload class="size-5 {{ $textColor }}"/>
+                                        @endif
+                                        <span class="font-medium">@if($task->action === 'download'){{ $downloadSpeed[$task->id]['mbps'] }} @else{{ $uploadSpeed[$task->id]['mbps'] }} @endif MB/s</span>
+                                    </div>
+                                @endif
+                            </td>
+                            <td class="px-4 py-3 text-right text-text-secondary text-xs whitespace-nowrap">
+                                <div class="flex justify-end">
+                                    <button type="button" data-role="close" data-cancel-url="{{ route('tasks.cancel', ['process' => $task->id]) }}"
+                                            class="grid aspect-square size-9 place-items-center rounded-md border border-slate-200
+                                            bg-white/70 text-slate-600 shadow-[0_1px_2px_rgba(0,0,0,0.08)] hover:border-red-300 hover:text-red-600 hover:bg-red-50
+                                            dark:border-white/10 dark:bg-white/5 dark:text-slate-300 dark:hover:border-red-500/40 dark:hover:bg-red-500/10 dark:hover:text-red-300
+                                            focus:outline-none focus:ring-2 focus:ring-cyan-400/40
+                                            disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white/70 disabled:hover:text-slate-600 disabled:hover:border-slate-200"
+                                            aria-label="Close" @if($status !== 'running') disabled @endif>
+                                        <x-lucide-x class="w-4 h-4"/>
+                                    </button>
                                 </div>
-                            @endif
-                        </div>
-                    </td>
-
-                    <!-- Progress (desktop/tablet) -->
-                    <td class="hidden px-4 py-3 sm:px-5 lg:table-cell">
-                        <div class="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
-                            <span class="font-semibold text-slate-600 dark:text-slate-300" data-role="pct">0%</span>
-                            <span data-role="time">--</span>
-                        </div>
-                        <div class="mt-1.5 h-3 rounded-md border border-slate-300 bg-white/60 p-[2px] dark:border-white/10 dark:bg-white/5">
-                            <div class="h-full w-0 rounded-[5px] bg-cyan-500/80 dark:bg-cyan-400/80" data-role="bar"></div>
-                        </div>
-                    </td>
-
-                    <!-- Stats (desktop/tablet) -->
-                    <td class="hidden px-4 py-3 sm:px-5 lg:table-cell">
-                        <div class="flex items-center gap-6 text-xs text-slate-600 dark:text-slate-300">
-                            @if($task->resource_type === 'cpu')
-                                <div class="flex items-center gap-2">
-                                    <span class="grid h-4 w-4 place-items-center rounded border border-slate-300 bg-white/70 dark:border-white/10 dark:bg-white/5" title="CPU allocation">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-emerald-500/80" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                            <rect x="4" y="4" width="16" height="16" rx="2" ry="2" />
-                                            <rect x="9" y="9" width="6" height="6" />
-                                            <path d="M9 1v3M15 1v3M9 20v3M15 20v3M1 9h3M1 15h3M20 9h3M20 15h3" />
-                                        </svg>
-                                    </span>
-                                    <span class="font-medium">{{ $task->share_percent }}%</span>
-                                </div>
-                            @elseif($task->resource_type === 'network')
-                                <div class="flex items-center gap-2">
-                                    <span class="grid h-6 w-6 place-items-center rounded border border-slate-300 bg-white/70 dark:border-white/10 dark:bg-white/5" title="Network allocation">
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
-                                          <path stroke-linecap="round" stroke-linejoin="round" d="M8.288 15.038a5.25 5.25 0 0 1 7.424 0M5.106 11.856c3.807-3.808 9.98-3.808 13.788 0M1.924 8.674c5.565-5.565 14.587-5.565 20.152 0M12.53 18.22l-.53.53-.53-.53a.75.75 0 0 1 1.06 0Z" />
-                                        </svg>
-                                    </span>
-                                    <span class="font-medium">
-                                        @if($task->action === 'download'){{ $downloadSpeed[$task->id]['mbps'] }}@else{{ $uploadSpeed[$task->id]['mbps'] }}@endif MB/s
-                                    </span>
-                                </div>
-                            @endif
-                        </div>
-                    </td>
-
-                    <!-- Close -->
-                    <td class="px-4 py-3 sm:px-5">
-                        <div class="flex justify-end">
-                            <button type="button" data-role="close" data-cancel-url="{{ route('tasks.cancel', ['process' => $task->id]) }}" class="grid aspect-square size-9 place-items-center rounded-md border border-slate-200 bg-white/70 text-slate-600 shadow-[0_1px_2px_rgba(0,0,0,0.08)]
-                                       hover:border-red-300 hover:text-red-600 hover:bg-red-50
-                                       dark:border-white/10 dark:bg-white/5 dark:text-slate-300 dark:hover:border-red-500/40 dark:hover:bg-red-500/10 dark:hover:text-red-300
-                                       focus:outline-none focus:ring-2 focus:ring-cyan-400/40
-                                       disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white/70 disabled:hover:text-slate-600 disabled:hover:border-slate-200"
-                                    aria-label="Close"
-                                    @if($status !== 'running') disabled @endif>
-                                <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" d="M7 7l10 10M17 7L7 17" />
-                                </svg>
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-            @endforeach
-            </tbody>
-        </table>
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <script>

@@ -3,141 +3,160 @@
 <x-app-layout>
     @include('pages.tasks.subnav')
 
-    <div class="flex flex-col gap-5 lg:flex-row">
-        <!-- LEFT: TABLE (bigger) -->
-        <div class="w-full lg:flex-1">
-            <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white/70 shadow-sm backdrop-blur dark:border-white/10 dark:bg-white/5">
-                <div class="flex items-center gap-2 border-b border-slate-200/70 bg-white/40 px-4 py-3 text-xs text-slate-600 dark:border-white/10 dark:bg-white/5 dark:text-slate-300">
-                    <div class="inline-flex items-center gap-2">
-                    <span class="grid size-6 place-items-center rounded-md border border-slate-200 bg-white/80 dark:border-white/10 dark:bg-white/5">
-                        <svg viewBox="0 0 24 24" class="h-4 w-4 text-slate-600 dark:text-slate-300" fill="none" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" d="M4 7h16M4 12h16M4 17h16" />
-                        </svg>
-                    </span>
-                        <span class="font-semibold text-slate-800 dark:text-slate-100">Running software</span>
-                    </div>
-                </div>
+    <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_16rem] gap-4 h-full">
+        <!-- LEFT: your existing card (shrinks because right column exists) -->
+        <div class="card-hack h-full">
+            <div class="bg-background-secondary px-4 py-3 border-b border-border border-default flex items-center gap-2">
+                <x-lucide-file-stack class="w-4 h-4 text-accent-primary" />
+                <h3 class="text-sm font-bold uppercase tracking-wider text-text-primary">
+                    Running Software
+                </h3>
+            </div>
 
-                <table class="w-full table-fixed">
-                    <colgroup>
-                        <col class="w-[58%]" />
-                        <col class="w-[12%]" />
-                        <col class="w-[15%]" />
-                        <col class="w-[15%]" />
-                    </colgroup>
-
-                    <thead>
-                    <tr class="border-b border-slate-200/70 bg-white/40 text-left text-[11px] uppercase tracking-wide text-slate-500 dark:border-white/10 dark:bg-white/5 dark:text-slate-400">
-                        <th class="px-4 py-3 font-semibold">Software name</th>
-                        <th class="px-4 py-3 font-semibold">Version</th>
-                        <th class="px-4 py-3 font-semibold">RAM usage</th>
-                        <th class="px-4 py-3 font-semibold text-center">Actions</th>
-                    </tr>
+            <div class="p-0 overflow-x-auto">
+                <table class="w-full text-sm text-left">
+                    <thead class="text-xs text-text-secondary uppercase bg-background-secondary/50 border-b border-border border-default">
+                        <tr>
+                            <th scope="col" class="px-4 py-2 w-40">Software</th>
+                            <th scope="col" class="px-4 py-2 w-32">Version</th>
+                            <th scope="col" class="px-4 py-2 w-28">RAM Usage</th>
+                            <th scope="col" class="px-4 py-2 w-16 text-left">Actions</th>
+                        </tr>
                     </thead>
 
-                    <tbody class="divide-y divide-slate-200/70 dark:divide-white/10">
-                    @foreach($running as $task)
-                        @php
-                            $taskRam = (float)($task->usage ?? 0);
-                            $rowPct = $ramTotal['value'] > 0 ? round(($taskRam / $ramTotal['value']) * 100, 1) : 0;
-                        @endphp
+                    <tbody>
+                        @foreach($running as $task)
+                            @php
+                                $taskRam = (float)($task->ram_usage ?? 0);
+                                $rowPct = $ramTotal['value'] > 0 ? round(($taskRam / $ramTotal['value']) * 100, 1) : 0;
+                            @endphp
 
-                        <tr class="align-middle hover:bg-slate-50/70 transition dark:hover:bg-white/5">
-                            <td class="px-4 py-3">
-                                <div class="flex items-center gap-3">
-                                    <span class="grid size-7 place-items-center rounded-md border border-slate-200 bg-white/80 text-slate-600 dark:border-white/10 dark:bg-white/5 dark:text-slate-300">
-                                        <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2">
-                                            <path stroke-linecap="round" d="M4 6h16v12H4z" />
-                                            <path stroke-linecap="round" d="M7 9h10M7 12h6" />
-                                        </svg>
-                                    </span>
+                            <tr class="hover:bg-background-secondary transition-colors border border-border">
+                                <td class="px-4 py-3 text-slate-700 dark:text-white/80 font-mono text-md whitespace-nowrap font-bold">
+                                    {{ $task->software->name }}.{{ $task->software->type }}
+                                </td>
 
-                                    <div class="min-w-0">
-                                        <div class="truncate text-sm font-medium text-slate-800 dark:text-slate-100">
-                                            {{ $task->software->name }}.{{ $task->software->type }}
-                                        </div>
-                                    </div>
-                                </div>
-                            </td>
-
-                            <td class="px-4 py-3">
-                                <span class="text-sm font-semibold text-emerald-600 dark:text-emerald-400">
+                                <td class="px-4 py-3 font-mono text-xs font-bold whitespace-nowrap text-emerald-600 dark:text-emerald-400">
                                     {{ $task->software->version }}
-                                </span>
-                            </td>
+                                </td>
 
-                            <td class="px-4 py-3">
-                                <div class="text-sm text-slate-700 dark:text-slate-200">
-                                    <span class="font-semibold">{{ (int)$task->usage_formatted['value'] }} {{ $task->usage_formatted['unit'] }}</span>
+                                <td class="px-4 py-3 font-mono text-xs font-bold whitespace-nowrap">
+                                    <span class="font-semibold">{{ $task->ram_usage_formatted }}</span>
                                     <span class="ml-2 text-xs text-slate-500 dark:text-slate-400">{{ $rowPct }}%</span>
-                                </div>
-                            </td>
+                                </td>
 
-                            <td class="px-4 py-3">
-                                <div class="flex items-center justify-center gap-3 text-slate-500 dark:text-slate-400">
-
-                                    <!-- INFO -->
-                                    <button type="button" data-modal-open="swModal" data-hw-id="{{ $task->software->id }}" aria-label="Info" class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-cyan-600 hover:text-cyan-700 dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10 dark:text-cyan-300 dark:hover:text-cyan-200 focus:outline-none focus:ring-2 focus:ring-cyan-400/40">
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                                            <path d="M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20Z" stroke="currentColor" stroke-width="2"/>
-                                            <path d="M12 11v6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                                            <path d="M12 8h.01" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
-                                        </svg>
-                                    </button>
-
-                                    <!-- STOP -->
-                                    <form method="POST" action="{{ route('tasks.uninstall', $task->id) }}">
-                                        @csrf
-                                        <button type="submit" aria-label="Stop" class="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white hover:bg-red-50 text-red-500 hover:text-red-600 dark:border-white/10 dark:bg-white/5 dark:hover:bg-red-500/10 dark:text-red-400 dark:hover:text-red-300 focus:outline-none focus:ring-2 focus:ring-red-400/40" >
-                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                                                <rect x="5.25" y="5.25" width="13.5" height="13.5" rx="2.25" stroke="currentColor" stroke-width="2"/>
-                                            </svg>
+                                <td class="px-4 py-3 text-left text-text-secondary text-xs whitespace-nowrap">
+                                    <div class="flex justify-start gap-2">
+                                        <button type="submit" data-modal-open="swModal" data-hw-id="{{ $task->software->id }}" aria-label="Info" class="grid gap-2 aspect-square size-9 place-items-center rounded-md border border-slate-200 text-slate-600 shadow-[0_1px_2px_rgba(0,0,0,0.08)] hover:border-blue-300 hover:text-blue-600 hover:bg-blue-50 dark:border-white/10 dark:bg-white/5 dark:text-slate-300 dark:hover:border-blue-500/40 dark:hover:bg-blue-500/10 dark:hover:text-blue-300">
+                                            <x-lucide-info class="w-4 h-4" />
                                         </button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                    @endforeach
+
+                                        <form method="POST" action="{{ route('tasks.uninstall', $task->id) }}">
+                                            @csrf
+                                            <button type="submit"
+                                                    aria-label="Stop"
+                                                    class="grid gap-2 aspect-square size-9 place-items-center rounded-md border border-slate-200 text-slate-600 shadow-[0_1px_2px_rgba(0,0,0,0.08)] hover:border-red-300 hover:text-red-600 hover:bg-red-50 dark:border-white/10 dark:bg-white/5 dark:text-slate-300 dark:hover:border-red-500/40 dark:hover:bg-red-500/10 dark:hover:text-red-300">
+                                                <x-lucide-x class="w-4 h-4" />
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
                     </tbody>
                 </table>
             </div>
         </div>
 
-        <!-- RIGHT: RAM GAUGE (smaller) -->
-        <div class="w-full lg:w-[260px]">
-            <div class="rounded-2xl border border-slate-200 bg-white/70 p-4 shadow-sm backdrop-blur dark:border-white/10 dark:bg-white/5">
+        @php
+            $r = 46;
+            $c = 2 * M_PI * $r;
+            $offset = $c - ($c * ($ram_pct / 100));
+        @endphp
 
-                @php
-                    $r = 42;
-                    $c = 2 * M_PI * $r;
-                    $offset = $c - ($c * ($pct / 100));
-                @endphp
+        <!-- RIGHT: chart column (stacked cards) -->
+        <div class="flex flex-col gap-4 h-full">
+            <!-- RAM card -->
+            <div class="card-hack">
+                <div class="bg-background-secondary px-4 py-3 border-b border-border border-default flex items-center gap-2">
+                    <x-lucide-pie-chart class="w-4 h-4 text-accent-primary" />
+                    <h3 class="text-sm font-bold uppercase tracking-wider text-text-primary">
+                        RAM Usage
+                    </h3>
+                </div>
 
-                <div class="mt-2 flex items-center justify-center">
-                    <div class="relative">
-                        <!-- SVG -->
-                        <svg width="128" height="128" viewBox="0 0 128 128" class="block">
-                            <circle cx="64" cy="64" r="{{ $r }}" class="text-slate-200 dark:text-white/10" stroke="currentColor" stroke-width="10" fill="none" />
-                            <circle cx="64" cy="64" r="{{ $r }}" class="text-emerald-500/80 dark:text-emerald-400/80" stroke="currentColor" stroke-width="10" fill="none" stroke-linecap="round" stroke-dasharray="{{ $c }}" stroke-dashoffset="{{ $offset }}" transform="rotate(-90 64 64)" />
+                <div class="p-4 flex flex-col items-center justify-center gap-4">
+                    <div class="relative size-40">
+                        <svg viewBox="0 0 120 120" class="size-full -rotate-90">
+                            <circle cx="60" cy="60" r="46" fill="none" class="stroke-slate-200 dark:stroke-white/10" stroke-width="12" />
+                            <circle cx="60" cy="60" r="{{ $r }}" fill="none" class="{{ $ram_pct <= 50 ? 'stroke-emerald-500' : ($ram_pct < 75 ? 'stroke-amber-500' : 'stroke-red-500')}}" stroke-width="12" stroke-linecap="round" stroke-dasharray="{{ $c }}" stroke-dashoffset="{{ $offset }}" />
                         </svg>
 
-                        <!-- % centered better -->
-                        <div class="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-[58%] text-xl font-bold text-slate-900 dark:text-white">
-                            {{ $pct }}%
+                        <div class="absolute inset-0 grid place-items-center text-center">
+                            <div class="text-lg font-bold text-text-primary">{{ $ram_pct }}%</div>
                         </div>
                     </div>
+
+                    <div class="w-full space-y-2 text-sm text-center">
+                        <span class="{{ $ram_pct <= 50 ? 'text-emerald-500' : ($ram_pct < 75 ? 'text-amber-500' : 'text-red-500')}}">{{ $ramUsedHuman }}</span> / <span class="text-emerald-700">{{ $ramTotalHuman }}</span>
+                    </div>
+
+{{--                    <div class="w-full space-y-2 text-sm">--}}
+{{--                        <div class="flex items-center justify-between">--}}
+{{--                            <div class="flex items-center gap-2">--}}
+{{--                                <span class="size-2.5 rounded-full bg-blue-500"></span>--}}
+{{--                                <span class="text-text-secondary">System</span>--}}
+{{--                            </div>--}}
+{{--                            <span class="font-mono text-xs text-text-secondary">38%</span>--}}
+{{--                        </div>--}}
+{{--                        <div class="flex items-center justify-between">--}}
+{{--                            <div class="flex items-center gap-2">--}}
+{{--                                <span class="size-2.5 rounded-full bg-emerald-500"></span>--}}
+{{--                                <span class="text-text-secondary">Apps</span>--}}
+{{--                            </div>--}}
+{{--                            <span class="font-mono text-xs text-text-secondary">24%</span>--}}
+{{--                        </div>--}}
+{{--                        <div class="flex items-center justify-between">--}}
+{{--                            <div class="flex items-center gap-2">--}}
+{{--                                <span class="size-2.5 rounded-full bg-red-500"></span>--}}
+{{--                                <span class="text-text-secondary">Other</span>--}}
+{{--                            </div>--}}
+{{--                            <span class="font-mono text-xs text-text-secondary">16%</span>--}}
+{{--                        </div>--}}
+{{--                    </div>--}}
                 </div>
-                <div class="mt-1 text-center text-[11px] font-semibold tracking-wide text-slate-500 dark:text-slate-400">
-                    RAM Usage
+            </div>
+
+            @php
+                $r = 46;
+                $c = 2 * M_PI * $r;
+                $offset = $c - ($c * ($cpu_pct / 100));
+            @endphp
+            <!-- CPU card -->
+            <div class="card-hack">
+                <div class="bg-background-secondary px-4 py-3 border-b border-border border-default flex items-center gap-2">
+                    <x-lucide-cpu class="w-4 h-4 text-accent-primary" />
+                    <h3 class="text-sm font-bold uppercase tracking-wider text-text-primary">
+                        CPU Usage
+                    </h3>
                 </div>
 
-                <div class="mt-3 text-center text-[11px] text-slate-600 dark:text-slate-300">
-                    <span class="font-semibold text-emerald-600 dark:text-emerald-400">{{ $ramUsed['value'] }} {{ $ramUsed['unit'] }}</span>
-                    <span class="text-slate-400 dark:text-slate-500">/</span>
-                    <span class="font-semibold text-red-600/80 dark:text-red-400/80">{{ $ramTotal['value'] }} {{ $ramTotal['unit'] }}</span>
+                <div class="p-4 flex flex-col items-center justify-center gap-4">
+                    <div class="relative size-40">
+                        <svg viewBox="0 0 120 120" class="size-full -rotate-90">
+                            <circle cx="60" cy="60" r="46" fill="none" class="stroke-slate-200 dark:stroke-white/10" stroke-width="12" />
+                            <circle cx="60" cy="60" r="{{ $r }}" fill="none" class="{{ $cpu_pct <= 50 ? 'stroke-emerald-500' : ($ram_pct < 75 ? 'stroke-amber-500' : 'stroke-red-500')}}" stroke-width="12" stroke-linecap="round" stroke-dasharray="{{ $c }}" stroke-dashoffset="{{ $offset }}" />
+                        </svg>
+
+                        <div class="absolute inset-0 grid place-items-center text-center">
+                            <div class="text-2xl font-bold text-text-primary">{{$cpu_pct}}%</div>
+                        </div>
+                    </div>
+                    <div class="w-full space-y-2 text-sm text-center">
+                        <span class="{{ $cpu_pct <= 50 ? 'text-emerald-500' : ($cpu_pct < 75 ? 'text-amber-500' : 'text-red-500')}}">{{ $cpuUsedHuman }}</span> / <span class="text-emerald-700">{{ $cpuTotalHuman }}</span>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-
 </x-app-layout>
