@@ -34,7 +34,7 @@ class Sidebar extends Component
             [
                 'label' => 'Dashboard',
                 'route' => 'dashboard',
-                'active' => ['dashboard.*'],
+                'active' => ['dashboard'],
                 'icon' => 'home'
             ],
             [
