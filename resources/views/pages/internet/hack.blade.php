@@ -6,6 +6,8 @@
         @include('pages.internet.partials.search')
         @include('pages.internet.partials.alertLogged')
 
+        @include('pages.internet.partials.navigation')
+
         <x-ui.card title="Choose your attack method">
             <x-slot:icon>
                 <x-lucide-code-xml class="w-4 h-4" />
