@@ -15,6 +15,8 @@ return new class extends Migration
             $table->engine = 'InnoDB';
             $table->id();
 
+            $table->string('name');
+
             # Ownership (player-owned or npc)
             $table->morphs('owner');
 

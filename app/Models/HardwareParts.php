@@ -63,10 +63,6 @@ class HardwareParts extends Model
                 $parts[] = $s['power_draw_w'] . ' W';
             }
 
-            if (!empty($s['stability'])) {
-                $parts[] = $s['stability'] . '% stab';
-            }
-
         }
         elseif ($this->type === 'ram') {
             if (!empty($s['tier'])) {

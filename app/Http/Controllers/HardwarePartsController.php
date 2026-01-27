@@ -6,6 +6,7 @@ use App\Models\BankAccount;
 use App\Models\HardwareParts;
 use App\Models\ServerResources;
 use App\Models\Servers;
+use App\Models\UserNetwork;
 use App\Support\Format;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -212,26 +213,36 @@ class HardwarePartsController extends Controller
                 return back()->withErrors(['bankAccount' => 'Insufficient funds.'])->withInput();
             }
 
-            // Lock the "slot" row on server_resources for this server+type
-            $slot = ServerResources::where('server_id', $server->id)->whereHas('hardware', fn($q) => $q->where('type', $data['buy_type']))->with('hardware')->lockForUpdate()->first();
-
-            if (!$slot) {
-                $slot = new ServerResources();
-                $slot->server_id = $server->id;
-            }
-
             // Deduct funds
             $account->balance = (float) $account->balance - $price;
             $account->save();
 
+            // Lock the "slot" row on server_resources or user_network for this server+type
+            $slot = match ($hardware->type) {
+                'network' => UserNetwork::where('hardware_id', $hacker->network->hardware->id)->lockForUpdate()->first(),
+                'internet' => UserNetwork::where('connectivity_id', $hacker->connectivity->id)->lockForUpdate()->first(),
+                default => ServerResources::where('server_id', $server->id)->whereHas('hardware', fn ($q) => $q->where('type', $hardware->type))->lockForUpdate()->first(),
+            };
+
+
             // Update installed hardware in that slot
-            $slot->hardware_id = $hardware->id;
+            if ($hardware->type === 'network') {
+                $slot ??= new UserNetwork();
+                $slot->hardware_id = $hardware->id;
+            } elseif ($hardware->type === 'internet') {
+                $slot ??= new UserNetwork();
+                $slot->connectivity_id = $hardware->id;
+            } else {
+                $slot ??= new ServerResources(['server_id' => $server->id]);
+                $slot->hardware_id = $hardware->id;
+            }
+
             $slot->save();
 
             // TODO: Add logs for purchases, deducting money from which account how much was spent, what was bought. when it was bought, something like server upgrade history with old and new hardware.
             // TODO: Add transaction history for bank account
 
-            return redirect()->back()->with('status', "Purchased {$hardware->name} for \${$price}.");
+            return redirect()->back()->with('success', "Purchased {$hardware->name} for \${$price}.");
         });
 
     }
