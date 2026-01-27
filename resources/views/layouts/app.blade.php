@@ -32,7 +32,7 @@
                 {{-- Breadcrumb / Page Title --}}
                 <div class="mb-6 bg-background-secondary border border-default border-border p-4 flex items-center justify-between">
                     <h2 class="text-xl font-light text-text-primary">
-                        Dashboard
+                        @yield('title')
                     </h2>
                 </div>
 

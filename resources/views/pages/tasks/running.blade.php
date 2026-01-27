@@ -1,4 +1,4 @@
-@section('title', 'Running software')
+@section('title', 'Running Software')
 
 <x-app-layout>
     @include('pages.tasks.subnav')
