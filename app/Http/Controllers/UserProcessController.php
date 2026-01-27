@@ -671,7 +671,7 @@ class UserProcessController extends Controller
 
             $logs->appendLine(
                 networkId: $process->user->network->id,
-                line: sprintf("[%s] - [%s] successfully penetrated into [%s]", now()->format('Y-m-d H:i:s'), $process->user->network->ip, $targetNetwork->ip)
+                line: sprintf("[%s] - localhost successfully penetrated into [%s]", now()->format('Y-m-d H:i:s'), $targetNetwork->ip)
             );
         }
 
