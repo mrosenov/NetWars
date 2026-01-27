@@ -27,12 +27,10 @@
                             <x-lucide-scroll-text class="w-5 h-5" />
                         </x-slot:icon>
 
-
                             @csrf
-                            <input type="hidden" name="base_hash" value="{{ $baseHash }}">
                             <input type="hidden" name="target" value="remote">
 
-                            <div id="logEditorWrap" class="px-5 py-4 space-y-2">
+                            <div class="px-5 py-4 space-y-2">
                             @if($network->owner->type === 'download')
                                 <textarea class="w-full rounded-xl bg-background-primary resize-y border border-border focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-300" readonly>Download Center doesn't record logs.</textarea>
                             @else
