@@ -217,6 +217,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'up_mbps' => 0.0,
             'cpu_compute' => 0,
             'stability' => 0,
+            'power_supply' => 0,
         ];
 
         $net = app()->make(UserProcessController::class)->getUserNetTotals();
@@ -236,6 +237,7 @@ class User extends Authenticatable implements MustVerifyEmail
             $totals['up_mbps'] += (float) ($t['up_mbps'] ?? 0);
             $totals['cpu_compute'] += (int) ($t['cpu_compute'] ?? 0);
             $totals['stability'] = max($totals['stability'], (int) ($t['stability'] ?? 0));
+            $totals['power_supply'] += (int) ($t['power_supply'] ?? 0);
         }
 
         return $totals;

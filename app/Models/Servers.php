@@ -33,9 +33,7 @@ class Servers extends Model
 
     public function getResourceTotalsAttribute(): array
     {
-        $resources = $this->relationLoaded('resources')
-            ? $this->resources
-            : $this->resources()->with('hardware')->get();
+        $resources = $this->relationLoaded('resources') ? $this->resources : $this->resources()->with('hardware')->get();
 
         $totals = [
             'clock_mhz' => 0,
@@ -43,6 +41,7 @@ class Servers extends Model
             'storage_mb' => 0,
             'cpu_compute' => 0,
             'stability' => 0,
+            'power_supply' => 0,
         ];
 
 
@@ -58,15 +57,14 @@ class Servers extends Model
                 $totals['ram_mb'] += (int) ($spec['capacity_mb'] ?? 0);
             }
 
-
             // Disk: capacity_gb -> MB
             if ($hw->type === 'disk') {
                 $totals['storage_mb'] += (float)$spec['capacity_mb'] ?? 0;
             }
 
-
             $totals['cpu_compute'] += (int) ($spec['compute_power'] ?? 0);
             $totals['stability'] = max($totals['stability'], (int) ($spec['stability'] ?? 0));
+            $totals['power_supply'] = max($totals['power_supply'], (int) ($spec['max_power_w'] ?? 0));
         }
 
         return $totals;

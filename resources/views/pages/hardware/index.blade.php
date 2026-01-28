@@ -32,6 +32,7 @@
                             $cpu = \App\Support\Format::cpu($server->resource_totals['clock_mhz']);
                             $storage = \App\Support\Format::storage($server->resource_totals['storage_mb']);
                             $ram = \App\Support\Format::ram($server->resource_totals['ram_mb']);
+                            $power = \App\Support\Format::watt($server->resource_totals['power_supply']);
                         @endphp
                         <tr class="hover:bg-slate-300/50 dark:hover:bg-background-secondary transition-colors border border-border">
                             <td class="px-5 py-4">
@@ -64,6 +65,12 @@
                                         <x-lucide-memory-stick class="w-4 h-4 text-green-400" />
                                         <span class="text-sm font-semibold text-text-primary">{{ $ram['value'] }}</span>
                                         <span class="text-xs text-text-secondary">{{ $ram['unit'] }}</span>
+                                    </div>
+
+                                    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-border bg-background-primary text-text-secondary">
+                                        <x-lucide-zap class="w-4 h-4 text-yellow-400" />
+                                        <span class="text-sm font-semibold text-text-primary">{{ $power['value'] }}</span>
+                                        <span class="text-xs text-text-secondary">{{ $power['unit'] }}</span>
                                     </div>
                                 </div>
                             </td>

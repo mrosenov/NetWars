@@ -32,6 +32,7 @@ class HardwarePartsController extends Controller
             'totalDisk' => Format::storage($totalResources['storage_mb']),
             'totalRAM' => Format::ram($totalResources['ram_mb']),
             'totalExternal' => Format::storage($totalResources['external_mb']),
+            'totalPowerSupply' => Format::watt($totalResources['power_supply']),
             'connectivity' => $connectivity,
             'bankAccounts' => $bankAccounts,
         ]);

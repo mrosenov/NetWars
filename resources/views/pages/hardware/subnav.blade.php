@@ -22,6 +22,13 @@
 
     <x-ui.subnav-link :href="route('user.hardware')" :active="request()->routeIs('user.hardware')">
         <x-slot:icon>
+            <x-lucide-router class="w-5 h-5" />
+        </x-slot:icon>
+        Network Switch
+    </x-ui.subnav-link>
+
+    <x-ui.subnav-link :href="route('user.hardware')" :active="request()->routeIs('user.hardware')">
+        <x-slot:icon>
             <x-lucide-hard-drive class="w-5 h-5" />
         </x-slot:icon>
         External HDD
