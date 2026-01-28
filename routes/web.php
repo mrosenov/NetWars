@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\HardwarePartsController;
 use App\Http\Controllers\NetworkLogfileController;
+use App\Http\Controllers\ServersController;
 use App\Http\Controllers\ServerSoftwaresController;
 use App\Http\Controllers\TargetController;
 use App\Http\Controllers\Dashboard;
@@ -90,6 +91,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/hardware/server/{server}', [HardwarePartsController::class, 'server'])->name('user.hardware.server');
     Route::get('/hardware/{hardware}/json', [HardwarePartsController::class, 'json'])->name('user.hardware.json');
     Route::post('/hardware/buy', [HardwarePartsController::class, 'buy'])->name('user.hardware.buy');
+
+    Route::get('/hardware/servers/server_json', [ServersController::class, 'json'])->name('user.server.json');
+    Route::post('/hardware/servers/buy', [ServersController::class, 'buy'])->name('user.server.buy');
 
 });
 require __DIR__.'/auth.php';

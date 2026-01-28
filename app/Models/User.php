@@ -34,6 +34,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'owner_type',
         'owner_id',
         'connected_to_network_id',
+        'server_id',
+        'hardware_id',
     ];
 
     /**
@@ -64,7 +66,9 @@ class User extends Authenticatable implements MustVerifyEmail
         static::created(function ($user) {
 
             # Assign default server to player when registers.
-            $server = $user->servers()->create();
+            $server = $user->servers()->create([
+                'name' => 'Server 1'
+            ]);
 
             # Assign default server parts 1 - Motherboard, 2 - CPU, 3 - RAM, 4 - Storage(HDD)
             $types = ['motherboard', 'cpu', 'ram', 'disk', 'network', 'psu'];
@@ -236,98 +240,5 @@ class User extends Authenticatable implements MustVerifyEmail
 
         return $totals;
     }
-
-    public function OverallResources(): array
-    {
-        // Make sure we don't N+1 query hardware_parts
-        $resources = $this->resources()->with('hardware')->get();
-
-        // Sum in base units
-        $totals = [
-            'clock_ghz' => 0.0,
-            'ram_gb' => 0.0,
-            'psu_w' => 0.0,
-            'disk_gb' => 0.0,
-            'externalDrive_gb' => 0.0,
-//            'network_mbps' => 0.0,
-        ];
-
-        foreach ($resources as $resource) {
-            $hw = $resource->hardware;
-
-            if (!$hw) {
-                continue;
-            }
-
-            // Exclude motherboard
-            if ($hw->type === 'motherboard') {
-                continue;
-            }
-
-            $spec = is_array($hw->specifications) ? $hw->specifications : (array) $hw->specifications;
-
-            switch ($hw->type) {
-                case 'cpu':
-                    $mhz = (float) (data_get($spec, 'clock_ghz') ?? 0);
-                    $totals['clock_ghz'] += $mhz;
-                    break;
-
-                case 'ram':
-                    $mb = (int) (data_get($spec, 'capacity_mb') ?? 0);
-                    $totals['ram_gb'] += $mb;
-                    break;
-
-                case 'psu':
-                    $mb = (int) (data_get($spec, 'max_power_w') ?? 0);
-                    $totals['psu_w'] += $mb;
-                    break;
-
-                case 'disk':
-                    $mb = (float) (data_get($spec, 'capacity_gb') ?? 0);
-                    $totals['disk_gb'] += $mb;
-                    break;
-
-            }
-        }
-
-        // Networks (network hardware is on user_networks)
-//        $userNetworks = $this->network()->with('hardware')->get();
-//
-//        foreach ($userNetworks as $net) {
-//            $hw = $net->hardware;
-//            if (!$hw || $hw->type !== 'network') continue;
-//
-//            $spec = $hw->specifications ?? [];
-//            $totals['network_mbps'] += (float) data_get($spec, 'bandwidth_mbps', 0);
-//        }
-
-        $userStorages = $this->externalStorage()->with('hardware')->get();
-
-        foreach ($userStorages as $storage) {
-            $hw = $storage->hardware;
-
-            if (!$hw || $hw->type !== 'externalDrive') continue;
-
-            $spec = $hw->specifications ?? [];
-            $totals['externalDrive_gb'] += (float) data_get($spec, 'extra_capacity_gb', 0);
-        }
-
-        $connectivity = $this->connectivity();
-
-        $hw = new HardwarePartsController();
-        $connectivityInfo = $hw->prettyNetwork(data_get($connectivity->specifications, 'connectivity_mbps'));
-
-        $hw = new HardwarePartsController();
-        return [
-            'CPU' => $hw->prettyCpu($totals['clock_ghz']),
-            'RAM' => $hw->prettyRAM($totals['ram_gb']),
-            'PSU' => $hw->prettyPSU($totals['psu_w']),
-            'Disk' => $hw->prettyStorage($totals['disk_gb']),
-            'externalDrive' => $hw->prettyStorage($totals['externalDrive_gb']),
-            'Connectivity' => $connectivityInfo,
-        ];
-    }
-
-
 
 }

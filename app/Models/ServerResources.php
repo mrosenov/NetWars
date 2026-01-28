@@ -9,8 +9,6 @@ class ServerResources extends Model
     protected $fillable = [
         'server_id',
         'hardware_id',
-        'user_id',
-        'npc_id',
     ];
 
     public function owner() {
