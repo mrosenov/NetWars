@@ -15,6 +15,7 @@
                     <tr>
                         <th scope="col" class="px-4 py-2 w-40">Software</th>
                         <th scope="col" class="px-4 py-2 w-32">Version</th>
+                        <th scope="col" class="px-4 py-2 w-28">CPU Usage</th>
                         <th scope="col" class="px-4 py-2 w-28">RAM Usage</th>
                         <th scope="col" class="px-4 py-2 w-16 text-left">Actions</th>
                     </tr>
@@ -23,8 +24,10 @@
                 <tbody>
                 @foreach($running as $task)
                     @php
+                        $taskCpu = (float)($task->processor_usage ?? 0);
+                        $taskPct = $cpuTotal > 0 ? round(($taskCpu / $cpuTotal) * 100, 1) : 0;
                         $taskRam = (float)($task->ram_usage ?? 0);
-                        $rowPct = $ramTotal['value'] > 0 ? round(($taskRam / $ramTotal['value']) * 100, 1) : 0;
+                        $rowPct = $ramTotal > 0 ? round(($taskRam / $ramTotal) * 100, 1) : 0;
                     @endphp
 
                     <tr class="hover:bg-background-secondary transition-colors border border-border">
@@ -34,6 +37,11 @@
 
                         <td class="px-4 py-3 font-mono text-xs font-bold whitespace-nowrap text-emerald-600 dark:text-emerald-400">
                             {{ $task->software->version }}
+                        </td>
+
+                        <td class="px-4 py-3 font-mono text-xs font-bold whitespace-nowrap">
+                            <span class="font-semibold">{{ $task->processor_usage_formatted }}</span>
+                            <span class="ml-2 text-xs text-slate-500 dark:text-slate-400">{{ $taskPct }}%</span>
                         </td>
 
                         <td class="px-4 py-3 font-mono text-xs font-bold whitespace-nowrap">

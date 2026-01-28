@@ -230,7 +230,7 @@ class User extends Authenticatable implements MustVerifyEmail
         foreach ($servers as $server) {
             $t = $server->resource_totals;
 
-            $totals['clock_mhz'] += (float) ($t['clock_mhz'] ?? 0);
+            $totals['clock_mhz'] += (int) ($t['clock_mhz'] ?? 0);
             $totals['ram_mb'] += (int) ($t['ram_mb'] ?? 0);
             $totals['storage_mb'] += (int) ($t['storage_mb'] ?? 0);
             $totals['down_mbps'] += (float) ($t['down_mbps'] ?? 0);

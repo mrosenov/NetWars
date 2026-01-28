@@ -61,14 +61,14 @@ class UserProcessController extends Controller
 
         return view('pages.tasks.running', [
             'running' => $running,
-            'ramUsedHuman' => Format::ramHuman($ramUsage['ramUsed']['value']),
-            'ramTotalHuman' => Format::ramHuman($ramUsage['ramTotal']['value']),
-            'ramTotal' => $ramUsage['ramTotal'],
+            'ramUsedHuman' => Format::ramHuman($ramUsage['ramUsed_mb']),
+            'ramTotalHuman' => Format::ramHuman($ramUsage['ramTotal_mb']),
+            'ramTotal' => $ramUsage['ramTotal_mb'],
             'ram_pct' => $ramUsage['ram_pct'],
 
-            'cpuUsedHuman' => Format::cpuHuman($cpuUsage['cpu_used']['value']),
-            'cpuTotalHuman' => Format::cpuHuman($cpuUsage['cpu_total']['value']),
-            'cpuTotal' => $cpuUsage['cpu_total'],
+            'cpuUsedHuman' => Format::cpuHuman($cpuUsage['cpu_used_mhz']),
+            'cpuTotalHuman' => Format::cpuHuman($cpuUsage['cpu_total_mhz']),
+            'cpuTotal' => $cpuUsage['cpu_total_mhz'],
             'cpu_pct' => $cpuUsage['cpu_pct'],
         ]);
     }
@@ -84,15 +84,12 @@ class UserProcessController extends Controller
         $total_cpu_mhz = $resources['clock_mhz'] ?? 0;
         $used_cpu_mhz = $running->sum->processor_usage;
 
-        $cpu_total = Format::cpu($total_cpu_mhz);
-        $cpu_used = Format::cpu($used_cpu_mhz);
-
         $pct = $total_cpu_mhz > 0 ? (int) round(($used_cpu_mhz / $total_cpu_mhz) * 100) : 0;
         $pct = max(0, min(100, $pct));
 
         return [
-            'cpu_used' => $cpu_used,
-            'cpu_total' => $cpu_total,
+            'cpu_used_mhz' => $used_cpu_mhz,
+            'cpu_total_mhz' => $total_cpu_mhz,
             'cpu_pct' => $pct,
         ];
     }
@@ -115,8 +112,8 @@ class UserProcessController extends Controller
         $pct = max(0, min(100, $pct));
 
         return [
-            'ramUsed' => $ramUsed,
-            'ramTotal' => $ramTotal,
+            'ramUsed_mb' => $ramUsedMb,
+            'ramTotal_mb' => $ramTotalMb,
             'ram_pct' => $pct,
         ];
     }
