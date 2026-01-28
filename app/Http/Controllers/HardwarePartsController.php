@@ -23,6 +23,8 @@ class HardwarePartsController extends Controller
 
         $connectivity = Format::connectivity($hacker->network->connectivity->specifications['connectivity_mbps']);
 
+        $bankAccounts = $hacker->bankAccounts;
+
         return view('pages.hardware.index', [
             'hacker' => $hacker,
             'servers' => $servers,
@@ -31,6 +33,7 @@ class HardwarePartsController extends Controller
             'totalRAM' => Format::ram($totalResources['ram_mb']),
             'totalExternal' => Format::storage($totalResources['external_mb']),
             'connectivity' => $connectivity,
+            'bankAccounts' => $bankAccounts,
         ]);
     }
 
@@ -201,116 +204,38 @@ class HardwarePartsController extends Controller
 
             // Ensure the hardware type matches the buy_type
             if ($hardware->type !== $data['buy_type']) {
-                return back()->withErrors([
-                    'hardware_id' => 'Selected hardware does not match the requested upgrade type.',
-                ])->withInput();
+                return redirect()->route('user.hardware.server', $server->id)->with('error', 'Selected hardware does not match the requested upgrade type.');
             }
 
             $price = (float) $hardware->price;
 
             // Re-check balance under lock (prevents double-spend)
-            if ((float) $account->balance < $price) {
-                return back()->withErrors(['bankAccount' => 'Insufficient funds.'])->withInput();
+            if ((float) $account->balance < (float) $price) {
+                return redirect()->route('user.hardware.server', $server->id)->with('error', 'Insufficient balance.');
+            }
+
+            // Lock the "slot" row on server_resources for this server+type
+            $slot = ServerResources::where('server_id', $server->id)->whereHas('hardware', fn($q) => $q->where('type', $data['buy_type']))->with('hardware')->lockForUpdate()->first();
+
+            if (!$slot) {
+                $slot = new ServerResources();
+                $slot->server_id = $server->id;
             }
 
             // Deduct funds
             $account->balance = (float) $account->balance - $price;
             $account->save();
 
-            // Lock the "slot" row on server_resources or user_network for this server+type
-            $slot = match ($hardware->type) {
-                'network' => UserNetwork::where('hardware_id', $hacker->network->hardware->id)->lockForUpdate()->first(),
-                'internet' => UserNetwork::where('connectivity_id', $hacker->connectivity->id)->lockForUpdate()->first(),
-                default => ServerResources::where('server_id', $server->id)->whereHas('hardware', fn ($q) => $q->where('type', $hardware->type))->lockForUpdate()->first(),
-            };
-
-
             // Update installed hardware in that slot
-            if ($hardware->type === 'network') {
-                $slot ??= new UserNetwork();
-                $slot->hardware_id = $hardware->id;
-            } elseif ($hardware->type === 'internet') {
-                $slot ??= new UserNetwork();
-                $slot->connectivity_id = $hardware->id;
-            } else {
-                $slot ??= new ServerResources(['server_id' => $server->id]);
-                $slot->hardware_id = $hardware->id;
-            }
-
+            $slot->hardware_id = $hardware->id;
             $slot->save();
 
             // TODO: Add logs for purchases, deducting money from which account how much was spent, what was bought. when it was bought, something like server upgrade history with old and new hardware.
             // TODO: Add transaction history for bank account
 
-            return redirect()->back()->with('success', "Purchased {$hardware->name} for \${$price}.");
+            return redirect()->route('user.hardware.server', $server->id)->with('success', "Purchased {$hardware->name} for \${$price}.");
         });
 
     }
 
-    public function prettyCpu(float $ghz): array {
-        if ($ghz < 1) {
-            return ['value' => round($ghz * 1000), 'unit' => 'MHz'];
-        }
-        return ['value' => round($ghz, 1), 'unit' => 'GHz'];
-    }
-
-    public function prettyPSU(int $watts): array {
-        if ($watts < 1000) {
-            return ['value' => $watts, 'unit' => 'Watt'];
-        }
-
-        return ['value' => $watts, 'unit' => 'kW'];
-    }
-
-    public function prettyNetwork(int $mbps): array {
-        if ($mbps >= 1000) {
-            return ['value' => round($mbps / 1000, 1), 'unit' => 'Gbit/s'];
-        }
-        return ['value' => round($mbps, 0), 'unit' => 'MBit/s'];
-    }
-
-    public function prettyRAM(int $mb): array {
-        if ($mb < 1024) {
-            return [
-                'value' => $mb,
-                'unit'  => 'MB'
-            ];
-        }
-
-        if ($mb < 1024 * 1024) {
-            return [
-                'value' => round($mb / 1024, 1),
-                'unit'  => 'GB'
-            ];
-        }
-
-        return [
-            'value' => round($mb / (1024 * 1024), 1),
-            'unit'  => 'TB'
-        ];
-    }
-
-    public function prettyStorage(float $gb): array
-    {
-        if ($gb < 1) {
-            return [
-                'value' => round($gb * 1000),
-                'unit'  => 'MB'
-            ];
-        }
-
-        if ($gb < 1000) {
-            return [
-                'value' => $gb == (int)$gb ? (int)$gb : round($gb, 1),
-                'unit'  => 'GB'
-            ];
-        }
-
-        $value = $gb / 1000;
-
-        return [
-            'value' => $value == (int)$value ? (int)$value : round($value, 1),
-            'unit'  => 'TB'
-        ];
-    }
 }
