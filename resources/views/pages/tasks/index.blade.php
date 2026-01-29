@@ -34,6 +34,7 @@
                             $status = $task->status ?? 'running';
                             $startedIso = optional($task->started_at)->toISOString();
                             $endsIso = optional($task->ends_at)->toISOString();
+                            $m = $task->whatAction($ctx ?? []);
 
                             $textColor = "text-sky-400";
                             $bgColor = "bg-sky-400";
@@ -55,7 +56,7 @@
                         @endphp
                         <tr class="hover:bg-background-secondary transition-colors border border-border" data-task-id="{{ $task->id }}" data-status="{{ $status }}" data-started-at="{{ $startedIso }}" data-ends-at="{{ $endsIso }}" data-finalize-url="{{ route('tasks.finalize', ['process' => $task->id]) }}" data-cancel-url="{{ route('tasks.cancel', ['process' => $task->id]) }}">
                             <td class="px-4 py-3 text-text-secondary font-mono text-xs whitespace-nowrap">
-                                {{ $task->whatAction()['text'] }} {{ $task->whatAction()['software'] }} {{ $task->whatAction()['what'] }} {{ $task->whatAction()['target'] }}
+                                {{ $m['text'] }} {{ $m['software'] }} {{ $m['what'] }} {{ $m['target'] }}
                             </td>
                             <td class="px-4 py-3 font-medium">
                                 <div class="flex justify-between mb-1 text-xs">

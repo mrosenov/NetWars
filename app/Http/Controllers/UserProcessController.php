@@ -18,14 +18,31 @@ use App\Support\Format;
 class UserProcessController extends Controller
 {
 
-    public function index() {
+    public function index()
+    {
         $hacker = auth()->user();
+        $hacker->loadMissing('network');
+
         $connection = $this->getUserNetTotals();
 
         $tasks = $hacker->tasks()->where('status', 'running')->get();
 
+        $meta = $tasks->pluck('metadata');
+
+        $networkIds = $meta->pluck('target_network_id')->filter()->unique();
+        $softwareIds = $meta->pluck('software_id')->filter()->unique();
+        $externalIds = $meta->pluck('external_software_id')->filter()->unique();
+
+        $ctx = [
+            'hacker_ip' => $hacker->network?->ip,
+            'networksById' => UserNetwork::whereIn('id', $networkIds)->get()->keyBy('id'),
+            'softwareById' => ServerSoftwares::whereIn('id', $softwareIds)->get()->keyBy('id'),
+            'externalById' => ExternalSoftware::whereIn('id', $externalIds)->get()->keyBy('id'),
+        ];
+
         return view('pages.tasks.index', [
             'tasks' => $tasks,
+            'ctx' => $ctx,
             'connection' => $connection,
             'downloadSpeed' => $this->getActiveDownloadSpeeds(),
             'uploadSpeed' => $this->getActiveUploadSpeeds(),
@@ -75,14 +92,16 @@ class UserProcessController extends Controller
 
     public function UserProcessorUsage() {
         $hacker = auth()->user();
-
+        $hacker->loadMissing('network','network.runningSoftware','network.runningSoftware.software');
         $network = $hacker->network;
-        $running = $network ? $network->runningSoftware()->with('software')->get() : collect();
+        $running = $network ? $network->runningSoftware : collect();
 
         $resources = $hacker->totalResources();
 
         $total_cpu_mhz = $resources['clock_mhz'] ?? 0;
-        $used_cpu_mhz = $running->sum->processor_usage;
+        $used_cpu_mhz = $running->sum(function ($rs) {
+            return (int) data_get($rs->software?->requirements, 'clock_mhz', 0);
+        });
 
         $pct = $total_cpu_mhz > 0 ? (int) round(($used_cpu_mhz / $total_cpu_mhz) * 100) : 0;
         $pct = max(0, min(100, $pct));
@@ -96,17 +115,17 @@ class UserProcessController extends Controller
 
     public function UserRamUsage() {
         $hacker = auth()->user();
+        $hacker->loadMissing('network','network.runningSoftware','network.runningSoftware.software');
 
-        $network = $hacker->network; // or connectedNetwork()
-        $running = $network ? $network->runningSoftware()->with('software')->get() : collect();
+        $network = $hacker->network;
+        $running = $network ? $network->runningSoftware : collect();
 
         $totals = $hacker->totalResources();
 
-        $ramUsedMb = (int) $running->sum->ram_usage;
+        $ramUsedMb = $running->sum(function ($rs) {
+            return (int) data_get($rs->software?->requirements, 'ram_mb', 0);
+        });
         $ramTotalMb = (int) ($totals['ram_mb'] ?? 0);
-
-        $ramUsed = Format::ram($ramUsedMb);
-        $ramTotal = Format::ram($ramTotalMb);
 
         $pct = $ramTotalMb > 0 ? (int) round(($ramUsedMb / $ramTotalMb) * 100) : 0;
         $pct = max(0, min(100, $pct));
@@ -120,52 +139,17 @@ class UserProcessController extends Controller
 
     public function UserRunningSoftware() {
         $hacker = auth()->user();
-        $network = $hacker->network; // or connectedNetwork()
-        return $network ? $network->runningSoftware()->with('software')->get() : collect();
+        $hacker->loadMissing('network','network.runningSoftware','network.runningSoftware.software');
+        $network = $hacker->network;
+        return $network ? $network->runningSoftware : collect();
     }
 
-    public function getUserCpuPowerTotal(): int {
+    public function getUserCpuPowerTotal(User $user): int {
+        $user->loadMissing('resources.hardware');
 
-        $user = auth()->user();
-        $resources = $user->resources()->with('hardware')->get();
-
-        $cpu_power = 0;
-        foreach ($resources as $resource) {
-            $hw = $resource->hardware;
-
-            if (!$hw) {
-                continue;
-            }
-
-            if ($hw->type != 'cpu') {
-                continue;
-            }
-
-            $spec = is_array($hw->specifications) ? $hw->specifications : (array) $hw->specifications;
-
-            $cpu_power += (int) data_get($spec, 'compute_power', 0);
-        }
-
-        return (int) $cpu_power;
-    }
-
-    # Deprecated
-    public function computeWorkUnits(string $action, array $metadata): int {
-        return match ($action) {
-            'install' => 20_000 + (int)($metadata['software_size'] ?? 1) * 15_000,
-
-            'log' => 5_000 + (int)($metadata['file_kb'] ?? 50) * 30,
-
-            'bruteforce' => (int)(50_000 * (2 ** max(0, ((int)($metadata['difficulty'] ?? 1)) - 1))),
-
-            'scan' => 30_000 + (int)($metadata['ports'] ?? 10) * 900 + (int)($metadata['target_security'] ?? 1) * 20_000,
-
-            'exploit_ssh' => 60_000 + (int)($metadata['service_security'] ?? 1) * 25_000,
-
-            'exploit_ftp' => 45_000 + (int)($metadata['service_security'] ?? 1) * 20_000,
-
-            default => 30_000,
-        };
+        return $user->resources
+            ->filter(fn ($r) => $r->hardware?->type === 'cpu')
+            ->sum(fn ($r) => (int) data_get((array) $r->hardware->specifications, 'compute_power', 0));
     }
 
     public function calculateProcessDuration(string $action, array $metadata): float {
@@ -187,7 +171,7 @@ class UserProcessController extends Controller
         $multiplier = match ($action) {
 
             // Bruteforce scales with a hasher version
-            'bruteforce' => isset($metadata['hasher_version']) && is_numeric($metadata['hasher_version']) ? (float) $metadata['hasher_version'] : 1.0,
+            'bruteforce' => (isset($metadata['hasher_version']) && is_numeric($metadata['hasher_version']) && (float) $metadata['hasher_version'] > 0) ? (float) $metadata['hasher_version'] : 1.0,
 
             // Scans scale with security level
             'scan' => isset($metadata['security_level']) && is_numeric($metadata['security_level']) ? 1 + ((int) $metadata['security_level'] * 0.2) : 1.0,
@@ -215,17 +199,14 @@ class UserProcessController extends Controller
 
         return DB::transaction(function () use ($user, $action, $metadata) {
 
-            $cpu_power = $this->getUserCpuPowerTotal();
+            $cpu_power = $this->getUserCpuPowerTotal($user);
 
             if ($cpu_power <= 0) {
                 abort(404, 'No CPU resources available.');
             }
 
-            $workUnits = $this->computeWorkUnits($action, $metadata);
-
             $duration = $this->calculateProcessDuration($action, $metadata);
             $duration = max(1, (int) ceil($duration - ($cpu_power / 100)));
-
 
             $now = Carbon::now();
 
@@ -234,7 +215,7 @@ class UserProcessController extends Controller
                 'resource_type' => 'cpu',
                 'action' => $action,
                 'metadata' => $metadata,
-                'work_units' => $workUnits,
+                'work_units' => 0,
                 'ideal_seconds' => $duration,
                 'remaining_ideal_seconds' => $duration,
                 'ideal_done' => 0,

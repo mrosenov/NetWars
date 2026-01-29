@@ -46,7 +46,8 @@ class NPC extends Model
     }
 
     public function totalResources(): array {
-        $servers = $this->servers()->with(['resources.hardware'])->get();
+        $this->loadMissing('servers.resources.hardware');
+        $servers = $this->servers;
 
         $totals = [
             'ram_mb' => 0,

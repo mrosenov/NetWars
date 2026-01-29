@@ -19,6 +19,8 @@ class UserNetwork extends Model
         'connected_to_network_id',
     ];
 
+    protected array $bestSoftwareCache = [];
+
     public function owner() {
         return $this->morphTo();
     }
@@ -45,10 +47,14 @@ class UserNetwork extends Model
     }
 
     public function bestRunningSoftwareByType(string $type): ?ServerSoftwares {
-        $softwareTable = (new \App\Models\ServerSoftwares)->getTable();
-        $runningTable = (new \App\Models\RunningSoftware)->getTable();
+        if (array_key_exists($type, $this->bestSoftwareCache)) {
+            return $this->bestSoftwareCache[$type];
+        }
 
-        return \App\Models\ServerSoftwares::query()
+        $softwareTable = (new ServerSoftwares)->getTable();
+        $runningTable  = (new RunningSoftware)->getTable();
+
+        return $this->bestSoftwareCache[$type] = ServerSoftwares::query()
             ->select("{$softwareTable}.*")
             ->join($runningTable, "{$runningTable}.software_id", '=', "{$softwareTable}.id")
             ->where("{$runningTable}.network_id", $this->id)

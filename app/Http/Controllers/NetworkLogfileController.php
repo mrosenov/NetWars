@@ -63,7 +63,7 @@ class NetworkLogfileController extends Controller
         $kb = (int) max(1, ceil($bytes / 1024));
 
         $workUnits = 1;
-        $cpuPower = (int) max(1, $userProcess->getUserCpuPowerTotal($user->id));
+        $cpuPower = (int) max(1, $userProcess->getUserCpuPowerTotal($user));
 
         $idealSeconds = 3;
 

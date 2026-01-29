@@ -204,9 +204,9 @@ class User extends Authenticatable implements MustVerifyEmail
         return max(0, $this->totalStorageMb() - $this->totalUsedStorageMb());
     }
 
-    public function totalResources(): array
-    {
-        $servers = $this->servers()->with(['resources.hardware'])->get();
+    public function totalResources(): array {
+        $this->loadMissing('servers.resources.hardware','externalStorage.hardware');
+        $servers = $this->servers;
 
         $totals = [
             'clock_mhz' => 0,
@@ -224,8 +224,8 @@ class User extends Authenticatable implements MustVerifyEmail
         $totals['down_mbps'] += (float) ($net['down_mbps'] ?? 0);
         $totals['up_mbps'] += (float) ($net['up_mbps'] ?? 0);
 
-        $ExtraCapacityGb = (float) ($this->externalStorage->hardware->specifications['extra_capacity_gb'] ?? 0);
-        $totals['external_mb'] += (int) round($ExtraCapacityGb * 1000);
+        $extraCapacityGb = (float) data_get($this->externalStorage?->hardware?->specifications, 'extra_capacity_gb', 0);
+        $totals['external_mb'] += (int) round($extraCapacityGb * 1000);
 
         foreach ($servers as $server) {
             $t = $server->resource_totals;

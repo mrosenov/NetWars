@@ -33,7 +33,9 @@ class Servers extends Model
 
     public function getResourceTotalsAttribute(): array
     {
-        $resources = $this->relationLoaded('resources') ? $this->resources : $this->resources()->with('hardware')->get();
+        $this->loadMissing('resources.hardware');
+
+        $resources = $this->resources;
 
         $totals = [
             'clock_mhz' => 0,
@@ -44,25 +46,26 @@ class Servers extends Model
             'power_supply' => 0,
         ];
 
-
         foreach ($resources as $resource) {
-            $hw = $resource?->hardware;
+            $hw = $resource->hardware;
             if (!$hw) continue;
             if ($hw->type === 'motherboard') continue;
 
             $spec = $hw->specifications ?? [];
 
-            $totals['clock_mhz'] += (float) ($spec['clock_mhz'] ?? 0);
             if ($hw->type === 'ram') {
-                $totals['ram_mb'] += (int) ($spec['capacity_mb'] ?? 0);
+                $totals['ram_mb'] += (int) data_get($spec, 'capacity_mb', 0);
             }
 
-            // Disk: capacity_gb -> MB
             if ($hw->type === 'disk') {
-                $totals['storage_mb'] += (float)$spec['capacity_mb'] ?? 0;
+                $totals['storage_mb'] += (float) ($spec['capacity_mb'] ?? 0);
             }
 
-            $totals['cpu_compute'] += (int) ($spec['compute_power'] ?? 0);
+            if ($hw->type === 'cpu') {
+                $totals['clock_mhz'] += (float) ($spec['clock_mhz'] ?? 0);
+                $totals['cpu_compute'] += (int) ($spec['compute_power'] ?? 0);
+            }
+
             $totals['stability'] = max($totals['stability'], (int) ($spec['stability'] ?? 0));
             $totals['power_supply'] = max($totals['power_supply'], (int) ($spec['max_power_w'] ?? 0));
         }
